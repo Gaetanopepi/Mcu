@@ -3,10 +3,12 @@ name: Deploy to GitHub Pages
 # Il sito è statico e vive nella radice del repository: non serve nessuna build,
 # si pubblica il contenuto così com'è. Il deploy parte dal ramo di lavoro, che è
 # dove sta il sito.
+# L'ambiente github-pages accetta deploy solo dal ramo predefinito, quindi il
+# sito vive su main: ogni push lì aggiorna il sito pubblicato.
 on:
   push:
     branches:
-      - claude/marvel-mcu-checklist-site-udaes3
+      - main
   workflow_dispatch: {}
 
 permissions:
