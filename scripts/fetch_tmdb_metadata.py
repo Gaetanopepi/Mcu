@@ -45,6 +45,13 @@ REQUEST_DELAY = float(os.environ.get("TMDB_REQUEST_DELAY", "0.3"))
 TV_FORMATS = {"TV", "TV/Special"}
 ALLOW_REGRESSION = os.environ.get("TMDB_ALLOW_REGRESSION", "").strip() not in ("", "0", "false")
 
+# Il tracker usa le abbreviazioni con cui i fan chiamano davvero le cose;
+# TMDB conosce solo il titolo per esteso. Aggiungi qui le voci che restano
+# irrisolte dopo un run — è più semplice che rinominarle nel tracker.
+ALIASES = {
+    "GOTG Holiday Special": "The Guardians of the Galaxy Holiday Special",
+}
+
 
 def keep_or(previous, item_id, fresh):
     """Prefer a previously resolved entry over a fresh failure.
@@ -199,29 +206,49 @@ def build_entry(best, media_type, season_number, api_key):
     return entry
 
 
-def resolve_item(item, api_key):
-    fmt = item["format"]
-    title = item["title"]
+def search_tv(query, season_number, api_key):
+    results = api_get("/search/tv", {"query": query}, api_key).get("results") or []
+    if not results:
+        return None
+    return build_entry(results[0], "tv", season_number or 1, api_key)
 
-    if fmt in TV_FORMATS:
-        base_title, season_number = parse_season_suffix(title) or (title, 1)
-        search = api_get("/search/tv", {"query": base_title}, api_key)
-        results = search.get("results") or []
-        if not results:
-            return {"ok": False, "code": "NOT_FOUND"}
-        return build_entry(results[0], "tv", season_number, api_key)
 
-    year = parse_year_hint(title)
-    query = clean_title(title)
-    search = api_get("/search/movie", {"query": query, "year": year}, api_key)
-    results = search.get("results") or []
+def search_movie(query, year, api_key):
+    results = api_get("/search/movie", {"query": query, "year": year}, api_key).get("results") or []
     best = results[0] if results else None
     if not best:
         multi = api_get("/search/multi", {"query": query}, api_key)
         best = next((r for r in (multi.get("results") or []) if r.get("media_type") == "movie"), None)
     if not best:
-        return {"ok": False, "code": "NOT_FOUND"}
+        return None
     return build_entry(best, "movie", None, api_key)
+
+
+def resolve_item(item, api_key):
+    """Find a tracker title on TMDB, trying both media types before giving up.
+
+    The tracker's "format" column says how a fan watches something, which is
+    not how TMDB files it. The Marvel One-Shots and the Team Thor shorts are
+    listed here as TV/Special because they shipped on disc and on Disney+,
+    but TMDB holds them as movies — searching only /search/tv guarantees a
+    miss. So the format picks which endpoint to try *first*, not the only one.
+    """
+    title = ALIASES.get(item["title"], item["title"])
+    # Il suffisso di stagione va tolto per qualunque formato: "The Daily Bugle S1"
+    # è catalogato come "Special" nel tracker ma resta una stagione di una serie.
+    base_title, season_number = parse_season_suffix(title) or (title, None)
+    query = clean_title(base_title)
+    year = parse_year_hint(title)
+
+    prefer_tv = item["format"] in TV_FORMATS or season_number is not None
+    order = ("tv", "movie") if prefer_tv else ("movie", "tv")
+
+    for media_type in order:
+        entry = (search_tv(query, season_number, api_key) if media_type == "tv"
+                 else search_movie(query, year, api_key))
+        if entry:
+            return entry
+    return {"ok": False, "code": "NOT_FOUND"}
 
 
 def fetch_episodes(tmdb_id, season_number, api_key):
