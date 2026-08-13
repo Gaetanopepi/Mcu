@@ -21,15 +21,24 @@ interattivo con progresso persistente nel browser.
 - 📺 **Tracciamento per episodio** per tutte le serie — sinossi, immagine e durata reale di ogni
   episodio (via TMDB), con stato "parzialmente vista" e ricalcolo automatico delle ore totali sui
   runtime effettivi invece delle stime del foglio originale
+- 🎬 **Hero cinematico** con il backdrop del prossimo titolo consigliato, in stile streaming service
+- ⭐ **Rating TMDB** e scheda dettaglio per ogni titolo (locandina, sinossi completa, voto)
+- 📺 **"Dove guardarlo"** — disponibilità streaming (Disney+, Netflix, ecc.) per regione IT via TMDB
+- 🔔 Notifiche in-app e modali di conferma al posto degli `alert()`/`confirm()` nativi del browser
+- 📱 Installabile come app (PWA) con funzionamento offline per la sola checklist
 
 ## Struttura
 
 ```
-index.html          Markup della pagina
-assets/style.css     Tema comic dark (font Bangers/Barlow, pannelli in stile fumetto)
-assets/data.js       Dataset dei 156 titoli (generato dal tracker Excel originale)
-assets/tmdb.js       Client TMDB: auth, ricerca titoli/episodi, cache locale con TTL
-assets/app.js        Logica: stato, filtri, rendering, sync TMDB, localStorage
+index.html            Markup della pagina
+assets/style.css       Tema comic dark (font Bangers/Barlow, pannelli in stile fumetto)
+assets/data.js         Dataset dei 156 titoli (generato dal tracker Excel originale)
+assets/tmdb.js         Client TMDB: auth, ricerca titoli/episodi/provider, cache locale con TTL
+assets/ui.js           Toast e modale di conferma riutilizzabili
+assets/app.js          Logica: stato, filtri, rendering, sync TMDB, localStorage
+assets/icons/          Icone PWA (192/512/maskable/apple-touch)
+manifest.json          Web app manifest per l'installazione
+sw.js                  Service worker: cache offline della sola shell dell'app
 ```
 
 ## Collegare il database live (TMDB)

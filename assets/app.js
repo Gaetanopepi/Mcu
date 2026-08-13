@@ -208,7 +208,9 @@
     MILESTONES.forEach(m=>{ if(pct >= m.min) current = m; });
     $("#milestone-badge").textContent = current.label;
 
-    renderNextUp();
+    const nextItem = computeNextUpCandidate();
+    renderNextUp(nextItem);
+    renderHero(nextItem);
     renderAchievements(pct);
 
     if(pct >= 100 && !state._snapShown){
@@ -217,7 +219,7 @@
     }
   }
 
-  function renderNextUp(){
+  function computeNextUpCandidate(){
     const priorityRank = { Essential:0, Recommended:1, Optional:2, Bonus:3 };
     const candidates = TRACKER_DATA
       .filter(i => !state.watched[i.id])
@@ -226,23 +228,54 @@
         if(pr !== 0) return pr;
         return a.id - b.id;
       });
+    return candidates[0] || null;
+  }
+
+  function renderNextUp(next){
     const wrap = $("#next-up");
-    if(candidates.length === 0){
+    if(!next){
       wrap.innerHTML = '<div class="next-up-empty">🎉 Nessun titolo rimasto. Sei ufficialmente aggiornato con l\'intero multiverso.</div>';
       return;
     }
-    const next = candidates[0];
     const meta = CATEGORY_META[next.category] || { icon:"🎬" };
+    const breakdown = itemHourBreakdown(next);
     wrap.innerHTML = `
       <div class="next-up-card">
         <span class="next-up-tag">PROSSIMO SU:</span>
         <span class="next-up-title">${meta.icon} ${escapeHtml(next.title)}</span>
-        <span class="next-up-meta">${escapeHtml(next.category)} · ${FORMAT_ICON[next.format]||""} ${next.format} · ${fmtNum(next.hours,1)}h · ${PRIORITY_LABEL[next.priority]}</span>
+        <span class="next-up-meta">${escapeHtml(next.category)} · ${FORMAT_ICON[next.format]||""} ${next.format} · ${fmtNum(breakdown.total,1)}h · ${PRIORITY_LABEL[next.priority]}</span>
         <button class="btn btn-toggle" data-mark-next="${next.id}">✓ Segna come visto</button>
       </div>`;
     wrap.querySelector("[data-mark-next]").addEventListener("click", ()=>{
       toggleWatched(next);
     });
+  }
+
+  function renderHero(next){
+    const section = $("#hero-banner");
+    if(!next){ section.hidden = true; return; }
+    const r = resolved[next.id];
+    if(!TMDB.getApiKey() || !r || !r.ok || !r.backdropPath){
+      section.hidden = true;
+      return;
+    }
+    section.hidden = false;
+    const bg = $("#hero-banner-bg");
+    bg.style.backgroundImage = `url(${TMDB.backdropUrl(r.backdropPath, "w1280")})`;
+    bg.classList.add("loaded");
+    $("#hero-title").textContent = next.title;
+    const dateLabel = r.releaseDate || r.firstAirDate;
+    const year = dateLabel ? dateLabel.slice(0,4) : "";
+    const breakdown = itemHourBreakdown(next);
+    $("#hero-meta").innerHTML = `
+      ${r.voteAverage ? `<span class="detail-rating">⭐ ${r.voteAverage.toFixed(1)}</span>` : ""}
+      ${year ? `<span>${year}</span>` : ""}
+      <span>${FORMAT_ICON[next.format]||""} ${next.format}</span>
+      <span>${fmtNum(breakdown.total,1)}h</span>
+    `;
+    $("#hero-overview").textContent = r.overview || "";
+    $("#hero-mark-watched").onclick = ()=> toggleWatched(next);
+    $("#hero-more-info").onclick = ()=> openDetailModal(next);
   }
 
   function renderAchievements(pct){
@@ -346,20 +379,25 @@
 
     const poster = renderPosterInner(item);
     const synopsisHtml = renderSynopsis(item);
+    const hasDetail = TMDB.getApiKey() && r && r.ok;
 
     const fracBadge = (breakdown.granular)
       ? `<span class="item-progress-frac">${breakdown.watchedCount}/${breakdown.totalCount} ep.</span>`
+      : "";
+    const ratingBadge = (r && r.ok && r.voteAverage)
+      ? `<span class="item-rating">⭐ ${r.voteAverage.toFixed(1)}</span>`
       : "";
 
     const row = document.createElement("div");
     row.className = rowClass;
     row.innerHTML = `
       <button class="item-check" aria-label="Segna come visto">${watched ? "✓" : (breakdown.granular && breakdown.watchedCount>0 ? "–" : "")}</button>
-      <div class="item-poster ${poster.cls}">${poster.html}</div>
+      <div class="item-poster ${poster.cls} ${hasDetail ? "clickable" : ""}">${poster.html}</div>
       <div class="item-content">
         <div class="item-title-row">
           <span class="item-order">#${item.id}</span>
-          <span class="item-title">${escapeHtml(item.title)}</span>
+          <span class="item-title ${hasDetail ? "item-title-clickable" : ""}">${escapeHtml(item.title)}</span>
+          ${ratingBadge}
           ${canExpand ? `<button class="item-expand-btn" aria-expanded="${expanded}">${expanded ? "▴ episodi" : "▾ episodi"}</button>` : ""}
           ${fracBadge}
         </div>
@@ -372,6 +410,10 @@
       <span class="item-hours">${fmtNum(breakdown.total,1)}h</span>
     `;
     row.querySelector(".item-check").addEventListener("click", ()=>toggleWatched(item));
+    if(hasDetail){
+      row.querySelector(".item-poster").addEventListener("click", ()=>openDetailModal(item));
+      row.querySelector(".item-title").addEventListener("click", ()=>openDetailModal(item));
+    }
     const expandBtn = row.querySelector(".item-expand-btn");
     if(expandBtn){
       expandBtn.addEventListener("click", ()=>{
@@ -463,6 +505,111 @@
     renderList();
   }
 
+  // ---------------- title detail modal ----------------
+  let detailBackdropEl = null;
+  function ensureDetailModal(){
+    if(detailBackdropEl) return detailBackdropEl;
+    detailBackdropEl = document.createElement("div");
+    detailBackdropEl.className = "detail-backdrop";
+    detailBackdropEl.hidden = true;
+    detailBackdropEl.innerHTML = `
+      <div class="detail-box" role="dialog" aria-modal="true" aria-labelledby="detail-title">
+        <div class="detail-hero" id="detail-hero"></div>
+        <div class="detail-body">
+          <div class="detail-poster" id="detail-poster"></div>
+          <div class="detail-main">
+            <h3 class="detail-title" id="detail-title"></h3>
+            <div class="detail-meta-row" id="detail-meta-row"></div>
+            <p class="detail-overview" id="detail-overview"></p>
+            <div class="detail-providers">
+              <h4>Dove guardarlo</h4>
+              <div id="detail-providers-body"></div>
+            </div>
+            <div class="detail-actions" id="detail-actions"></div>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(detailBackdropEl);
+    detailBackdropEl.addEventListener("click", (e)=>{ if(e.target === detailBackdropEl) closeDetailModal(); });
+    document.addEventListener("keydown", (e)=>{ if(e.key === "Escape" && !detailBackdropEl.hidden) closeDetailModal(); });
+    return detailBackdropEl;
+  }
+
+  function closeDetailModal(){
+    if(detailBackdropEl){
+      detailBackdropEl.hidden = true;
+      document.body.style.overflow = "";
+    }
+  }
+
+  async function openDetailModal(item){
+    const modal = ensureDetailModal();
+    const r = resolved[item.id];
+    const meta = CATEGORY_META[item.category] || { icon:"🎬" };
+    modal.dataset.itemId = String(item.id);
+
+    const heroEl = modal.querySelector("#detail-hero");
+    const posterEl = modal.querySelector("#detail-poster");
+    const titleEl = modal.querySelector("#detail-title");
+    const metaRowEl = modal.querySelector("#detail-meta-row");
+    const overviewEl = modal.querySelector("#detail-overview");
+    const providersBody = modal.querySelector("#detail-providers-body");
+    const actionsEl = modal.querySelector("#detail-actions");
+
+    const bgUrl = (r && r.ok && r.backdropPath) ? TMDB.backdropUrl(r.backdropPath, "w780") : null;
+    heroEl.style.backgroundImage = bgUrl ? `url(${bgUrl})` : "none";
+    heroEl.innerHTML = `<button class="detail-close" aria-label="Chiudi">✕</button>` + (bgUrl ? "" : `<div class="detail-hero-fallback">${meta.icon}</div>`);
+    heroEl.querySelector(".detail-close").addEventListener("click", closeDetailModal);
+
+    const posterImgUrl = (r && r.ok && r.posterPath) ? TMDB.posterUrl(r.posterPath, "w342") : null;
+    posterEl.innerHTML = posterImgUrl ? `<img src="${posterImgUrl}" alt="">` : `<span class="poster-fallback">${meta.icon}</span>`;
+
+    titleEl.textContent = item.title;
+
+    const breakdown = itemHourBreakdown(item);
+    const dateLabel = (r && r.ok) ? (r.releaseDate || r.firstAirDate) : null;
+    metaRowEl.innerHTML = `
+      ${(r && r.ok && r.voteAverage) ? `<span class="detail-rating">⭐ ${r.voteAverage.toFixed(1)}</span>` : ""}
+      ${dateLabel ? `<span>${dateLabel.slice(0,4)}</span>` : ""}
+      <span>${FORMAT_ICON[item.format]||""} ${item.format}</span>
+      <span class="badge badge-priority-${item.priority}">${PRIORITY_LABEL[item.priority]}</span>
+      <span>${fmtNum(breakdown.total,1)}h</span>
+    `;
+
+    overviewEl.textContent = (r && r.ok && r.overview) ? r.overview : "Sinossi non disponibile.";
+
+    actionsEl.innerHTML = `<button class="btn btn-toggle" id="detail-toggle-watched">${state.watched[item.id] ? "✕ Segna da vedere" : "✓ Segna come visto"}</button>`;
+    actionsEl.querySelector("#detail-toggle-watched").addEventListener("click", ()=>{
+      toggleWatched(item);
+      closeDetailModal();
+    });
+
+    modal.hidden = false;
+    document.body.style.overflow = "hidden";
+
+    if(!TMDB.getApiKey() || !r || !r.ok){
+      providersBody.innerHTML = `<p class="detail-providers-empty">Connettiti a TMDB per vedere dove guardarlo.</p>`;
+      return;
+    }
+
+    providersBody.innerHTML = `<p class="detail-providers-loading">Caricamento…</p>`;
+    try{
+      const data = await TMDB.fetchWatchProviders(r.tmdbId, r.mediaType);
+      if(modal.dataset.itemId !== String(item.id)) return; // modal moved on to another title
+      if(data.ok && data.providers.length){
+        providersBody.innerHTML = `<div class="provider-logos">${data.providers.map(p=>
+          `<div class="provider-logo" title="${escapeHtml(p.name)}"><img src="${TMDB.logoUrl(p.logoPath,'w92')}" alt="${escapeHtml(p.name)}" loading="lazy"></div>`
+        ).join("")}</div>`;
+      } else {
+        providersBody.innerHTML = `<p class="detail-providers-empty">Non disponibile in streaming al momento (regione IT).</p>`;
+      }
+    }catch(e){
+      if(modal.dataset.itemId !== String(item.id)) return;
+      providersBody.innerHTML = `<p class="detail-providers-empty">Impossibile caricare la disponibilità streaming.</p>`;
+    }
+  }
+
   function renderList(){
     const filtered = TRACKER_DATA.filter(matchesFilters);
     let visibleCount = 0;
@@ -527,7 +674,11 @@
     const connected = !!TMDB.getApiKey();
     const dot = $("#tmdb-status-dot");
     const text = $("#tmdb-status-text");
-    $("#tmdb-connect-form").hidden = connected;
+    const connectForm = $("#tmdb-connect-form");
+    if(connected && !connectForm.hidden && connectForm.contains(document.activeElement)){
+      document.activeElement.blur();
+    }
+    connectForm.hidden = connected;
     $("#tmdb-sync-status").hidden = !connected;
 
     dot.classList.remove("connected","syncing","error");
@@ -592,9 +743,13 @@
         resolved[item.id] = { ok:false, code: e.code || "ERROR" };
       }
       syncProgress.done++;
-      if(syncProgress.done % 6 === 0 || syncProgress.done === syncProgress.total){
+      // Cheap, frequent: progress bar + stats. Expensive full-list rebuild: rarer,
+      // to avoid repeated layout shifts fighting the browser's scroll anchoring.
+      if(syncProgress.done % 4 === 0 || syncProgress.done === syncProgress.total){
         updateTmdbUI();
         renderDashboard();
+      }
+      if(syncProgress.done % 24 === 0 || syncProgress.done === syncProgress.total){
         renderList();
       }
     }
@@ -620,6 +775,7 @@
       const input = $("#tmdb-key-input");
       const key = input.value.trim();
       if(!key){ showConnectError("Incolla prima la tua API key TMDB."); return; }
+      input.blur();
       hideConnectError();
       const btn = $("#tmdb-connect-btn");
       const originalLabel = btn.textContent;
@@ -636,6 +792,7 @@
       TMDB.setApiKey(key);
       input.value = "";
       updateTmdbUI();
+      UI.toast("Connesso a TMDB! Sincronizzazione in corso…", "success");
       syncAll(false);
     });
 
@@ -645,8 +802,14 @@
 
     $("#tmdb-refresh-btn").addEventListener("click", ()=> syncAll(true));
 
-    $("#tmdb-disconnect-btn").addEventListener("click", ()=>{
-      if(!confirm("Disconnettere TMDB? Locandine, sinossi ed episodi non saranno più mostrati (il tuo progresso di visione resta salvato).")) return;
+    $("#tmdb-disconnect-btn").addEventListener("click", async ()=>{
+      const ok = await UI.confirmDialog({
+        title: "Disconnettere TMDB?",
+        message: "Locandine, sinossi, rating ed episodi non saranno più mostrati. Il tuo progresso di visione resta salvato.",
+        confirmLabel: "Disconnetti",
+        cancelLabel: "Annulla",
+      });
+      if(!ok) return;
       TMDB.clearApiKey();
       TMDB.clearCache();
       resetTmdbRuntimeState();
@@ -655,6 +818,7 @@
       updateTmdbUI();
       renderDashboard();
       renderList();
+      UI.toast("Disconnesso da TMDB.", "info");
     });
   }
 
@@ -743,12 +907,19 @@
       render();
     });
 
-    $("#btn-reset").addEventListener("click", ()=>{
-      if(confirm("Sicuro di voler azzerare tutto il progresso? Non è (facilmente) reversibile, un po' come lo Snap.")){
+    $("#btn-reset").addEventListener("click", async ()=>{
+      const ok = await UI.confirmDialog({
+        title: "Azzerare tutto il progresso?",
+        message: "Non è (facilmente) reversibile, un po' come lo Snap. Il collegamento a TMDB resta attivo.",
+        confirmLabel: "Sì, azzera",
+        cancelLabel: "Annulla",
+      });
+      if(ok){
         state = { watched:{}, episodes:{}, collapsed:{}, hoursPerDay: state.hoursPerDay, tmdbLastSync: state.tmdbLastSync };
         saveState();
         renderDashboard();
         renderList();
+        UI.toast("Progresso azzerato.", "success");
       }
     });
 
@@ -762,6 +933,7 @@
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
+      UI.toast("Backup scaricato.", "success");
     });
 
     $("#file-import").addEventListener("change", (e)=>{
@@ -778,9 +950,9 @@
           saveState();
           renderDashboard();
           renderList();
-          alert("Progresso importato con successo!");
+          UI.toast("Progresso importato con successo!", "success");
         }catch(err){
-          alert("File non valido. Assicurati di importare un export generato da questo tracker.");
+          UI.toast("File non valido. Assicurati di importare un export generato da questo tracker.", "error");
         }
         e.target.value = "";
       };
@@ -800,5 +972,11 @@
   renderDashboard();
   renderList();
   if(TMDB.getApiKey()) syncAll(false);
+
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", ()=>{
+      navigator.serviceWorker.register("sw.js").catch(()=>{ /* offline caching is a nice-to-have */ });
+    });
+  }
 
 })();
