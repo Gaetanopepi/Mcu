@@ -16,15 +16,29 @@ interattivo con progresso persistente nel browser.
 - 🔍 Ricerca, filtri per priorità/formato/stato, ordinamento, toggle "Solo Canone MCU"
 - 💾 Progresso salvato in `localStorage`, con esportazione/importazione JSON per backup o cambio dispositivo
 - 🎉 Overlay speciale "Snap" al completamento del 100%
+- 🗄️ **Database live via TMDB** — locandine, sinossi e dati sempre aggiornati, collegando la propria
+  API key personale gratuita (mai committata: resta solo nel browser dell'utente)
+- 📺 **Tracciamento per episodio** per tutte le serie — sinossi, immagine e durata reale di ogni
+  episodio (via TMDB), con stato "parzialmente vista" e ricalcolo automatico delle ore totali sui
+  runtime effettivi invece delle stime del foglio originale
 
 ## Struttura
 
 ```
-index.html        Markup della pagina
-assets/style.css   Tema comic dark (font Bangers/Barlow, pannelli in stile fumetto)
-assets/data.js     Dataset dei 156 titoli (generato dal tracker Excel originale)
-assets/app.js      Logica: stato, filtri, rendering, localStorage
+index.html          Markup della pagina
+assets/style.css     Tema comic dark (font Bangers/Barlow, pannelli in stile fumetto)
+assets/data.js       Dataset dei 156 titoli (generato dal tracker Excel originale)
+assets/tmdb.js       Client TMDB: auth, ricerca titoli/episodi, cache locale con TTL
+assets/app.js        Logica: stato, filtri, rendering, sync TMDB, localStorage
 ```
+
+## Collegare il database live (TMDB)
+
+Il sito funziona perfettamente anche senza, ma per sbloccare locandine, sinossi e tracciamento
+per episodio serve una API key gratuita di [The Movie Database](https://www.themoviedb.org/settings/api)
+(2 minuti, nessuna carta di credito). Va incollata nel pannello "Database Live" della pagina:
+resta salvata solo nel `localStorage` del browser, non viene mai scritta nel repository né
+inviata altrove se non a `api.themoviedb.org`.
 
 ## Sviluppo locale
 

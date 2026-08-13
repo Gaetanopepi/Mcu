@@ -96,6 +96,44 @@
     </div>
   </section>
 
+  <!-- TMDB LIVE DATABASE -->
+  <section class="tmdb-panel panel" id="tmdb-panel">
+    <div class="tmdb-header">
+      <h2 class="panel-title">🗄️ Database Live — TMDB</h2>
+      <span class="tmdb-status" id="tmdb-status">
+        <span class="status-dot" id="tmdb-status-dot"></span>
+        <span id="tmdb-status-text">Non connesso</span>
+      </span>
+    </div>
+
+    <div id="tmdb-connect-form" class="tmdb-connect-form">
+      <p class="tmdb-blurb">
+        Collega il tracker a <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">The Movie Database</a>
+        per sbloccare locandine, sinossi e tracciamento per episodio — dati sempre aggiornati.
+        Serve una API key gratuita personale (2 minuti, nessuna carta richiesta): resta salvata solo in questo browser,
+        <strong>mai</strong> nel codice del sito.
+      </p>
+      <div class="tmdb-connect-row">
+        <input type="text" id="tmdb-key-input" placeholder="Incolla qui la tua API key TMDB (v3 auth)" class="tmdb-key-input" autocomplete="off" spellcheck="false">
+        <button id="tmdb-connect-btn" class="btn btn-toggle">🔗 Connetti</button>
+      </div>
+      <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer" class="tmdb-get-key-link">Non hai una key? Ottienine una gratis su themoviedb.org →</a>
+      <p class="tmdb-error" id="tmdb-connect-error" hidden></p>
+    </div>
+
+    <div id="tmdb-sync-status" class="tmdb-sync-status" hidden>
+      <div class="tmdb-sync-row">
+        <div class="tmdb-sync-bar"><div class="tmdb-sync-fill" id="tmdb-sync-fill"></div></div>
+        <span id="tmdb-sync-count" class="tmdb-sync-count">0/156</span>
+      </div>
+      <div class="tmdb-sync-actions">
+        <span id="tmdb-last-sync" class="tmdb-last-sync"></span>
+        <button id="tmdb-refresh-btn" class="btn btn-ghost">↻ Aggiorna ora</button>
+        <button id="tmdb-disconnect-btn" class="btn btn-ghost">⏻ Disconnetti</button>
+      </div>
+    </div>
+  </section>
+
   <!-- ACHIEVEMENTS -->
   <section class="achievements panel" id="achievements-panel">
     <h2 class="panel-title">🏆 Trofei del Multiverso</h2>
@@ -159,8 +197,9 @@
     </ul>
     <p class="methodology-note">
       <strong>Nota metodologica:</strong> il tracker esclude <em>Avengers: Doomsday</em> perché non ancora uscito al 13/08/2026.
-      Runtime arrotondati in decimi d'ora; il perimetro "Ultimate" include anche i franchise legacy e del multiverso pertinenti
-      (Fox X-Men, Sony, Raimiverse, Webbverse, Spider-Verse animato, TV extended universe).
+      Runtime di base arrotondati in decimi d'ora; il perimetro "Ultimate" include anche i franchise legacy e del multiverso
+      pertinenti (Fox X-Men, Sony, Raimiverse, Webbverse, Spider-Verse animato, TV extended universe). Una volta connesso a TMDB,
+      le ore delle serie vengono ricalcolate episodio per episodio sui runtime reali del database.
     </p>
   </section>
 
@@ -181,6 +220,7 @@
 </div>
 
 <script src="assets/data.js"></script>
+<script src="assets/tmdb.js"></script>
 <script src="assets/app.js"></script>
 </body>
 </html>
