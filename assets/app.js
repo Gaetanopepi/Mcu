@@ -291,7 +291,25 @@
     section.hidden = false;
 
     const bg = $("#hero-banner-bg");
-    bg.style.backgroundImage = `url("${hasBackdrop ? TMDB.backdropUrl(r.backdropPath, "w1280") : PosterArt.heroDataUri(next)}")`;
+    const fallbackArt = (typeof PosterArt !== "undefined") ? PosterArt.heroDataUri(next) : null;
+    if(hasBackdrop){
+      // Un background-image non ha onerror: si prova l'immagine per conto suo
+      // e la si adotta solo se arriva davvero, così un backdrop non più
+      // raggiungibile lascia l'artwork del progetto invece di uno sfondo vuoto.
+      const url = TMDB.backdropUrl(r.backdropPath, "w1280");
+      if(fallbackArt) bg.style.backgroundImage = `url("${fallbackArt}")`;
+      // L'hero si ridisegna a ogni titolo segnato: senza questo controllo una
+      // prova partita prima potrebbe arrivare dopo e rimettere lo sfondo del
+      // titolo precedente.
+      bg.dataset.heroFor = String(next.id);
+      const probe = new Image();
+      probe.onload = () => {
+        if(bg.dataset.heroFor === String(next.id)) bg.style.backgroundImage = `url("${url}")`;
+      };
+      probe.src = url;
+    } else {
+      bg.style.backgroundImage = `url("${fallbackArt}")`;
+    }
     bg.classList.add("loaded");
 
     $("#hero-title").textContent = displayTitle(next);
@@ -442,13 +460,30 @@
     return `${r.titleIt} — Stagione ${season}`;
   }
 
+  /**
+   * Le locandine ufficiali sono percorsi congelati su image.tmdb.org. Se TMDB
+   * ne sposta una, o se la pagina gira dove le richieste esterne sono bloccate,
+   * il segnaposto del progetto è già in memoria: meglio mostrarlo che lasciare
+   * l'icona di immagine rotta.
+   */
+  window.__posterFallback = function(img, id){
+    img.onerror = null;
+    const item = TRACKER_DATA.find(i => i.id === id);
+    if(item && typeof PosterArt !== "undefined"){
+      img.src = PosterArt.posterDataUri(item);
+      img.classList.add("provisional");
+    } else {
+      img.remove();
+    }
+  };
+
   function renderPosterInner(item){
     const src = posterSrc(item);
     if(!src) return `<span class="poster-empty" aria-hidden="true"></span>`;
     // lazy solo per le immagini di rete: l'artwork provvisorio è un data URI,
     // non c'è nessuna richiesta da rimandare e differirlo lo fa comparire a scatti
     return hasOfficialPoster(item)
-      ? `<img src="${src}" alt="" loading="lazy">`
+      ? `<img src="${src}" alt="" loading="lazy" onerror="__posterFallback(this, ${item.id})">`
       : `<img src="${src}" alt="" class="provisional" decoding="async">`;
   }
 
@@ -792,10 +827,9 @@
 
     const row = document.createElement("div");
     row.className = "item-row series-row" + (allWatched ? " watched" : (watchedCount ? " partial" : ""));
-    const poster = posterSrc(first);
     row.innerHTML = `
       <button class="item-check" aria-label="Segna tutte le stagioni">${allWatched ? "✓" : (watchedCount ? "–" : "")}</button>
-      <div class="item-poster">${poster ? `<img src="${poster}" alt=""${hasOfficialPoster(first) ? ' loading="lazy"' : ' class="provisional" decoding="async"'}>` : `<span class="poster-empty"></span>`}</div>
+      <div class="item-poster">${renderPosterInner(first)}</div>
       <div class="item-content">
         <div class="item-title-row">
           <span class="item-title item-title-clickable">${escapeHtml(titleIt)}</span>

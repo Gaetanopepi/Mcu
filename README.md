@@ -25,8 +25,9 @@ interattivo con progresso persistente nel browser.
 - 🎉 Overlay speciale "Snap" al completamento del 100%
 - 🇮🇹 **Tutto in italiano** — interfaccia, e dal database anche titoli, sinossi e locandine
   italiane (TMDB `language=it-IT`, locandine con `include_image_language=it,null,en`)
-- 🖼️ **Nessuna scheda vuota alla prima apertura** — locandine e sinossi provvisorie del progetto
-  finché TMDB non è sincronizzato, dichiarate come tali e sostituite titolo per titolo
+- 🖼️ **Nessuna scheda vuota, mai** — locandine e sinossi provvisorie del progetto finché TMDB non
+  è sincronizzato, dichiarate come tali e sostituite titolo per titolo; se una locandina ufficiale
+  non è raggiungibile il segnaposto rientra in campo al posto dell'immagine rotta
 - 🔑 **Chiave TMDB opzionale in pagina** — chi ne ha una può incollarla e caricare i dati ufficiali
   al volo dal proprio browser, senza toccare il repository (la chiave resta solo lì)
 - 🛡️ **Identità visiva propria** — logo/emblema del progetto (scudo comic con la spunta del tracker)
