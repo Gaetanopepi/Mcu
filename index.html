@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marvel Ultimate Fan Tracker 2026</title>
+<meta name="description" content="Checklist interattiva per esplorare l'intero multiverso Marvel: MCU, Defenders, Fox X-Men, Sony, Legacy e molto altro.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧤</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Barlow+Condensed:wght@400;500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<div class="halftone-overlay" aria-hidden="true"></div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-icon">🧤</span>
+      <div class="brand-text">
+        <h1>MARVEL <span>ULTIMATE</span> FAN TRACKER</h1>
+        <p class="brand-sub">Il multiverso, una checklist alla volta — edizione 2026</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="btn-export" class="btn btn-ghost" title="Esporta il tuo progresso in un file">⬇ Esporta</button>
+      <label class="btn btn-ghost" title="Importa un progresso salvato">
+        ⬆ Importa
+        <input type="file" id="file-import" accept="application/json" hidden>
+      </label>
+      <button id="btn-reset" class="btn btn-danger" title="Azzera tutto il progresso">↺ Reset</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO / DASHBOARD -->
+  <section class="dashboard panel">
+    <div class="dashboard-grid">
+
+      <div class="gauge-card">
+        <div class="gauge-wrap">
+          <svg viewBox="0 0 140 140" class="gauge-svg">
+            <circle cx="70" cy="70" r="60" class="gauge-track"/>
+            <circle cx="70" cy="70" r="60" class="gauge-fill" id="gauge-fill"/>
+          </svg>
+          <div class="gauge-label">
+            <span id="gauge-pct">0%</span>
+            <small>completato</small>
+          </div>
+        </div>
+        <div class="milestone-badge" id="milestone-badge">🔰 Recluta S.H.I.E.L.D.</div>
+      </div>
+
+      <div class="stat-cards">
+        <div class="stat-card">
+          <span class="stat-value" id="stat-total-titles">0</span>
+          <span class="stat-label">Titoli nel tracker</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="stat-watched-titles">0</span>
+          <span class="stat-label">Titoli visti</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="stat-total-hours">0</span>
+          <span class="stat-label">Ore totali</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="stat-watched-hours">0</span>
+          <span class="stat-label">Ore viste</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="stat-remaining-hours">0</span>
+          <span class="stat-label">Ore rimanenti</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-value" id="stat-days-remaining">0</span>
+          <span class="stat-label">Giorni rimanenti</span>
+        </div>
+      </div>
+
+      <div class="pace-card">
+        <h3>⏱ Ritmo di visione</h3>
+        <label for="hours-per-day">Ore al giorno: <b id="hours-per-day-val">2.0</b>h</label>
+        <input type="range" id="hours-per-day" min="0.5" max="6" step="0.5" value="2">
+        <p id="pace-eta" class="pace-eta"></p>
+      </div>
+
+    </div>
+
+    <div class="next-up" id="next-up">
+      <!-- populated by JS -->
+    </div>
+  </section>
+
+  <!-- ACHIEVEMENTS -->
+  <section class="achievements panel" id="achievements-panel">
+    <h2 class="panel-title">🏆 Trofei del Multiverso</h2>
+    <div class="achievements-row" id="achievements-row"></div>
+  </section>
+
+  <!-- FILTER TOOLBAR -->
+  <section class="toolbar panel">
+    <div class="toolbar-row">
+      <input type="search" id="search-input" placeholder="🔍 Cerca un titolo... (es. 'Loki', 'Blade', 'X-Men')" class="search-input">
+      <select id="sort-select" class="sort-select">
+        <option value="order">Ordine consigliato</option>
+        <option value="alpha">Alfabetico A-Z</option>
+        <option value="hours-desc">Durata: più lunghi</option>
+        <option value="hours-asc">Durata: più corti</option>
+        <option value="priority">Priorità</option>
+      </select>
+    </div>
+    <div class="toolbar-row chips-row">
+      <span class="chips-label">Priorità:</span>
+      <div id="priority-chips" class="chips"></div>
+    </div>
+    <div class="toolbar-row chips-row">
+      <span class="chips-label">Formato:</span>
+      <div id="format-chips" class="chips"></div>
+    </div>
+    <div class="toolbar-row chips-row">
+      <span class="chips-label">Stato:</span>
+      <div id="status-chips" class="chips">
+        <button class="chip active" data-status="all">Tutti</button>
+        <button class="chip" data-status="unwatched">Da vedere</button>
+        <button class="chip" data-status="watched">Visti ✓</button>
+      </div>
+    </div>
+    <div class="toolbar-row toolbar-bottom">
+      <button id="btn-mcu-only" class="btn btn-toggle" data-active="false">🛡️ Solo Canone MCU</button>
+      <button id="btn-expand-all" class="btn btn-ghost">⤢ Espandi tutto</button>
+      <button id="btn-collapse-all" class="btn btn-ghost">⤡ Comprimi tutto</button>
+      <button id="btn-clear-filters" class="btn btn-ghost">✕ Pulisci filtri</button>
+      <span class="results-count" id="results-count"></span>
+    </div>
+  </section>
+
+  <!-- CATEGORY SECTIONS -->
+  <section id="categories-root"></section>
+
+  <p class="no-results" id="no-results" hidden>Nessun titolo corrisponde ai filtri attuali. Prova a modificarli, Ricercatore Supremo.</p>
+
+  <!-- SOURCES -->
+  <section class="sources panel">
+    <h2 class="panel-title">📚 Fonti &amp; Metodologia</h2>
+    <ul class="sources-list">
+      <li>
+        <strong>Marvel — Complete MCU Timeline</strong> — Timeline MCU ufficiale / controllo canon.
+        <a href="https://www.marvel.com/articles/movies/mcu-timeline-order-disney-plus" target="_blank" rel="noopener noreferrer">marvel.com ↗</a>
+      </li>
+      <li>
+        <strong>MCU Watchlist 2026</strong> — Runtime e perimetro esteso (dati TMDB, fonte non ufficiale).
+        <a href="https://marvelwatchlist.com/watch-order/" target="_blank" rel="noopener noreferrer">marvelwatchlist.com ↗</a>
+      </li>
+    </ul>
+    <p class="methodology-note">
+      <strong>Nota metodologica:</strong> il tracker esclude <em>Avengers: Doomsday</em> perché non ancora uscito al 13/08/2026.
+      Runtime arrotondati in decimi d'ora; il perimetro "Ultimate" include anche i franchise legacy e del multiverso pertinenti
+      (Fox X-Men, Sony, Raimiverse, Webbverse, Spider-Verse animato, TV extended universe).
+    </p>
+  </section>
+
+  <footer class="site-footer">
+    <p>Realizzato per chi ha ancora la sveglia puntata a "Ant-Man e la Wasp: Quantumania" da recuperare. Nessun Infinity Stone è stato maltrattato nella creazione di questo sito.</p>
+    <p class="footer-small">Il progresso è salvato solo nel tuo browser (localStorage). Usa "Esporta" per fare un backup prima di cambiare dispositivo.</p>
+  </footer>
+
+</main>
+
+<div class="snap-overlay" id="snap-overlay" hidden>
+  <div class="snap-content">
+    <div class="snap-emoji">🧤✨</div>
+    <h2>HAI COMPLETATO LO SNAP.</h2>
+    <p>Hai visto <b>tutto</b> il multiverso Marvel nel tracker. Perfettamente bilanciato, come dovrebbe essere.</p>
+    <button id="snap-close" class="btn btn-toggle">Torna alla realtà</button>
+  </div>
+</div>
+
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
