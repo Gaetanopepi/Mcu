@@ -29,11 +29,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Pages va attivato una volta a mano in Settings → Pages → Source: GitHub Actions.
+      # Il token di questo workflow non ha i permessi per crearlo da sé: provarci con
+      # enablement:true fallisce con "Resource not accessible by integration", che
+      # sembra un problema di permessi del workflow e invece è solo l'impostazione
+      # mancante. Meglio non tentare e lasciare un errore comprensibile.
       - name: Configure Pages
-        # enablement:true attiva Pages al primo giro, senza passare dalle impostazioni
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Upload site
         uses: actions/upload-pages-artifact@v3
