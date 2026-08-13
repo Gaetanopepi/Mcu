@@ -9,9 +9,21 @@ titles and streaming-provider availability for everyone, and writes the
 result to assets/metadata.js as a plain JS object literal that the static
 site loads like any other script tag — no API key ever reaches a visitor.
 
+The output is meant to be committed and kept: once assets/metadata.js holds a
+good run, the site needs nothing from TMDB ever again. That makes every later
+run a risk rather than a routine refresh, so this script is deliberately
+conservative — it never trades good data for worse:
+
+  * a title that fails to resolve keeps whatever the previous run found;
+  * transient TMDB failures (429, 5xx, timeouts) are retried with backoff;
+  * a run that resolves far fewer titles than the committed file already has
+    is treated as a bad run and aborts without writing anything.
+
 Requires TMDB_API_KEY in the environment. Optional TMDB_BASE_URL /
 TMDB_IMG_BASE_URL overrides exist only so this script can be exercised
 against a local mock server in development/CI without hitting the real API.
+Set TMDB_ALLOW_REGRESSION=1 to write even when the result is worse than what
+is already committed (only useful when titles are deliberately removed).
 """
 import json
 import os
@@ -31,6 +43,20 @@ REGION = os.environ.get("TMDB_REGION", "IT")
 REQUEST_DELAY = float(os.environ.get("TMDB_REQUEST_DELAY", "0.3"))
 
 TV_FORMATS = {"TV", "TV/Special"}
+ALLOW_REGRESSION = os.environ.get("TMDB_ALLOW_REGRESSION", "").strip() not in ("", "0", "false")
+
+
+def keep_or(previous, item_id, fresh):
+    """Prefer a previously resolved entry over a fresh failure.
+
+    Old official data beats no data: an unresolved title falls back to the
+    project's provisional poster and synopsis, which is a visible downgrade
+    for the reader even when TMDB is merely having a bad minute.
+    """
+    old = previous.get(item_id)
+    if old and old.get("ok"):
+        return old
+    return fresh
 
 
 def load_tracker_data():
@@ -46,24 +72,49 @@ LANG = os.environ.get("TMDB_LANGUAGE", "it-IT")
 FALLBACK_LANG = "en-US"
 
 
+MAX_ATTEMPTS = int(os.environ.get("TMDB_MAX_ATTEMPTS", "4"))
+
+
 def api_get(path, params, api_key, language=LANG):
+    """One TMDB call, retrying the failures that are worth retrying.
+
+    Rate limiting (429), server errors (5xx) and network timeouts are
+    transient: giving up on them would silently downgrade a title that TMDB
+    actually knows. A rejected key or a 404, on the other hand, will fail the
+    same way however many times we ask, so those surface immediately.
+    """
     query = dict(params or {})
     query["api_key"] = api_key
     if language:
         query["language"] = language
     url = TMDB_BASE + path + "?" + urllib.parse.urlencode({k: v for k, v in query.items() if v not in (None, "")})
     req = urllib.request.Request(url, headers={"Accept": "application/json"})
-    try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
-            return json.loads(resp.read().decode("utf-8"))
-    except urllib.error.HTTPError as e:
-        body = e.read().decode("utf-8", errors="replace")
+
+    for attempt in range(1, MAX_ATTEMPTS + 1):
         try:
-            parsed = json.loads(body)
-        except ValueError:
-            parsed = {}
-        message = parsed.get("status_message", body[:200])
-        raise RuntimeError(f"HTTP {e.code} on {path}: {message}") from e
+            with urllib.request.urlopen(req, timeout=20) as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except urllib.error.HTTPError as e:
+            body = e.read().decode("utf-8", errors="replace")
+            try:
+                parsed = json.loads(body)
+            except ValueError:
+                parsed = {}
+            message = parsed.get("status_message", body[:200])
+            transient = e.code == 429 or 500 <= e.code < 600
+            if not transient or attempt == MAX_ATTEMPTS:
+                raise RuntimeError(f"HTTP {e.code} on {path}: {message}") from e
+            # TMDB tells us how long to wait when it rate-limits; honour it.
+            retry_after = e.headers.get("Retry-After") if e.headers else None
+            wait = float(retry_after) if retry_after and retry_after.isdigit() else 2 ** attempt
+            print(f"  [retry {attempt}/{MAX_ATTEMPTS}] HTTP {e.code} on {path}, attendo {wait:g}s", file=sys.stderr)
+            time.sleep(wait)
+        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as e:
+            if attempt == MAX_ATTEMPTS:
+                raise RuntimeError(f"Network error on {path}: {e}") from e
+            wait = 2 ** attempt
+            print(f"  [retry {attempt}/{MAX_ATTEMPTS}] {e} su {path}, attendo {wait}s", file=sys.stderr)
+            time.sleep(wait)
 
 
 def parse_season_suffix(title):
@@ -196,6 +247,22 @@ def fetch_providers(tmdb_id, media_type, api_key):
     return [{"name": p.get("provider_name"), "logoPath": p.get("logo_path")} for p in flatrate]
 
 
+def load_previous():
+    """Entries from the committed metadata.js, so a bad run can't erase them."""
+    try:
+        with open(OUTPUT_PATH, encoding="utf-8") as f:
+            content = f.read()
+    except FileNotFoundError:
+        return {}
+    match = re.search(r"const\s+TMDB_METADATA\s*=\s*(\{.*\});", content, re.S)
+    if not match:
+        return {}
+    try:
+        return (json.loads(match.group(1)) or {}).get("items") or {}
+    except ValueError:
+        return {}
+
+
 def main():
     api_key = os.environ.get("TMDB_API_KEY", "").strip()
     if not api_key:
@@ -205,9 +272,15 @@ def main():
     items = load_tracker_data()
     print(f"Loaded {len(items)} tracker items from data.js")
 
+    previous = load_previous()
+    previous_ok = sum(1 for v in previous.values() if v.get("ok"))
+    if previous_ok:
+        print(f"Existing metadata.js has {previous_ok} resolved titles — they will be kept if this run does worse")
+
     result_items = {}
     ok_count = 0
     fail_count = 0
+    preserved_count = 0
 
     for i, item in enumerate(items, 1):
         item_id = str(item["id"])
@@ -231,20 +304,35 @@ def main():
                         print(f"  [warn] episodes failed for #{item_id} {item['title']}: {e}", file=sys.stderr)
                         resolved["episodes"] = []
                 ok_count += 1
+                result_items[item_id] = resolved
             else:
-                fail_count += 1
-            result_items[item_id] = resolved
+                result_items[item_id] = keep_or(previous, item_id, resolved)
+                if result_items[item_id].get("ok"):
+                    preserved_count += 1
+                else:
+                    fail_count += 1
         except Exception as e:
             msg = str(e)
             if "HTTP 401" in msg:
                 print(f"Fatal: TMDB rejected the API key ({msg}). Aborting.", file=sys.stderr)
                 sys.exit(1)
             print(f"  [warn] resolve failed for #{item_id} {item['title']}: {msg}", file=sys.stderr)
-            result_items[item_id] = {"ok": False, "code": "ERROR"}
-            fail_count += 1
+            result_items[item_id] = keep_or(previous, item_id, {"ok": False, "code": "ERROR"})
+            if result_items[item_id].get("ok"):
+                preserved_count += 1
+            else:
+                fail_count += 1
 
         if i % 20 == 0 or i == len(items):
-            print(f"  {i}/{len(items)} processed ({ok_count} ok, {fail_count} unresolved)")
+            print(f"  {i}/{len(items)} processed ({ok_count} ok, {preserved_count} kept from last run, {fail_count} unresolved)")
+
+    # Un run che risolve molto meno di quanto è già congelato non è un
+    # aggiornamento, è un guasto: meglio non scrivere nulla e riprovare.
+    if previous_ok and ok_count < previous_ok * 0.5 and not ALLOW_REGRESSION:
+        print(f"Fatal: this run resolved only {ok_count} titles against the {previous_ok} already committed. "
+              f"Refusing to overwrite assets/metadata.js — likely a TMDB outage or a throttled key. "
+              f"Set TMDB_ALLOW_REGRESSION=1 if the drop is intentional.", file=sys.stderr)
+        sys.exit(1)
 
     it_overviews = sum(1 for v in result_items.values() if v.get("overviewLang") == "it")
     en_overviews = sum(1 for v in result_items.values() if v.get("overviewLang") == "en")
@@ -262,8 +350,20 @@ def main():
         f.write(json.dumps(output, ensure_ascii=False, indent=1))
         f.write(";\n")
 
-    print(f"Wrote {OUTPUT_PATH}: {ok_count} resolved, {fail_count} unresolved out of {len(items)}")
+    total_ok = ok_count + preserved_count
+    print(f"Wrote {OUTPUT_PATH}: {total_ok} risolti su {len(items)} "
+          f"({ok_count} da questo run, {preserved_count} conservati dal precedente), {fail_count} irrisolti")
     print(f"  sinossi in italiano: {it_overviews} | ripiegate sull'inglese: {en_overviews}")
+
+    # Riepilogo leggibile nella pagina della GitHub Action.
+    summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+    if summary_path:
+        with open(summary_path, "a", encoding="utf-8") as f:
+            f.write(f"## Metadati TMDB\n\n")
+            f.write(f"- **{total_ok} titoli su {len(items)}** con dati ufficiali\n")
+            f.write(f"- {ok_count} risolti in questo run, {preserved_count} conservati dal run precedente\n")
+            f.write(f"- {fail_count} irrisolti (restano sui segnaposto provvisori del progetto)\n")
+            f.write(f"- Sinossi in italiano: {it_overviews} — ripiegate sull'inglese: {en_overviews}\n")
 
 
 if __name__ == "__main__":

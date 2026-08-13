@@ -84,38 +84,65 @@ assets/icons/                        Icone PWA (192/512/maskable/apple-touch)
 manifest.json                        Web app manifest per l'installazione
 sw.js                                Service worker: shell in cache, metadata.js sempre network-first
 scripts/fetch_tmdb_metadata.py       Script che genera assets/metadata.js (gira solo lato server)
-.github/workflows/update-metadata.yml Automazione che lo esegue ogni notte
+.github/workflows/update-metadata.yml Action manuale che lo esegue quando serve
 ```
 
-## Come funzionano i dati TMDB (senza che nessuno inserisca una chiave)
+## Come funzionano i dati TMDB: si cuociono una volta e restano
 
 Un sito statico non ha un backend dove nascondere un segreto: qualunque chiave scritta nel
-codice JS sarebbe visibile a chiunque apra i DevTools. La soluzione qui è la stessa che usano
-molti siti "JAMstack": i dati **non vengono richiesti dal browser del visitatore**, ma
-precalcolati una volta e serviti come file statico.
+codice JS sarebbe visibile a chiunque apra i DevTools. Qui il problema non si pone, perché i dati
+**non vengono chiesti a TMDB dal browser di chi visita**: vengono interrogati una volta sola da
+uno script, scritti in `assets/metadata.js` e **committati nel repository** come qualsiasi altro
+file del sito.
 
-1. Uno **GitHub Action** ([.github/workflows/update-metadata.yml](.github/workflows/update-metadata.yml))
-   gira ogni notte (e può essere lanciata a mano da "Actions → Update TMDB metadata → Run workflow").
-2. Usa uno **secret privato del repository** (`TMDB_API_KEY`) — mai nel codice, mai visibile nei
-   file, mai scaricato da chi visita il sito.
+La conseguenza è la parte importante: **una volta che `metadata.js` contiene un buon risultato,
+il sito non ha più bisogno di TMDB né di una chiave.** Né per te, né per i visitatori, né per
+sempre. L'unico filo che resta verso l'esterno sono le immagini, servite da `image.tmdb.org`:
+è una CDN pubblica, non richiede chiave e non sa nulla di te.
+
+1. Una **GitHub Action** ([.github/workflows/update-metadata.yml](.github/workflows/update-metadata.yml))
+   si lancia **a mano**, da *Actions → Update TMDB metadata → Run workflow*. Non è pianificata:
+   dati congelati non devono cambiare da soli.
+2. Usa uno **secret privato del repository** (`TMDB_API_KEY`) — mai nel codice, mai nei file
+   pubblicati, mai scaricato da chi visita il sito.
 3. Esegue [scripts/fetch_tmdb_metadata.py](scripts/fetch_tmdb_metadata.py), che interroga TMDB
-   per tutti i 156 titoli (ricerca, episodi, disponibilità streaming) e scrive il risultato in
-   `assets/metadata.js`.
-4. Il commit viene fatto automaticamente dalla Action. Il sito legge quel file come un qualsiasi
-   altro script statico — zero chiamate a TMDB dal browser, zero configurazione per chi visita.
+   per tutti i 156 titoli (ricerca, episodi, disponibilità streaming) e riscrive `assets/metadata.js`.
+4. La Action fa il commit. Il push su `main` fa ripartire il deploy, e il sito è aggiornato.
+
+Rilanciala solo quando aggiungi titoli al tracker o vuoi rinfrescare i dati di proposito.
+
+### Lo script non peggiora mai i dati già congelati
+
+Se i dati vivono nel repository invece di essere riscaricati ogni notte, ogni nuova esecuzione
+diventa un rischio: un guasto di TMDB a metà corsa potrebbe sostituire dati buoni con dati
+peggiori. Lo script è scritto per non permetterlo.
+
+- **Un titolo che non si risolve tiene quello che aveva.** Se TMDB non risponde per *Iron Man* ma
+  l'esecuzione precedente l'aveva trovato, resta la scheda vecchia — dati ufficiali datati sono
+  comunque meglio del segnaposto provvisorio.
+- **Gli errori temporanei vengono ritentati.** 429, 5xx e timeout hanno quattro tentativi con
+  attesa crescente, rispettando l'header `Retry-After` quando TMDB lo manda. Una chiave rifiutata
+  o un 404, che fallirebbero uguale a ogni tentativo, si fermano subito.
+- **Un'esecuzione disastrosa non scrive niente.** Se risolve meno della metà dei titoli già
+  presenti nel file committato, lo script esce con errore senza toccare `metadata.js`: quasi
+  sempre significa TMDB giù o chiave sotto rate limit, non che i dati siano da buttare.
+  `TMDB_ALLOW_REGRESSION=1` forza la scrittura, e serve solo se hai tolto titoli di proposito.
 
 ### Setup one-time (solo per chi possiede il repository)
 
 Serve una API key gratuita v3 di [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api)
-(2 minuti, nessuna carta di credito). Poi scegli una delle due strade.
+(2 minuti, nessuna carta di credito). Poi scegli una delle tre strade.
 
-**A — Automatica (consigliata): la Action fa tutto e si aggiorna da sola**
+**A — Consigliata: la Action cuoce i dati e li committa**
 1. Nel repository GitHub: *Settings → Secrets and variables → Actions → New repository secret*,
    nome `TMDB_API_KEY`, valore la chiave.
 2. In *Settings → Actions → General → Workflow permissions* seleziona
    "Read and write permissions" (serve perché l'automazione possa fare il commit).
-3. Lancia la Action da *Actions → Update TMDB metadata → Run workflow*. Da lì in poi si aggiorna
-   ogni notte da sola.
+3. Lancia la Action da *Actions → Update TMDB metadata → Run workflow*. Al termine il riepilogo
+   dice quanti titoli ha risolto.
+
+Fatto questo la chiave ha esaurito il suo compito: puoi anche revocarla su TMDB, il sito continua
+a funzionare con i dati committati.
 
 **B — Dal browser, senza toccare il repository**
 
@@ -131,16 +158,29 @@ più rapida per vedere il risultato, o per usare una propria chiave su un sito a
 > locale con `python3 -m http.server`. Le altre due strade (A e C) non hanno questo vincolo,
 > perché le chiamate partono da un server e non dal browser.
 
-**C — In locale, per popolare il sito una volta per tutte**
+**C — In locale, se preferisci non mettere la chiave su GitHub**
 ```bash
 TMDB_API_KEY=la_tua_chiave python3 scripts/fetch_tmdb_metadata.py
 git add assets/metadata.js && git commit -m "Aggiorna metadati TMDB" && git push
 ```
 Lo script stampa quanti titoli ha risolto e quante sinossi ha trovato in italiano. Richiede
-qualche minuto (rispetta i limiti di TMDB con una pausa fra le chiamate).
+qualche minuto (rispetta i limiti di TMDB con una pausa fra le chiamate). Con questa strada la
+chiave non lascia mai il tuo computer.
 
 Variabili opzionali: `TMDB_LANGUAGE` (default `it-IT`), `TMDB_REGION` (default `IT`, decide il
-paese per la disponibilità streaming), `TMDB_REQUEST_DELAY` (default `0.3` secondi).
+paese per la disponibilità streaming), `TMDB_REQUEST_DELAY` (default `0.3` secondi),
+`TMDB_MAX_ATTEMPTS` (default `4`), `TMDB_ALLOW_REGRESSION` (vedi sopra).
+
+### E se volessi togliere TMDB del tutto?
+
+Fonti di metadati senza API key esistono, ma nessuna copre lo stesso terreno:
+[TVmaze](https://www.tvmaze.com/api) non chiede chiave, ha CORS aperto ed è ottimo per serie ed
+episodi, ma **non tratta i film**; Wikipedia italiana e Wikidata danno titolo, trama, data di
+uscita e durata senza chiave, per film e serie. Il punto che nessuna delle due risolve sono le
+**locandine ufficiali**: quelle su Wikipedia sono file non liberi caricati in *fair use*, non
+ridistribuibili in un progetto come questo. Rinunciando a TMDB si perderebbero locandine
+ufficiali, voti e disponibilità streaming, ricadendo sulle locandine provvisorie del progetto.
+Dato che TMDB serve una volta sola e poi esce di scena, la resa vale il passaggio.
 
 ## Sviluppo locale
 
