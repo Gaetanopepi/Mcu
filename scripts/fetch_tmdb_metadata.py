@@ -300,12 +300,31 @@ def resolve_item(item, api_key):
     prefer_tv = item["format"] in TV_FORMATS or season_number is not None
     order = ("tv", "movie") if prefer_tv else ("movie", "tv")
 
+    # Un titolo esatto ma di vent'anni sbagliati è un omonimo, non il nostro:
+    # "The Consultant" è un One-Shot Marvel del 2011 e una serie Amazon del
+    # 2023, e la seconda è l'unica che esce cercando fra le serie. Quando il
+    # miglior candidato di un tipo non regge il confronto con l'anno, si prova
+    # l'altro tipo prima di accontentarsi.
+    fallback = None
     for media_type in order:
         entry = (search_tv(query, season_number, want_year, api_key) if media_type == "tv"
                  else search_movie(query, want_year, api_key))
-        if entry:
+        if not entry:
+            continue
+        if year_matches(entry, want_year):
             return entry
-    return {"ok": False, "code": "NOT_FOUND"}
+        fallback = fallback or entry
+    return fallback or {"ok": False, "code": "NOT_FOUND"}
+
+
+def year_matches(entry, want_year):
+    """L'anno trovato è compatibile con quello che il tracker si aspetta?"""
+    if not want_year:
+        return True
+    date = entry.get("releaseDate") or entry.get("firstAirDate") or ""
+    if not date[:4].isdigit():
+        return True  # TMDB non lo sa: non è un motivo per scartare
+    return abs(int(date[:4]) - want_year) <= 3
 
 
 def fetch_episodes(tmdb_id, season_number, api_key):
