@@ -32,6 +32,7 @@ import sys
 import time
 import urllib.error
 import urllib.parse
+import unicodedata
 import urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -206,19 +207,68 @@ def build_entry(best, media_type, season_number, api_key):
     return entry
 
 
-def search_tv(query, season_number, api_key):
+def normalize(text):
+    """Confronto fra titoli insensibile ad accenti, maiuscole e punteggiatura."""
+    text = unicodedata.normalize("NFKD", (text or "").lower())
+    text = "".join(c for c in text if not unicodedata.combining(c))
+    return re.sub(r"[^a-z0-9]+", " ", text).strip()
+
+
+def pick_best(results, query, want_year):
+    """Scegli il candidato giusto, non il più popolare.
+
+    TMDB ordina per popolarità, che per un catalogo storico è quasi sempre la
+    risposta sbagliata: cercando "Black Panther" arriva prima *Wakanda Forever*,
+    cercando "Blade" arriva prima *Blade Runner*. L'anno del tracker è il
+    discriminante più affidabile che abbiamo, quindi comanda lui; il titolo
+    esatto decide fra film dello stesso anno, e la popolarità è l'ultima parola
+    solo fra candidati altrimenti identici.
+
+    Il confronto guarda anche original_title/original_name perché con
+    language=it-IT TMDB restituisce il titolo italiano, che raramente coincide
+    con quello del tracker.
+    """
+    query_norm = normalize(query)
+
+    def rank(result):
+        names = [normalize(result.get(k)) for k in
+                 ("title", "name", "original_title", "original_name") if result.get(k)]
+        if query_norm in names:
+            name_rank = 0
+        elif any(n.startswith(query_norm) for n in names):
+            name_rank = 1
+        elif any(query_norm in n for n in names):
+            name_rank = 2
+        else:
+            name_rank = 3
+
+        date = result.get("release_date") or result.get("first_air_date") or ""
+        candidate_year = int(date[:4]) if date[:4].isdigit() else None
+        if want_year and candidate_year:
+            gap = abs(candidate_year - want_year)
+            year_rank = 0 if gap <= 1 else 1 if gap <= 3 else 2
+        else:
+            year_rank = 1  # anno ignoto: né premio né penalità
+
+        return (year_rank, name_rank, -(result.get("popularity") or 0))
+
+    return sorted(results, key=rank)[0] if results else None
+
+
+def search_tv(query, season_number, want_year, api_key):
     results = api_get("/search/tv", {"query": query}, api_key).get("results") or []
-    if not results:
-        return None
-    return build_entry(results[0], "tv", season_number or 1, api_key)
-
-
-def search_movie(query, year, api_key):
-    results = api_get("/search/movie", {"query": query, "year": year}, api_key).get("results") or []
-    best = results[0] if results else None
+    best = pick_best(results, query, want_year)
     if not best:
+        return None
+    return build_entry(best, "tv", season_number or 1, api_key)
+
+
+def search_movie(query, want_year, api_key):
+    results = api_get("/search/movie", {"query": query}, api_key).get("results") or []
+    if not results:
         multi = api_get("/search/multi", {"query": query}, api_key)
-        best = next((r for r in (multi.get("results") or []) if r.get("media_type") == "movie"), None)
+        results = [r for r in (multi.get("results") or []) if r.get("media_type") == "movie"]
+    best = pick_best(results, query, want_year)
     if not best:
         return None
     return build_entry(best, "movie", None, api_key)
@@ -238,14 +288,21 @@ def resolve_item(item, api_key):
     # è catalogato come "Special" nel tracker ma resta una stagione di una serie.
     base_title, season_number = parse_season_suffix(title) or (title, None)
     query = clean_title(base_title)
-    year = parse_year_hint(title)
+
+    # L'anno del tracker è quello della singola stagione, mentre TMDB indicizza
+    # la serie con la data del primo episodio in assoluto: usarlo per una S4
+    # scarterebbe proprio la serie giusta. Vale solo per film e prime stagioni.
+    want_year = parse_year_hint(title)
+    if not want_year and (season_number is None or season_number == 1):
+        want_year = item.get("year")
+    want_year = int(want_year) if want_year else None
 
     prefer_tv = item["format"] in TV_FORMATS or season_number is not None
     order = ("tv", "movie") if prefer_tv else ("movie", "tv")
 
     for media_type in order:
-        entry = (search_tv(query, season_number, api_key) if media_type == "tv"
-                 else search_movie(query, year, api_key))
+        entry = (search_tv(query, season_number, want_year, api_key) if media_type == "tv"
+                 else search_movie(query, want_year, api_key))
         if entry:
             return entry
     return {"ok": False, "code": "NOT_FOUND"}
