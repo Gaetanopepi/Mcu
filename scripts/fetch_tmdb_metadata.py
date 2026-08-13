@@ -244,11 +244,15 @@ def pick_best(results, query, want_year):
 
         date = result.get("release_date") or result.get("first_air_date") or ""
         candidate_year = int(date[:4]) if date[:4].isdigit() else None
-        if want_year and candidate_year:
+        if not want_year:
+            year_rank = 1  # non sappiamo cosa cercare: l'anno non decide
+        elif not candidate_year:
+            # Scheda senza data: su TMDB è quasi sempre un doppione abbozzato,
+            # senza stagioni né episodi. Il titolo esatto non basta a salvarlo.
+            year_rank = 2
+        else:
             gap = abs(candidate_year - want_year)
             year_rank = 0 if gap <= 1 else 1 if gap <= 3 else 2
-        else:
-            year_rank = 1  # anno ignoto: né premio né penalità
 
         return (year_rank, name_rank, -(result.get("popularity") or 0))
 
@@ -274,7 +278,24 @@ def search_movie(query, want_year, api_key):
     return build_entry(best, "movie", None, api_key)
 
 
-def resolve_item(item, api_key):
+def series_start_years(items):
+    """Anno della stagione più vecchia che il tracker elenca, per ogni serie.
+
+    Serve perché TMDB indicizza una serie con la data del primo episodio in
+    assoluto: per cercare la S5 di uno show l'anno utile è quello della sua
+    S1, non quello della quinta stagione.
+    """
+    years = {}
+    for item in items:
+        parsed = parse_season_suffix(item["title"])
+        if not parsed or not item.get("year"):
+            continue
+        key = normalize(clean_title(parsed[0]))
+        years[key] = min(years.get(key, item["year"]), item["year"])
+    return years
+
+
+def resolve_item(item, api_key, series_years=None):
     """Find a tracker title on TMDB, trying both media types before giving up.
 
     The tracker's "format" column says how a fan watches something, which is
@@ -290,10 +311,14 @@ def resolve_item(item, api_key):
     query = clean_title(base_title)
 
     # L'anno del tracker è quello della singola stagione, mentre TMDB indicizza
-    # la serie con la data del primo episodio in assoluto: usarlo per una S4
-    # scarterebbe proprio la serie giusta. Vale solo per film e prime stagioni.
+    # la serie con la data del primo episodio in assoluto: per una S4 va usato
+    # l'anno della S1, non quello della quarta stagione. Rinunciare del tutto
+    # all'anno lascerebbe vincere il titolo letterale, e su TMDB il titolo
+    # letterale è a volte un doppione vuoto.
     want_year = parse_year_hint(title)
-    if not want_year and (season_number is None or season_number == 1):
+    if not want_year and season_number is not None:
+        want_year = (series_years or {}).get(normalize(query))
+    if not want_year:
         want_year = item.get("year")
     want_year = int(want_year) if want_year else None
 
@@ -373,6 +398,7 @@ def main():
         sys.exit(1)
 
     items = load_tracker_data()
+    series_years = series_start_years(items)
     print(f"Loaded {len(items)} tracker items from data.js")
 
     previous = load_previous()
@@ -388,7 +414,7 @@ def main():
     for i, item in enumerate(items, 1):
         item_id = str(item["id"])
         try:
-            resolved = resolve_item(item, api_key)
+            resolved = resolve_item(item, api_key, series_years)
             time.sleep(REQUEST_DELAY)
             if resolved.get("ok"):
                 media_type = resolved["mediaType"]
