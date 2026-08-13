@@ -195,7 +195,12 @@ Quattro regole tengono pulito il risultato, e la prima è quella che conta:
   confronto sui titoli normalizzati fa sì che rieseguire l'automazione cento volte non aggiunga
   mai due volte la stessa cosa.
 
-Le voci aggiunte così finiscono in fondo a `assets/data.js` con `"autoAdded": true`, e nel sito
+Se un giro trovasse più di 8 contenuti (`DISCOVER_MAX_ADDITIONS`) si ferma senza scrivere niente
+ed elenca cosa avrebbe aggiunto. Marvel non pubblica otto contenuti in quattro mesi: un numero
+del genere non è un'annata ricca, è un filtro che ha smesso di filtrare. È già successo — un giro
+ne aggiunse 67, cartoni del 1967 compresi, prima che la finestra temporale esistesse.
+
+Le voci aggiunte finiscono in fondo a `assets/data.js` con `"autoAdded": true`, e nel sito
 portano un contrassegno **NUOVO** per i primi 120 giorni dall'uscita. Restano modificabili a mano
 come tutte le altre.
 

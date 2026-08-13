@@ -56,6 +56,14 @@ MARVEL_COMPANIES = (
 # l'intero catalogo Marvel soddisfa la condizione, perché è tutto già uscito.
 WINDOW_DAYS = int(os.environ.get("DISCOVER_WINDOW_DAYS", "120"))
 
+# Quante voci può aggiungere un singolo giro prima di fermarsi a chiedere.
+# Una giornata vera ne porta zero o una; Marvel non pubblica otto contenuti in
+# quattro mesi. Un numero più alto non è una settimana ricca, è un filtro che
+# ha smesso di filtrare — ed è successo davvero: un giro ne aggiunse 67, con
+# dentro cartoni del 1967, prima che la finestra temporale esistesse. Meglio
+# non scrivere niente e farsi guardare, che sporcare una lista curata.
+MAX_ADDITIONS = int(os.environ.get("DISCOVER_MAX_ADDITIONS", "8"))
+
 # TMDB non conosce le Fasi: per i titoli nuovi si assume l'era corrente.
 # Da aggiornare quando Marvel apre la Fase 7 — è l'unica riga da toccare.
 CURRENT_PHASE = 6
@@ -253,6 +261,24 @@ def main():
             with open(summary, "a", encoding="utf-8") as f:
                 f.write("## Nuovi contenuti\n\nNessuna novità: il tracker è già aggiornato.\n\n")
         return
+
+    if len(additions) > MAX_ADDITIONS:
+        print(f"Trovati {len(additions)} contenuti da aggiungere, oltre il limite di {MAX_ADDITIONS}. "
+              f"Non è un'annata ricca: è il segno che qualcosa non sta più filtrando. "
+              f"assets/data.js non è stato toccato — controlla l'elenco qui sotto e, se è davvero "
+              f"tutto legittimo, rilancia con DISCOVER_MAX_ADDITIONS più alto.", file=sys.stderr)
+        for a in additions:
+            print(f"    {a['title']} ({a['year']}, {a['format']})", file=sys.stderr)
+        summary = os.environ.get("GITHUB_STEP_SUMMARY")
+        if summary:
+            with open(summary, "a", encoding="utf-8") as f:
+                f.write(f"## Nuovi contenuti — fermato\n\n"
+                        f"Trovati **{len(additions)}** contenuti, oltre il limite di {MAX_ADDITIONS}: "
+                        f"il tracker non è stato modificato.\n\n")
+                for a in additions:
+                    f.write(f"- {a['title']} ({a['year']}, {a['format']})\n")
+                f.write("\n")
+        sys.exit(1)
 
     next_id = max(i["id"] for i in items) + 1
     for addition in additions:
