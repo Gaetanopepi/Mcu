@@ -18,6 +18,8 @@ interattivo con progresso persistente nel browser.
 - 🎉 Overlay speciale "Snap" al completamento del 100%
 - 🇮🇹 **Tutto in italiano** — interfaccia, e dal database anche titoli, sinossi e locandine
   italiane (TMDB `language=it-IT`, locandine con `include_image_language=it,null,en`)
+- 🖼️ **Nessuna scheda vuota alla prima apertura** — locandine e sinossi provvisorie del progetto
+  finché TMDB non è sincronizzato, dichiarate come tali e sostituite titolo per titolo
 - 🛡️ **Identità visiva propria** — logo/emblema del progetto (scudo comic con la spunta del tracker)
 - 📺 **Tracciamento per episodio** per tutte le serie — sinossi, immagine e durata reale di ogni
   episodio, con stato "parzialmente vista" e ricalcolo automatico delle ore totali sui runtime
@@ -30,20 +32,20 @@ interattivo con progresso persistente nel browser.
 
 ## Da dove vengono i contenuti
 
-**Tutti i contenuti editoriali arrivano da TMDB**, in italiano — nulla è scritto o disegnato a
-mano nel repository:
+Due livelli. **TMDB è la fonte vera e ha sempre la precedenza, titolo per titolo**; il livello
+provvisorio serve solo a rendere la pagina già leggibile prima della prima sincronizzazione.
 
-| Contenuto | Fonte |
-|---|---|
-| Titolo mostrato | titolo italiano TMDB (`language=it-IT`), con l'originale come ripiego |
-| Sinossi | sinossi italiana TMDB; se TMDB non ne ha una in italiano ripiega sull'inglese, e lo segna nei dati (`overviewLang`) |
-| Locandina e sfondo | immagini TMDB, preferendo quelle con testo italiano (`include_image_language=it,null,en`) |
-| Voto, episodi, streaming | TMDB (regione IT) |
-| Elenco, ordine, ore, priorità | il tracker Excel originale (`assets/data.js`) |
+| Contenuto | Livello provvisorio (subito) | Livello TMDB (dopo la sincronizzazione) |
+|---|---|---|
+| Titolo | titolo originale dal tracker | titolo italiano TMDB (`language=it-IT`) |
+| Sinossi | 156 sinossi scritte per il progetto | sinossi italiana TMDB; se manca in italiano ripiega sull'inglese e lo segna in `overviewLang` |
+| Locandina e sfondo | artwork astratto generato per titolo | immagini TMDB, preferendo quelle con testo italiano (`include_image_language=it,null,en`) |
+| Voto, episodi, streaming | — | TMDB (regione IT) |
+| Elenco, ordine, ore, priorità | il tracker Excel originale (`assets/data.js`) | invariato |
 
-Finché la sincronizzazione non viene eseguita almeno una volta, la checklist è pienamente
-utilizzabile (spunte, statistiche, filtri, export) ma le schede restano **volutamente senza
-immagini né testi**: il sito non inventa contenuti che non ha.
+Il livello provvisorio è **dichiarato come tale** nell'interfaccia: un banner in cima alla pagina
+e una nota nella scheda di ogni titolo che ne fa ancora uso, così non viene mai scambiato per
+materiale ufficiale. Man mano che TMDB copre i titoli, i segnaposto spariscono da soli.
 
 ## Struttura
 
@@ -51,6 +53,8 @@ immagini né testi**: il sito non inventa contenuti che non ha.
 index.html                          Markup della pagina
 assets/style.css                     Tema comic dark (font Bangers/Barlow, pannelli in stile fumetto)
 assets/data.js                       Dataset dei 156 titoli (generato dal tracker Excel originale)
+assets/synopses.js                   Sinossi provvisorie scritte per il progetto (ripiego)
+assets/poster.js                     Generatore di locandine provvisorie SVG (ripiego)
 assets/logo.svg                      Emblema del progetto (in pagina è inline nell'header)
 assets/metadata.js                   Dati TMDB precalcolati (generato dalla GitHub Action, vedi sotto)
 assets/tmdb.js                       Helper per le URL delle immagini TMDB (nessuna chiave richiesta)
@@ -124,5 +128,6 @@ Il tracker esclude *Avengers: Doomsday* perché non ancora uscito al 13/08/2026.
 
 Progetto fan non ufficiale, senza scopo di lucro. Non affiliato, sponsorizzato o approvato da
 Marvel, Disney o dai rispettivi detentori dei diritti; tutti i marchi e i titoli citati
-appartengono ai legittimi proprietari. Il logo è originale di questo progetto. Locandine, immagini
-e testi descrittivi provengono da TMDB e restano dei rispettivi titolari.
+appartengono ai legittimi proprietari. Il logo, le sinossi provvisorie e le locandine provvisorie
+sono originali di questo progetto e non riproducono materiale promozionale ufficiale. Locandine,
+immagini e testi ufficiali provengono da TMDB e restano dei rispettivi titolari.

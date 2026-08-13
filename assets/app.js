@@ -258,11 +258,12 @@
     const section = $("#hero-banner");
     if(!next){ section.hidden = true; return; }
     const r = resolved[next.id];
-    if(!r || !r.ok || !r.backdropPath){ section.hidden = true; return; }
+    const hasBackdrop = !!(r && r.ok && r.backdropPath);
+    if(!hasBackdrop && typeof PosterArt === "undefined"){ section.hidden = true; return; }
     section.hidden = false;
 
     const bg = $("#hero-banner-bg");
-    bg.style.backgroundImage = `url("${TMDB.backdropUrl(r.backdropPath, "w1280")}")`;
+    bg.style.backgroundImage = `url("${hasBackdrop ? TMDB.backdropUrl(r.backdropPath, "w1280") : PosterArt.heroDataUri(next)}")`;
     bg.classList.add("loaded");
 
     $("#hero-title").textContent = displayTitle(next);
@@ -348,17 +349,33 @@
   }
 
   // ---------------- item card rendering ----------------
-  // Tutti i contenuti editoriali (titolo italiano, locandina, sinossi) vengono
-  // da TMDB. Finché il database non è sincronizzato la scheda resta neutra:
-  // niente testi o immagini inventati.
+  // Contenuti a due livelli. TMDB è la fonte vera e ha sempre la precedenza,
+  // titolo per titolo. Finché non è sincronizzato si mostra un livello
+  // PROVVISORIO fatto in casa (sinossi scritte per il progetto + artwork
+  // generato) così la pagina è già leggibile alla prima apertura.
+  function hasOfficialPoster(item){
+    const r = resolved[item.id];
+    return !!(r && r.ok && r.posterPath);
+  }
+  function hasOfficialSynopsis(item){
+    const r = resolved[item.id];
+    return !!(r && r.ok && r.overview);
+  }
+  /** true quando almeno uno fra locandina e sinossi mostrati è del ripiego */
+  function isProvisional(item){
+    return !hasOfficialPoster(item) || !hasOfficialSynopsis(item);
+  }
+
   function posterSrc(item, size){
     const r = resolved[item.id];
-    return (r && r.ok && r.posterPath) ? TMDB.posterUrl(r.posterPath, size || "w185") : null;
+    if(r && r.ok && r.posterPath) return TMDB.posterUrl(r.posterPath, size || "w185");
+    return (typeof PosterArt !== "undefined") ? PosterArt.posterDataUri(item) : null;
   }
 
   function synopsisFor(item){
     const r = resolved[item.id];
-    return (r && r.ok && r.overview) ? r.overview : "";
+    if(r && r.ok && r.overview) return r.overview;
+    return (typeof BUILTIN_SYNOPSES !== "undefined" && BUILTIN_SYNOPSES[item.id]) || "";
   }
 
   // Titolo da mostrare: quello italiano di TMDB quando c'è, altrimenti l'originale
@@ -369,9 +386,12 @@
 
   function renderPosterInner(item){
     const src = posterSrc(item);
-    return src
+    if(!src) return `<span class="poster-empty" aria-hidden="true"></span>`;
+    // lazy solo per le immagini di rete: l'artwork provvisorio è un data URI,
+    // non c'è nessuna richiesta da rimandare e differirlo lo fa comparire a scatti
+    return hasOfficialPoster(item)
       ? `<img src="${src}" alt="" loading="lazy">`
-      : `<span class="poster-empty" aria-hidden="true"></span>`;
+      : `<img src="${src}" alt="" class="provisional" decoding="async">`;
   }
 
   function renderSynopsis(item){
@@ -509,6 +529,7 @@
             <h3 class="detail-title" id="detail-title"></h3>
             <div class="detail-meta-row" id="detail-meta-row"></div>
             <p class="detail-overview" id="detail-overview"></p>
+            <p class="detail-provisional" id="detail-provisional" hidden></p>
             <div class="detail-providers">
               <h4>Dove guardarlo</h4>
               <div id="detail-providers-body"></div>
@@ -544,7 +565,8 @@
     const providersBody = modal.querySelector("#detail-providers-body");
     const actionsEl = modal.querySelector("#detail-actions");
 
-    const bgUrl = (r && r.ok && r.backdropPath) ? TMDB.backdropUrl(r.backdropPath, "w780") : null;
+    const officialBg = (r && r.ok && r.backdropPath) ? TMDB.backdropUrl(r.backdropPath, "w780") : null;
+    const bgUrl = officialBg || (typeof PosterArt !== "undefined" ? PosterArt.heroDataUri(item) : null);
     heroEl.style.backgroundImage = bgUrl ? `url("${bgUrl}")` : "none";
     heroEl.classList.toggle("empty", !bgUrl);
     heroEl.innerHTML = `<button class="detail-close" aria-label="Chiudi">✕</button>`;
@@ -566,6 +588,17 @@
     `;
 
     overviewEl.textContent = synopsisFor(item) || "Sinossi non disponibile.";
+
+    const noteEl = modal.querySelector("#detail-provisional");
+    if(isProvisional(item)){
+      const what = [];
+      if(!hasOfficialPoster(item)) what.push("la locandina");
+      if(!hasOfficialSynopsis(item)) what.push("la sinossi");
+      noteEl.textContent = `Provvisorio: ${what.join(" e ")} ${what.length > 1 ? "sono segnaposto" : "è un segnaposto"} del progetto, in attesa dei dati ufficiali TMDB.`;
+      noteEl.hidden = false;
+    } else {
+      noteEl.hidden = true;
+    }
 
     actionsEl.innerHTML = `<button class="btn btn-toggle" id="detail-toggle-watched">${state.watched[item.id] ? "✕ Segna da vedere" : "✓ Segna come visto"}</button>`;
     actionsEl.querySelector("#detail-toggle-watched").addEventListener("click", ()=>{
@@ -653,16 +686,24 @@
     if(!el) return;
     const total = TRACKER_DATA.length;
     const banner = $("#data-empty-banner");
+    const provisional = TRACKER_DATA.filter(isProvisional).length;
+
     if(typeof TMDB_METADATA !== "undefined" && TMDB_METADATA.generatedAt){
-      const enriched = TRACKER_DATA.filter(i => resolved[i.id] && resolved[i.id].ok).length;
+      const enriched = total - provisional;
       const d = new Date(TMDB_METADATA.generatedAt);
-      el.textContent = `Titoli, locandine, sinossi, valutazioni, episodi e disponibilità streaming provengono da TMDB ` +
+      let txt = `Titoli, locandine, sinossi, valutazioni, episodi e disponibilità streaming provengono da TMDB ` +
         `(lingua ${(TMDB_METADATA.language || "it-IT")}, regione ${TMDB_METADATA.region || "IT"}): ` +
-        `${enriched} titoli su ${total} sincronizzati, ultimo aggiornamento ` +
+        `${enriched} titoli su ${total} con dati ufficiali completi, ultimo aggiornamento ` +
         `${d.toLocaleDateString("it-IT", { day:"numeric", month:"long", year:"numeric" })}.`;
-      if(banner) banner.hidden = true;
+      if(provisional > 0){
+        txt += ` Per i restanti ${provisional} restano i segnaposto provvisori del progetto.`;
+      }
+      el.textContent = txt;
+      // il banner serve solo se manca ancora molto: sotto il 10% è rumore
+      if(banner) banner.hidden = provisional === 0 || provisional < total * 0.1;
     } else {
-      el.textContent = `Titoli, locandine, sinossi, valutazioni ed episodi provengono da TMDB e non sono ancora stati sincronizzati.`;
+      el.textContent = `Nessun dato TMDB ancora sincronizzato: le ${total} locandine e sinossi mostrate sono ` +
+        `segnaposto provvisori creati per questo progetto, non materiale ufficiale.`;
       if(banner) banner.hidden = false;
     }
   }
