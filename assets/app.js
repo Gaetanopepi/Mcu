@@ -10,23 +10,23 @@
   const STORAGE_KEY = "mcu-tracker-state-v1";
 
   const CATEGORY_META = {
-    "MCU":                 { icon: "🛡️", label: "MCU — Saga Cinematografica",        color: "#ed1d24" },
-    "MCU Disney+":         { icon: "✨", label: "MCU — Disney+ Original",             color: "#f2c94c" },
-    "MCU TV":              { icon: "📡", label: "MCU TV (Era ABC)",                   color: "#4f8ef7" },
-    "MCU Animated":        { icon: "🎞️", label: "MCU Animated",                       color: "#9b6bd9" },
-    "MCU Bonus":           { icon: "🎬", label: "MCU Bonus Shorts",                   color: "#3ddc97" },
-    "MCU/Multiverse":      { icon: "🌌", label: "MCU / Multiverso",                   color: "#e67e22" },
-    "Defenders":           { icon: "🥊", label: "Defenders Saga (Netflix)",           color: "#c0392b" },
-    "Fox X-Men":           { icon: "🧬", label: "Fox X-Men Universe",                 color: "#f39c12" },
-    "Raimiverse":          { icon: "🕷️", label: "Raimiverse",                         color: "#2980b9" },
-    "Webbverse":           { icon: "🕸️", label: "Webbverse (Amazing Spider-Man)",     color: "#8e44ad" },
-    "Spider-Verse":        { icon: "🌀", label: "Spider-Verse (Animato)",             color: "#e91e63" },
-    "Sony":                { icon: "☠️", label: "Sony's Spider-Man Universe",         color: "#5c6b7a" },
-    "Sony/MCU Adjacent":   { icon: "📰", label: "Sony / MCU Adjacent",                color: "#16a085" },
-    "Animated Multiverse": { icon: "📺", label: "Animated Multiverse",                color: "#d35400" },
-    "Bonus":               { icon: "🍿", label: "Bonus Shorts (Team Thor & co.)",     color: "#27ae60" },
-    "Marvel TV Extended":  { icon: "📼", label: "Marvel TV Extended Universe",        color: "#8a8a99" },
-    "Legacy":              { icon: "🧟", label: "Legacy Marvel (Pre-MCU)",            color: "#95a5a6" },
+    "MCU":                 { icon: "🛡️", label: "MCU — Saga cinematografica",         color: "#ed1d24" },
+    "MCU Disney+":         { icon: "✨", label: "MCU — Serie Disney+",                 color: "#f2c94c" },
+    "MCU TV":              { icon: "📡", label: "MCU — Serie TV (era ABC)",            color: "#4f8ef7" },
+    "MCU Animated":        { icon: "🎞️", label: "MCU — Animazione",                    color: "#9b6bd9" },
+    "MCU Bonus":           { icon: "🎬", label: "MCU — Cortometraggi bonus",           color: "#3ddc97" },
+    "MCU/Multiverse":      { icon: "🌌", label: "MCU / Multiverso",                    color: "#e67e22" },
+    "Defenders":           { icon: "🥊", label: "Saga dei Defenders (Netflix)",        color: "#c0392b" },
+    "Fox X-Men":           { icon: "🧬", label: "Universo X-Men (Fox)",                color: "#f39c12" },
+    "Raimiverse":          { icon: "🕷️", label: "Trilogia di Sam Raimi",               color: "#2980b9" },
+    "Webbverse":           { icon: "🕸️", label: "The Amazing Spider-Man (Webb)",       color: "#8e44ad" },
+    "Spider-Verse":        { icon: "🌀", label: "Spider-Verse (animazione)",           color: "#e91e63" },
+    "Sony":                { icon: "☠️", label: "Universo Spider-Man Sony",            color: "#5c6b7a" },
+    "Sony/MCU Adjacent":   { icon: "📰", label: "Sony / affini all'MCU",               color: "#16a085" },
+    "Animated Multiverse": { icon: "📺", label: "Multiverso animato",                  color: "#d35400" },
+    "Bonus":               { icon: "🍿", label: "Cortometraggi bonus (Team Thor & co.)", color: "#27ae60" },
+    "Marvel TV Extended":  { icon: "📼", label: "Universo TV Marvel esteso",           color: "#8a8a99" },
+    "Legacy":              { icon: "🧟", label: "Marvel classico (pre-MCU)",           color: "#95a5a6" },
   };
   const CATEGORY_ORDER = [
     "MCU","MCU Disney+","MCU TV","MCU Animated","MCU Bonus","MCU/Multiverse",
@@ -35,7 +35,8 @@
   ];
   const PRIORITY_ORDER = ["Essential","Recommended","Optional","Bonus"];
   const PRIORITY_LABEL = { Essential:"Essenziale", Recommended:"Consigliato", Optional:"Opzionale", Bonus:"Bonus" };
-  const FORMAT_ICON = { "Movie":"🎥", "TV":"📺", "Special":"🎁", "TV/Special":"🎞️" };
+  const FORMAT_ICON  = { "Movie":"🎥", "TV":"📺", "Special":"🎁", "TV/Special":"🎞️" };
+  const FORMAT_LABEL = { "Movie":"Film", "TV":"Serie TV", "Special":"Speciale", "TV/Special":"Speciale TV" };
   const MCU_CATEGORIES = new Set(["MCU","MCU Disney+","MCU TV","MCU Animated","MCU Bonus","MCU/Multiverse"]);
 
   const MILESTONES = [
@@ -244,8 +245,8 @@
     wrap.innerHTML = `
       <div class="next-up-card">
         <span class="next-up-tag">PROSSIMO SU:</span>
-        <span class="next-up-title">${meta.icon} ${escapeHtml(next.title)}</span>
-        <span class="next-up-meta">${escapeHtml(next.category)} · ${FORMAT_ICON[next.format]||""} ${next.format} · ${fmtNum(breakdown.total,1)}h · ${PRIORITY_LABEL[next.priority]}</span>
+        <span class="next-up-title">${meta.icon} ${escapeHtml(displayTitle(next))}</span>
+        <span class="next-up-meta">${escapeHtml((CATEGORY_META[next.category]||{}).label || next.category)} · ${FORMAT_ICON[next.format]||""} ${FORMAT_LABEL[next.format]||next.format} · ${fmtNum(breakdown.total,1)}h · ${PRIORITY_LABEL[next.priority]}</span>
         <button class="btn btn-toggle" data-mark-next="${next.id}">✓ Segna come visto</button>
       </div>`;
     wrap.querySelector("[data-mark-next]").addEventListener("click", ()=>{
@@ -257,22 +258,22 @@
     const section = $("#hero-banner");
     if(!next){ section.hidden = true; return; }
     const r = resolved[next.id];
+    if(!r || !r.ok || !r.backdropPath){ section.hidden = true; return; }
     section.hidden = false;
 
     const bg = $("#hero-banner-bg");
-    const hasBackdrop = !!(r && r.ok && r.backdropPath);
-    bg.style.backgroundImage = `url("${hasBackdrop ? TMDB.backdropUrl(r.backdropPath, "w1280") : PosterArt.heroDataUri(next)}")`;
+    bg.style.backgroundImage = `url("${TMDB.backdropUrl(r.backdropPath, "w1280")}")`;
     bg.classList.add("loaded");
 
-    $("#hero-title").textContent = next.title;
+    $("#hero-title").textContent = displayTitle(next);
     const dateLabel = (r && r.ok) ? (r.releaseDate || r.firstAirDate) : null;
     const year = dateLabel ? dateLabel.slice(0,4) : "";
     const breakdown = itemHourBreakdown(next);
     $("#hero-meta").innerHTML = `
       ${(r && r.ok && r.voteAverage) ? `<span class="detail-rating">⭐ ${r.voteAverage.toFixed(1)}</span>` : ""}
       ${year ? `<span>${year}</span>` : ""}
-      <span>${escapeHtml(next.category)}</span>
-      <span>${FORMAT_ICON[next.format]||""} ${next.format}</span>
+      <span>${escapeHtml((CATEGORY_META[next.category]||{}).label || next.category)}</span>
+      <span>${FORMAT_ICON[next.format]||""} ${FORMAT_LABEL[next.format]||next.format}</span>
       <span>${fmtNum(breakdown.total,1)}h</span>
     `;
     $("#hero-overview").textContent = synopsisFor(next);
@@ -319,7 +320,8 @@
     if(filters.status === "unwatched" && state.watched[item.id]) return false;
     if(filters.search){
       const q = filters.search.toLowerCase();
-      if(!item.title.toLowerCase().includes(q)) return false;
+      const hay = (item.title + " " + displayTitle(item)).toLowerCase();
+      if(!hay.includes(q)) return false;
     }
     return true;
   }
@@ -327,7 +329,7 @@
   function sortItems(items){
     const arr = items.slice();
     switch(filters.sort){
-      case "alpha": arr.sort((a,b)=>a.title.localeCompare(b.title, "it")); break;
+      case "alpha": arr.sort((a,b)=>displayTitle(a).localeCompare(displayTitle(b), "it")); break;
       case "hours-desc": arr.sort((a,b)=>itemHourBreakdown(b).total - itemHourBreakdown(a).total); break;
       case "hours-asc": arr.sort((a,b)=>itemHourBreakdown(a).total - itemHourBreakdown(b).total); break;
       case "priority": {
@@ -346,28 +348,30 @@
   }
 
   // ---------------- item card rendering ----------------
-  // Locandina: TMDB ufficiale se disponibile, altrimenti artwork generato
-  // (mai un buco: ogni titolo ha sempre una locandina).
+  // Tutti i contenuti editoriali (titolo italiano, locandina, sinossi) vengono
+  // da TMDB. Finché il database non è sincronizzato la scheda resta neutra:
+  // niente testi o immagini inventati.
   function posterSrc(item, size){
     const r = resolved[item.id];
-    if(r && r.ok && r.posterPath) return TMDB.posterUrl(r.posterPath, size || "w185");
-    return PosterArt.posterDataUri(item);
+    return (r && r.ok && r.posterPath) ? TMDB.posterUrl(r.posterPath, size || "w185") : null;
   }
 
-  // Sinossi: TMDB ufficiale se disponibile, altrimenti quella scritta a mano.
   function synopsisFor(item){
     const r = resolved[item.id];
-    if(r && r.ok && r.overview) return r.overview;
-    return (typeof BUILTIN_SYNOPSES !== "undefined" && BUILTIN_SYNOPSES[item.id]) || "";
+    return (r && r.ok && r.overview) ? r.overview : "";
+  }
+
+  // Titolo da mostrare: quello italiano di TMDB quando c'è, altrimenti l'originale
+  function displayTitle(item){
+    const r = resolved[item.id];
+    return (r && r.ok && r.titleIt) ? r.titleIt : item.title;
   }
 
   function renderPosterInner(item){
-    const generated = !(resolved[item.id] && resolved[item.id].ok && resolved[item.id].posterPath);
-    // lazy solo per le immagini di rete: l'artwork generato è un data URI,
-    // non c'è nessuna richiesta da rimandare e differirlo lo fa comparire a scatti
-    return generated
-      ? `<img src="${posterSrc(item)}" alt="" class="generated" decoding="async">`
-      : `<img src="${posterSrc(item)}" alt="" loading="lazy">`;
+    const src = posterSrc(item);
+    return src
+      ? `<img src="${src}" alt="" loading="lazy">`
+      : `<span class="poster-empty" aria-hidden="true"></span>`;
   }
 
   function renderSynopsis(item){
@@ -380,7 +384,7 @@
     const watched = !!state.watched[item.id];
     const breakdown = itemHourBreakdown(item);
     const r = resolved[item.id];
-    const hasDetail = true; // la scheda dettaglio funziona sempre: sinossi e artwork ci sono comunque
+    const hasDetail = true; // la scheda si apre sempre: mostra i dati TMDB se ci sono
     const canExpand = !!(r && r.ok && r.mediaType === "tv" && r.episodes && r.episodes.length);
     const expanded = expandedItems.has(item.id);
 
@@ -406,14 +410,14 @@
       <div class="item-content">
         <div class="item-title-row">
           <span class="item-order">#${item.id}</span>
-          <span class="item-title ${hasDetail ? "item-title-clickable" : ""}">${escapeHtml(item.title)}</span>
+          <span class="item-title ${hasDetail ? "item-title-clickable" : ""}">${escapeHtml(displayTitle(item))}</span>
           ${ratingBadge}
           ${canExpand ? `<button class="item-expand-btn" aria-expanded="${expanded}">${expanded ? "▴ episodi" : "▾ episodi"}</button>` : ""}
           ${fracBadge}
         </div>
         ${synopsisHtml}
         <div class="item-badges">
-          <span class="badge badge-format">${FORMAT_ICON[item.format]||""} ${item.format}</span>
+          <span class="badge badge-format">${FORMAT_ICON[item.format]||""} ${FORMAT_LABEL[item.format]||item.format}</span>
           <span class="badge badge-priority-${item.priority}">${PRIORITY_LABEL[item.priority]}</span>
         </div>
       </div>
@@ -539,23 +543,23 @@
     const providersBody = modal.querySelector("#detail-providers-body");
     const actionsEl = modal.querySelector("#detail-actions");
 
-    const bgUrl = (r && r.ok && r.backdropPath)
-      ? TMDB.backdropUrl(r.backdropPath, "w780")
-      : PosterArt.heroDataUri(item);
-    heroEl.style.backgroundImage = `url("${bgUrl}")`;
+    const bgUrl = (r && r.ok && r.backdropPath) ? TMDB.backdropUrl(r.backdropPath, "w780") : null;
+    heroEl.style.backgroundImage = bgUrl ? `url("${bgUrl}")` : "none";
+    heroEl.classList.toggle("empty", !bgUrl);
     heroEl.innerHTML = `<button class="detail-close" aria-label="Chiudi">✕</button>`;
     heroEl.querySelector(".detail-close").addEventListener("click", closeDetailModal);
 
-    posterEl.innerHTML = `<img src="${posterSrc(item, "w342")}" alt="">`;
+    const dPoster = posterSrc(item, "w342");
+    posterEl.innerHTML = dPoster ? `<img src="${dPoster}" alt="">` : `<span class="poster-empty"></span>`;
 
-    titleEl.textContent = item.title;
+    titleEl.textContent = displayTitle(item);
 
     const breakdown = itemHourBreakdown(item);
     const dateLabel = (r && r.ok) ? (r.releaseDate || r.firstAirDate) : null;
     metaRowEl.innerHTML = `
       ${(r && r.ok && r.voteAverage) ? `<span class="detail-rating">⭐ ${r.voteAverage.toFixed(1)}</span>` : ""}
       ${dateLabel ? `<span>${dateLabel.slice(0,4)}</span>` : ""}
-      <span>${FORMAT_ICON[item.format]||""} ${item.format}</span>
+      <span>${FORMAT_ICON[item.format]||""} ${FORMAT_LABEL[item.format]||item.format}</span>
       <span class="badge badge-priority-${item.priority}">${PRIORITY_LABEL[item.priority]}</span>
       <span>${fmtNum(breakdown.total,1)}h</span>
     `;
@@ -647,15 +651,18 @@
     const el = $("#data-source-info");
     if(!el) return;
     const total = TRACKER_DATA.length;
+    const banner = $("#data-empty-banner");
     if(typeof TMDB_METADATA !== "undefined" && TMDB_METADATA.generatedAt){
       const enriched = TRACKER_DATA.filter(i => resolved[i.id] && resolved[i.id].ok).length;
       const d = new Date(TMDB_METADATA.generatedAt);
-      el.textContent = `Dati TMDB (locandine ufficiali, valutazioni, episodi, disponibilità streaming) per ${enriched} titoli su ${total}, ` +
-        `aggiornati automaticamente — ultimo aggiornamento ${d.toLocaleDateString("it-IT", { day:"numeric", month:"long", year:"numeric" })}. ` +
-        `Per gli altri titoli restano la sinossi e l'illustrazione di questo progetto.`;
+      el.textContent = `Titoli, locandine, sinossi, valutazioni, episodi e disponibilità streaming provengono da TMDB ` +
+        `(lingua ${(TMDB_METADATA.language || "it-IT")}, regione ${TMDB_METADATA.region || "IT"}): ` +
+        `${enriched} titoli su ${total} sincronizzati, ultimo aggiornamento ` +
+        `${d.toLocaleDateString("it-IT", { day:"numeric", month:"long", year:"numeric" })}.`;
+      if(banner) banner.hidden = true;
     } else {
-      el.textContent = `Tutti i ${total} titoli hanno sinossi e illustrazione originali di questo progetto. ` +
-        `Locandine ufficiali, valutazioni e disponibilità streaming compaiono automaticamente al primo aggiornamento del database TMDB.`;
+      el.textContent = `Titoli, locandine, sinossi, valutazioni ed episodi provengono da TMDB e non sono ancora stati sincronizzati.`;
+      if(banner) banner.hidden = false;
     }
   }
 
@@ -679,7 +686,7 @@
     Object.keys(FORMAT_ICON).forEach(f=>{
       const b = document.createElement("button");
       b.className = "chip";
-      b.textContent = FORMAT_ICON[f] + " " + f;
+      b.textContent = FORMAT_ICON[f] + " " + (FORMAT_LABEL[f] || f);
       b.dataset.format = f;
       b.addEventListener("click", ()=>{
         if(filters.formats.has(f)) filters.formats.delete(f); else filters.formats.add(f);

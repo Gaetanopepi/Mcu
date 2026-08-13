@@ -140,6 +140,22 @@
     </div>
   </section>
 
+  <!-- DATI NON ANCORA SINCRONIZZATI -->
+  <section class="panel data-empty-banner" id="data-empty-banner" hidden>
+    <h2 class="panel-title">🗄️ Database non ancora sincronizzato</h2>
+    <p>
+      Locandine, sinossi in italiano, valutazioni, episodi e disponibilità streaming vengono presi da
+      <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a>: finché la
+      sincronizzazione non viene eseguita almeno una volta, la checklist funziona ma le schede restano senza immagini e testi.
+    </p>
+    <p class="data-empty-how">
+      Per popolarla serve una API key gratuita di TMDB, una sola volta. Due modi, entrambi descritti nel
+      <a href="https://github.com/Gaetanopepi/Mcu#come-funzionano-i-dati-tmdb-senza-che-nessuno-inserisca-una-chiave" target="_blank" rel="noopener noreferrer">README</a>:
+      impostare il secret <code>TMDB_API_KEY</code> nel repository e lanciare l'automazione
+      <em>Update TMDB metadata</em>, oppure eseguire lo script in locale e committare il file generato.
+    </p>
+  </section>
+
   <!-- ACHIEVEMENTS -->
   <section class="achievements panel" id="achievements-panel">
     <h2 class="panel-title">🏆 Trofei del Multiverso</h2>
@@ -212,12 +228,12 @@
     <p class="tmdb-attribution">
       <strong>Progetto fan non ufficiale.</strong> Non affiliato, sponsorizzato o approvato da Marvel, Disney o dai
       rispettivi detentori dei diritti; tutti i marchi e i titoli citati appartengono ai legittimi proprietari.
-      Il logo e le illustrazioni delle schede sono originali di questo progetto e non riproducono materiale promozionale ufficiale.
+      Il logo è originale di questo progetto.
     </p>
     <p class="tmdb-attribution">
-      Valutazioni, episodi, locandine ufficiali e disponibilità streaming: <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a>.
+      Titoli italiani, sinossi, locandine, valutazioni, episodi e disponibilità streaming provengono da
+      <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a>.
       Questo prodotto usa l'API di TMDB ma non è approvato né certificato da TMDB.
-      Le sinossi di base sono scritte per questo progetto.
     </p>
   </section>
 
@@ -238,9 +254,7 @@
 </div>
 
 <script src="assets/data.js"></script>
-<script src="assets/synopses.js"></script>
 <script src="assets/metadata.js"></script>
-<script src="assets/poster.js"></script>
 <script src="assets/tmdb.js"></script>
 <script src="assets/ui.js"></script>
 <script src="assets/app.js"></script>

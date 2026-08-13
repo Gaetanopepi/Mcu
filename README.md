@@ -16,9 +16,8 @@ interattivo con progresso persistente nel browser.
 - 🔍 Ricerca, filtri per priorità/formato/stato, ordinamento, toggle "Solo Canone MCU"
 - 💾 Progresso salvato in `localStorage`, con esportazione/importazione JSON per backup o cambio dispositivo
 - 🎉 Overlay speciale "Snap" al completamento del 100%
-- 🖼️ **Locandina e sinossi per ogni titolo, sempre visibili** — 156 sinossi in italiano scritte
-  per questo progetto e illustrazioni originali generate per ciascun titolo, senza dipendere da
-  nessuna API: funzionano al primo caricamento, a configurazione zero
+- 🇮🇹 **Tutto in italiano** — interfaccia, e dal database anche titoli, sinossi e locandine
+  italiane (TMDB `language=it-IT`, locandine con `include_image_language=it,null,en`)
 - 🛡️ **Identità visiva propria** — logo/emblema del progetto (scudo comic con la spunta del tracker)
 - 📺 **Tracciamento per episodio** per tutte le serie — sinossi, immagine e durata reale di ogni
   episodio, con stato "parzialmente vista" e ricalcolo automatico delle ore totali sui runtime
@@ -29,19 +28,22 @@ interattivo con progresso persistente nel browser.
 - 🔔 Notifiche in-app e modali di conferma al posto degli `alert()`/`confirm()` nativi del browser
 - 📱 Installabile come app (PWA) con funzionamento offline per la sola checklist
 
-## Due livelli di dati
+## Da dove vengono i contenuti
 
-Il sito è progettato per non avere mai schede vuote:
+**Tutti i contenuti editoriali arrivano da TMDB**, in italiano — nulla è scritto o disegnato a
+mano nel repository:
 
-| | Livello base (sempre attivo) | Livello TMDB (opzionale) |
-|---|---|---|
-| **Sinossi** | 156 scritte per questo progetto | sinossi ufficiale TMDB |
-| **Locandina** | illustrazione originale generata | locandina ufficiale |
-| **Voto / streaming / episodi** | — | ⭐ voto, "dove guardarlo", episodi |
-| **Serve configurazione?** | no | sì, un secret una tantum |
+| Contenuto | Fonte |
+|---|---|
+| Titolo mostrato | titolo italiano TMDB (`language=it-IT`), con l'originale come ripiego |
+| Sinossi | sinossi italiana TMDB; se TMDB non ne ha una in italiano ripiega sull'inglese, e lo segna nei dati (`overviewLang`) |
+| Locandina e sfondo | immagini TMDB, preferendo quelle con testo italiano (`include_image_language=it,null,en`) |
+| Voto, episodi, streaming | TMDB (regione IT) |
+| Elenco, ordine, ore, priorità | il tracker Excel originale (`assets/data.js`) |
 
-Il livello TMDB, quando presente, **sostituisce** quello di base titolo per titolo. Senza
-configurare nulla il sito è già completo e navigabile; con TMDB diventa più ricco.
+Finché la sincronizzazione non viene eseguita almeno una volta, la checklist è pienamente
+utilizzabile (spunte, statistiche, filtri, export) ma le schede restano **volutamente senza
+immagini né testi**: il sito non inventa contenuti che non ha.
 
 ## Struttura
 
@@ -49,8 +51,6 @@ configurare nulla il sito è già completo e navigabile; con TMDB diventa più r
 index.html                          Markup della pagina
 assets/style.css                     Tema comic dark (font Bangers/Barlow, pannelli in stile fumetto)
 assets/data.js                       Dataset dei 156 titoli (generato dal tracker Excel originale)
-assets/synopses.js                   156 sinossi in italiano scritte per il progetto (livello base)
-assets/poster.js                     Generatore di locandine SVG originali (livello base)
 assets/logo.svg                      Emblema del progetto (in pagina è inline nell'header)
 assets/metadata.js                   Dati TMDB precalcolati (generato dalla GitHub Action, vedi sotto)
 assets/tmdb.js                       Helper per le URL delle immagini TMDB (nessuna chiave richiesta)
@@ -80,18 +80,29 @@ precalcolati una volta e serviti come file statico.
 4. Il commit viene fatto automaticamente dalla Action. Il sito legge quel file come un qualsiasi
    altro script statico — zero chiamate a TMDB dal browser, zero configurazione per chi visita.
 
-**Setup one-time (solo per chi possiede il repository):**
-1. Ottieni una API key gratuita v3 su [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api) (2 minuti, nessuna carta).
-2. Nel repository GitHub: *Settings → Secrets and variables → Actions → New repository secret*,
-   nome `TMDB_API_KEY`, valore la chiave ottenuta.
-3. Verifica che in *Settings → Actions → General → Workflow permissions* sia selezionato
-   "Read and repository permissions" (serve per lasciare che l'automazione faccia il commit).
-4. Lancia manualmente la Action una prima volta da *Actions → Update TMDB metadata → Run workflow*,
-   oppure aspetta l'esecuzione notturna programmata.
+### Setup one-time (solo per chi possiede il repository)
 
-Finché il secret non è impostato il sito è già completo: mostra le 156 sinossi e le illustrazioni
-originali. Quello che il secret aggiunge sono le locandine ufficiali, i voti, gli episodi e la
-disponibilità streaming.
+Serve una API key gratuita v3 di [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api)
+(2 minuti, nessuna carta di credito). Poi scegli una delle due strade.
+
+**A — Automatica (consigliata): la Action fa tutto e si aggiorna da sola**
+1. Nel repository GitHub: *Settings → Secrets and variables → Actions → New repository secret*,
+   nome `TMDB_API_KEY`, valore la chiave.
+2. In *Settings → Actions → General → Workflow permissions* seleziona
+   "Read and write permissions" (serve perché l'automazione possa fare il commit).
+3. Lancia la Action da *Actions → Update TMDB metadata → Run workflow*. Da lì in poi si aggiorna
+   ogni notte da sola.
+
+**B — In locale, subito (utile per vedere il risultato in un minuto)**
+```bash
+TMDB_API_KEY=la_tua_chiave python3 scripts/fetch_tmdb_metadata.py
+git add assets/metadata.js && git commit -m "Aggiorna metadati TMDB" && git push
+```
+Lo script stampa quanti titoli ha risolto e quante sinossi ha trovato in italiano. Richiede
+qualche minuto (rispetta i limiti di TMDB con una pausa fra le chiamate).
+
+Variabili opzionali: `TMDB_LANGUAGE` (default `it-IT`), `TMDB_REGION` (default `IT`, decide il
+paese per la disponibilità streaming), `TMDB_REQUEST_DELAY` (default `0.3` secondi).
 
 ## Sviluppo locale
 
@@ -113,5 +124,5 @@ Il tracker esclude *Avengers: Doomsday* perché non ancora uscito al 13/08/2026.
 
 Progetto fan non ufficiale, senza scopo di lucro. Non affiliato, sponsorizzato o approvato da
 Marvel, Disney o dai rispettivi detentori dei diritti; tutti i marchi e i titoli citati
-appartengono ai legittimi proprietari. Il logo e le illustrazioni delle schede sono originali di
-questo progetto e non riproducono materiale promozionale ufficiale.
+appartengono ai legittimi proprietari. Il logo è originale di questo progetto. Locandine, immagini
+e testi descrittivi provengono da TMDB e restano dei rispettivi titolari.

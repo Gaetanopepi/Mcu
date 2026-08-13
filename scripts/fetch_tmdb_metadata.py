@@ -42,10 +42,15 @@ def load_tracker_data():
     return json.loads(match.group(1))
 
 
-def api_get(path, params, api_key):
+LANG = os.environ.get("TMDB_LANGUAGE", "it-IT")
+FALLBACK_LANG = "en-US"
+
+
+def api_get(path, params, api_key, language=LANG):
     query = dict(params or {})
     query["api_key"] = api_key
-    query["language"] = "it-IT"
+    if language:
+        query["language"] = language
     url = TMDB_BASE + path + "?" + urllib.parse.urlencode({k: v for k, v in query.items() if v not in (None, "")})
     req = urllib.request.Request(url, headers={"Accept": "application/json"})
     try:
@@ -77,29 +82,83 @@ def clean_title(title):
     return re.sub(r"\*", "", re.sub(r"\(\d{4}\)", "", title)).strip()
 
 
+def italian_poster(tmdb_id, media_type, api_key):
+    """Locandina con testo italiano se TMDB ne ha una, altrimenti quella neutra/inglese."""
+    try:
+        imgs = api_get(f"/{media_type}/{tmdb_id}/images",
+                       {"include_image_language": "it,null,en"}, api_key, language=None)
+    except Exception:
+        return None, None
+    posters = imgs.get("posters") or []
+    backdrops = imgs.get("backdrops") or []
+
+    def pick(items):
+        if not items:
+            return None
+        # priorità: italiano -> senza testo -> inglese; a parità, il meglio votato
+        order = {"it": 0, None: 1, "": 1, "en": 2}
+        ranked = sorted(items, key=lambda p: (order.get(p.get("iso_639_1"), 3),
+                                              -(p.get("vote_average") or 0)))
+        return ranked[0].get("file_path")
+
+    return pick(posters), pick(backdrops)
+
+
+def details(tmdb_id, media_type, api_key):
+    """Scheda completa in italiano; se la sinossi italiana manca, ripiega sull'inglese."""
+    data = api_get(f"/{media_type}/{tmdb_id}", {}, api_key)
+    overview = (data.get("overview") or "").strip()
+    overview_lang = "it"
+    if not overview:
+        try:
+            en = api_get(f"/{media_type}/{tmdb_id}", {}, api_key, language=FALLBACK_LANG)
+            overview = (en.get("overview") or "").strip()
+            overview_lang = "en" if overview else None
+        except Exception:
+            overview_lang = None
+    return data, overview, overview_lang
+
+
+def build_entry(best, media_type, season_number, api_key):
+    tmdb_id = best["id"]
+    data, overview, overview_lang = details(tmdb_id, media_type, api_key)
+    time.sleep(REQUEST_DELAY)
+    poster, backdrop = italian_poster(tmdb_id, media_type, api_key)
+    time.sleep(REQUEST_DELAY)
+
+    # titolo italiano dalla scheda in it-IT
+    it_title = (data.get("title") if media_type == "movie" else data.get("name")) or ""
+
+    entry = {
+        "ok": True,
+        "mediaType": media_type,
+        "tmdbId": tmdb_id,
+        "seasonNumber": season_number,
+        "titleIt": it_title,
+        "posterPath": poster or data.get("poster_path") or best.get("poster_path"),
+        "backdropPath": backdrop or data.get("backdrop_path") or best.get("backdrop_path"),
+        "overview": overview,
+        "overviewLang": overview_lang,
+        "voteAverage": data.get("vote_average") or best.get("vote_average") or 0,
+    }
+    if media_type == "movie":
+        entry["releaseDate"] = data.get("release_date") or best.get("release_date")
+    else:
+        entry["firstAirDate"] = data.get("first_air_date") or best.get("first_air_date")
+    return entry
+
+
 def resolve_item(item, api_key):
     fmt = item["format"]
     title = item["title"]
 
     if fmt in TV_FORMATS:
-        season_info = parse_season_suffix(title) or (title, 1)
-        base_title, season_number = season_info
+        base_title, season_number = parse_season_suffix(title) or (title, 1)
         search = api_get("/search/tv", {"query": base_title}, api_key)
         results = search.get("results") or []
         if not results:
             return {"ok": False, "code": "NOT_FOUND"}
-        best = results[0]
-        return {
-            "ok": True,
-            "mediaType": "tv",
-            "tmdbId": best["id"],
-            "seasonNumber": season_number,
-            "posterPath": best.get("poster_path"),
-            "backdropPath": best.get("backdrop_path"),
-            "overview": best.get("overview") or "",
-            "voteAverage": best.get("vote_average") or 0,
-            "firstAirDate": best.get("first_air_date"),
-        }
+        return build_entry(results[0], "tv", season_number, api_key)
 
     year = parse_year_hint(title)
     query = clean_title(title)
@@ -111,17 +170,7 @@ def resolve_item(item, api_key):
         best = next((r for r in (multi.get("results") or []) if r.get("media_type") == "movie"), None)
     if not best:
         return {"ok": False, "code": "NOT_FOUND"}
-    return {
-        "ok": True,
-        "mediaType": "movie",
-        "tmdbId": best["id"],
-        "seasonNumber": None,
-        "posterPath": best.get("poster_path"),
-        "backdropPath": best.get("backdrop_path"),
-        "overview": best.get("overview") or "",
-        "voteAverage": best.get("vote_average") or 0,
-        "releaseDate": best.get("release_date"),
-    }
+    return build_entry(best, "movie", None, api_key)
 
 
 def fetch_episodes(tmdb_id, season_number, api_key):
@@ -197,9 +246,13 @@ def main():
         if i % 20 == 0 or i == len(items):
             print(f"  {i}/{len(items)} processed ({ok_count} ok, {fail_count} unresolved)")
 
+    it_overviews = sum(1 for v in result_items.values() if v.get("overviewLang") == "it")
+    en_overviews = sum(1 for v in result_items.values() if v.get("overviewLang") == "en")
+
     output = {
         "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "region": REGION,
+        "language": LANG,
         "items": result_items,
     }
 
@@ -210,6 +263,7 @@ def main():
         f.write(";\n")
 
     print(f"Wrote {OUTPUT_PATH}: {ok_count} resolved, {fail_count} unresolved out of {len(items)}")
+    print(f"  sinossi in italiano: {it_overviews} | ripiegate sull'inglese: {en_overviews}")
 
 
 if __name__ == "__main__":
