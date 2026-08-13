@@ -16,6 +16,10 @@ interattivo con progresso persistente nel browser.
 - 🔍 Ricerca, filtri per priorità/formato/stato, ordinamento, toggle "Solo Canone MCU"
 - 💾 Progresso salvato in `localStorage`, con esportazione/importazione JSON per backup o cambio dispositivo
 - 🎉 Overlay speciale "Snap" al completamento del 100%
+- 🖼️ **Locandina e sinossi per ogni titolo, sempre visibili** — 156 sinossi in italiano scritte
+  per questo progetto e illustrazioni originali generate per ciascun titolo, senza dipendere da
+  nessuna API: funzionano al primo caricamento, a configurazione zero
+- 🛡️ **Identità visiva propria** — logo/emblema del progetto (scudo comic con la spunta del tracker)
 - 📺 **Tracciamento per episodio** per tutte le serie — sinossi, immagine e durata reale di ogni
   episodio, con stato "parzialmente vista" e ricalcolo automatico delle ore totali sui runtime
   effettivi invece delle stime del foglio originale
@@ -25,8 +29,19 @@ interattivo con progresso persistente nel browser.
 - 🔔 Notifiche in-app e modali di conferma al posto degli `alert()`/`confirm()` nativi del browser
 - 📱 Installabile come app (PWA) con funzionamento offline per la sola checklist
 
-Locandine, sinossi, rating, episodi e disponibilità streaming vengono da **TMDB**, ma nessun
-visitatore deve mai inserire una API key — vedi sotto.
+## Due livelli di dati
+
+Il sito è progettato per non avere mai schede vuote:
+
+| | Livello base (sempre attivo) | Livello TMDB (opzionale) |
+|---|---|---|
+| **Sinossi** | 156 scritte per questo progetto | sinossi ufficiale TMDB |
+| **Locandina** | illustrazione originale generata | locandina ufficiale |
+| **Voto / streaming / episodi** | — | ⭐ voto, "dove guardarlo", episodi |
+| **Serve configurazione?** | no | sì, un secret una tantum |
+
+Il livello TMDB, quando presente, **sostituisce** quello di base titolo per titolo. Senza
+configurare nulla il sito è già completo e navigabile; con TMDB diventa più ricco.
 
 ## Struttura
 
@@ -34,13 +49,16 @@ visitatore deve mai inserire una API key — vedi sotto.
 index.html                          Markup della pagina
 assets/style.css                     Tema comic dark (font Bangers/Barlow, pannelli in stile fumetto)
 assets/data.js                       Dataset dei 156 titoli (generato dal tracker Excel originale)
+assets/synopses.js                   156 sinossi in italiano scritte per il progetto (livello base)
+assets/poster.js                     Generatore di locandine SVG originali (livello base)
+assets/logo.svg                      Emblema del progetto (in pagina è inline nell'header)
 assets/metadata.js                   Dati TMDB precalcolati (generato dalla GitHub Action, vedi sotto)
 assets/tmdb.js                       Helper per le URL delle immagini TMDB (nessuna chiave richiesta)
 assets/ui.js                         Toast e modale di conferma riutilizzabili
 assets/app.js                        Logica: stato, filtri, rendering, localStorage
 assets/icons/                        Icone PWA (192/512/maskable/apple-touch)
 manifest.json                        Web app manifest per l'installazione
-sw.js                                Service worker: cache offline della sola shell dell'app
+sw.js                                Service worker: shell in cache, metadata.js sempre network-first
 scripts/fetch_tmdb_metadata.py       Script che genera assets/metadata.js (gira solo lato server)
 .github/workflows/update-metadata.yml Automazione che lo esegue ogni notte
 ```
@@ -71,8 +89,9 @@ precalcolati una volta e serviti come file statico.
 4. Lancia manualmente la Action una prima volta da *Actions → Update TMDB metadata → Run workflow*,
    oppure aspetta l'esecuzione notturna programmata.
 
-Finché il secret non è impostato, il sito resta perfettamente funzionante — semplicemente senza
-locandine, sinossi o disponibilità streaming (fallback automatico su un'icona per categoria).
+Finché il secret non è impostato il sito è già completo: mostra le 156 sinossi e le illustrazioni
+originali. Quello che il secret aggiunge sono le locandine ufficiali, i voti, gli episodi e la
+disponibilità streaming.
 
 ## Sviluppo locale
 
@@ -89,3 +108,10 @@ python3 -m http.server 8080
 - [MCU Watchlist 2026](https://marvelwatchlist.com/watch-order/)
 
 Il tracker esclude *Avengers: Doomsday* perché non ancora uscito al 13/08/2026.
+
+## Nota legale
+
+Progetto fan non ufficiale, senza scopo di lucro. Non affiliato, sponsorizzato o approvato da
+Marvel, Disney o dai rispettivi detentori dei diritti; tutti i marchi e i titoli citati
+appartengono ai legittimi proprietari. Il logo e le illustrazioni delle schede sono originali di
+questo progetto e non riproducono materiale promozionale ufficiale.

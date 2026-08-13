@@ -32,7 +32,22 @@
 <header class="site-header">
   <div class="header-inner">
     <div class="brand">
-      <span class="brand-icon">🧤</span>
+      <svg class="brand-mark" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="brandShield" x1="0" y1="0" x2="0.3" y2="1">
+            <stop offset="0" stop-color="#ed1d24"/>
+            <stop offset="1" stop-color="#a3151a"/>
+          </linearGradient>
+          <pattern id="brandHalftone" width="9" height="9" patternUnits="userSpaceOnUse">
+            <circle cx="2" cy="2" r="1.4" fill="#f2c94c" opacity="0.22"/>
+          </pattern>
+        </defs>
+        <path d="M60 3 L69 17 L85 10 L86 27 L103 27 L96 42 L112 50 L98 60 L112 70 L96 78 L103 93 L86 93 L85 110 L69 103 L60 117 L51 103 L35 110 L34 93 L17 93 L24 78 L8 70 L22 60 L8 50 L24 42 L17 27 L34 27 L35 10 L51 17 Z" fill="#f2c94c" opacity="0.9"/>
+        <path d="M60 16 L96 29 V60 C96 82 79 96 60 103 C41 96 24 82 24 60 V29 Z" fill="url(#brandShield)" stroke="#000" stroke-width="4" stroke-linejoin="round"/>
+        <path d="M60 16 L96 29 V60 C96 82 79 96 60 103 C41 96 24 82 24 60 V29 Z" fill="url(#brandHalftone)"/>
+        <path d="M42 61 L55 74 L80 44" fill="none" stroke="#0a0a0f" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M42 61 L55 74 L80 44" fill="none" stroke="#f2c94c" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
       <div class="brand-text">
         <h1>MARVEL <span>ULTIMATE</span> FAN TRACKER</h1>
         <p class="brand-sub">Il multiverso, una checklist alla volta — edizione 2026</p>
@@ -195,8 +210,14 @@
     </p>
     <p class="methodology-note" id="data-source-info"></p>
     <p class="tmdb-attribution">
-      Locandine, sinossi, valutazioni, episodi e disponibilità streaming: <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a>.
+      <strong>Progetto fan non ufficiale.</strong> Non affiliato, sponsorizzato o approvato da Marvel, Disney o dai
+      rispettivi detentori dei diritti; tutti i marchi e i titoli citati appartengono ai legittimi proprietari.
+      Il logo e le illustrazioni delle schede sono originali di questo progetto e non riproducono materiale promozionale ufficiale.
+    </p>
+    <p class="tmdb-attribution">
+      Valutazioni, episodi, locandine ufficiali e disponibilità streaming: <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a>.
       Questo prodotto usa l'API di TMDB ma non è approvato né certificato da TMDB.
+      Le sinossi di base sono scritte per questo progetto.
     </p>
   </section>
 
@@ -217,7 +238,9 @@
 </div>
 
 <script src="assets/data.js"></script>
+<script src="assets/synopses.js"></script>
 <script src="assets/metadata.js"></script>
+<script src="assets/poster.js"></script>
 <script src="assets/tmdb.js"></script>
 <script src="assets/ui.js"></script>
 <script src="assets/app.js"></script>

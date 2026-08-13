@@ -257,25 +257,25 @@
     const section = $("#hero-banner");
     if(!next){ section.hidden = true; return; }
     const r = resolved[next.id];
-    if(!r || !r.ok || !r.backdropPath){
-      section.hidden = true;
-      return;
-    }
     section.hidden = false;
+
     const bg = $("#hero-banner-bg");
-    bg.style.backgroundImage = `url(${TMDB.backdropUrl(r.backdropPath, "w1280")})`;
+    const hasBackdrop = !!(r && r.ok && r.backdropPath);
+    bg.style.backgroundImage = `url("${hasBackdrop ? TMDB.backdropUrl(r.backdropPath, "w1280") : PosterArt.heroDataUri(next)}")`;
     bg.classList.add("loaded");
+
     $("#hero-title").textContent = next.title;
-    const dateLabel = r.releaseDate || r.firstAirDate;
+    const dateLabel = (r && r.ok) ? (r.releaseDate || r.firstAirDate) : null;
     const year = dateLabel ? dateLabel.slice(0,4) : "";
     const breakdown = itemHourBreakdown(next);
     $("#hero-meta").innerHTML = `
-      ${r.voteAverage ? `<span class="detail-rating">⭐ ${r.voteAverage.toFixed(1)}</span>` : ""}
+      ${(r && r.ok && r.voteAverage) ? `<span class="detail-rating">⭐ ${r.voteAverage.toFixed(1)}</span>` : ""}
       ${year ? `<span>${year}</span>` : ""}
+      <span>${escapeHtml(next.category)}</span>
       <span>${FORMAT_ICON[next.format]||""} ${next.format}</span>
       <span>${fmtNum(breakdown.total,1)}h</span>
     `;
-    $("#hero-overview").textContent = r.overview || "";
+    $("#hero-overview").textContent = synopsisFor(next);
     $("#hero-mark-watched").onclick = ()=> toggleWatched(next);
     $("#hero-more-info").onclick = ()=> openDetailModal(next);
   }
@@ -346,30 +346,42 @@
   }
 
   // ---------------- item card rendering ----------------
-  function renderPosterInner(item){
+  // Locandina: TMDB ufficiale se disponibile, altrimenti artwork generato
+  // (mai un buco: ogni titolo ha sempre una locandina).
+  function posterSrc(item, size){
     const r = resolved[item.id];
-    const meta = CATEGORY_META[item.category] || { icon:"🎬" };
-    if(r && r.ok && r.posterPath){
-      const url = TMDB.posterUrl(r.posterPath, "w185");
-      return { cls: "", html: `<img src="${url}" alt="" loading="lazy" onerror="this.remove()">` };
-    }
-    return { cls: "", html: `<span class="poster-fallback">${meta.icon}</span>` };
+    if(r && r.ok && r.posterPath) return TMDB.posterUrl(r.posterPath, size || "w185");
+    return PosterArt.posterDataUri(item);
+  }
+
+  // Sinossi: TMDB ufficiale se disponibile, altrimenti quella scritta a mano.
+  function synopsisFor(item){
+    const r = resolved[item.id];
+    if(r && r.ok && r.overview) return r.overview;
+    return (typeof BUILTIN_SYNOPSES !== "undefined" && BUILTIN_SYNOPSES[item.id]) || "";
+  }
+
+  function renderPosterInner(item){
+    const generated = !(resolved[item.id] && resolved[item.id].ok && resolved[item.id].posterPath);
+    // lazy solo per le immagini di rete: l'artwork generato è un data URI,
+    // non c'è nessuna richiesta da rimandare e differirlo lo fa comparire a scatti
+    return generated
+      ? `<img src="${posterSrc(item)}" alt="" class="generated" decoding="async">`
+      : `<img src="${posterSrc(item)}" alt="" loading="lazy">`;
   }
 
   function renderSynopsis(item){
-    const r = resolved[item.id];
-    if(r && r.ok && r.overview){
-      return `<p class="item-synopsis" title="${escapeHtml(r.overview)}">${escapeHtml(r.overview)}</p>`;
-    }
-    return "";
+    const text = synopsisFor(item);
+    if(!text) return "";
+    return `<p class="item-synopsis" title="${escapeHtml(text)}">${escapeHtml(text)}</p>`;
   }
 
   function buildItemRow(item){
     const watched = !!state.watched[item.id];
     const breakdown = itemHourBreakdown(item);
     const r = resolved[item.id];
-    const hasDetail = !!(r && r.ok);
-    const canExpand = hasDetail && r.mediaType === "tv" && r.episodes && r.episodes.length;
+    const hasDetail = true; // la scheda dettaglio funziona sempre: sinossi e artwork ci sono comunque
+    const canExpand = !!(r && r.ok && r.mediaType === "tv" && r.episodes && r.episodes.length);
     const expanded = expandedItems.has(item.id);
 
     let rowClass = "item-row";
@@ -390,7 +402,7 @@
     row.className = rowClass;
     row.innerHTML = `
       <button class="item-check" aria-label="Segna come visto">${watched ? "✓" : (breakdown.granular && breakdown.watchedCount>0 ? "–" : "")}</button>
-      <div class="item-poster ${poster.cls} ${hasDetail ? "clickable" : ""}">${poster.html}</div>
+      <div class="item-poster ${hasDetail ? "clickable" : ""}">${poster}</div>
       <div class="item-content">
         <div class="item-title-row">
           <span class="item-order">#${item.id}</span>
@@ -527,13 +539,14 @@
     const providersBody = modal.querySelector("#detail-providers-body");
     const actionsEl = modal.querySelector("#detail-actions");
 
-    const bgUrl = (r && r.ok && r.backdropPath) ? TMDB.backdropUrl(r.backdropPath, "w780") : null;
-    heroEl.style.backgroundImage = bgUrl ? `url(${bgUrl})` : "none";
-    heroEl.innerHTML = `<button class="detail-close" aria-label="Chiudi">✕</button>` + (bgUrl ? "" : `<div class="detail-hero-fallback">${meta.icon}</div>`);
+    const bgUrl = (r && r.ok && r.backdropPath)
+      ? TMDB.backdropUrl(r.backdropPath, "w780")
+      : PosterArt.heroDataUri(item);
+    heroEl.style.backgroundImage = `url("${bgUrl}")`;
+    heroEl.innerHTML = `<button class="detail-close" aria-label="Chiudi">✕</button>`;
     heroEl.querySelector(".detail-close").addEventListener("click", closeDetailModal);
 
-    const posterImgUrl = (r && r.ok && r.posterPath) ? TMDB.posterUrl(r.posterPath, "w342") : null;
-    posterEl.innerHTML = posterImgUrl ? `<img src="${posterImgUrl}" alt="">` : `<span class="poster-fallback">${meta.icon}</span>`;
+    posterEl.innerHTML = `<img src="${posterSrc(item, "w342")}" alt="">`;
 
     titleEl.textContent = item.title;
 
@@ -547,7 +560,7 @@
       <span>${fmtNum(breakdown.total,1)}h</span>
     `;
 
-    overviewEl.textContent = (r && r.ok && r.overview) ? r.overview : "Sinossi non disponibile.";
+    overviewEl.textContent = synopsisFor(item) || "Sinossi non disponibile.";
 
     actionsEl.innerHTML = `<button class="btn btn-toggle" id="detail-toggle-watched">${state.watched[item.id] ? "✕ Segna da vedere" : "✓ Segna come visto"}</button>`;
     actionsEl.querySelector("#detail-toggle-watched").addEventListener("click", ()=>{
@@ -557,7 +570,7 @@
 
     const region = (typeof TMDB_METADATA !== "undefined" && TMDB_METADATA.region) || "IT";
     if(!r || !r.ok){
-      providersBody.innerHTML = `<p class="detail-providers-empty">Dati non disponibili per questo titolo.</p>`;
+      providersBody.innerHTML = `<p class="detail-providers-empty">Disponibilità streaming non ancora sincronizzata.</p>`;
     } else if(r.providers && r.providers.length){
       providersBody.innerHTML = `<div class="provider-logos">${r.providers.map(p=>
         `<div class="provider-logo" title="${escapeHtml(p.name)}"><img src="${TMDB.logoUrl(p.logoPath,'w92')}" alt="${escapeHtml(p.name)}" loading="lazy"></div>`
@@ -633,12 +646,16 @@
   function renderDataSourceInfo(){
     const el = $("#data-source-info");
     if(!el) return;
+    const total = TRACKER_DATA.length;
     if(typeof TMDB_METADATA !== "undefined" && TMDB_METADATA.generatedAt){
+      const enriched = TRACKER_DATA.filter(i => resolved[i.id] && resolved[i.id].ok).length;
       const d = new Date(TMDB_METADATA.generatedAt);
-      el.textContent = "Locandine, sinossi, valutazioni e disponibilità streaming sono fornite da TMDB e aggiornate automaticamente. Ultimo aggiornamento: " +
-        d.toLocaleDateString("it-IT", { day:"numeric", month:"long", year:"numeric" }) + ".";
+      el.textContent = `Dati TMDB (locandine ufficiali, valutazioni, episodi, disponibilità streaming) per ${enriched} titoli su ${total}, ` +
+        `aggiornati automaticamente — ultimo aggiornamento ${d.toLocaleDateString("it-IT", { day:"numeric", month:"long", year:"numeric" })}. ` +
+        `Per gli altri titoli restano la sinossi e l'illustrazione di questo progetto.`;
     } else {
-      el.textContent = "Locandine e sinossi non ancora sincronizzate: verranno popolate automaticamente al primo aggiornamento del database.";
+      el.textContent = `Tutti i ${total} titoli hanno sinossi e illustrazione originali di questo progetto. ` +
+        `Locandine ufficiali, valutazioni e disponibilità streaming compaiono automaticamente al primo aggiornamento del database TMDB.`;
     }
   }
 
