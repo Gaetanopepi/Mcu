@@ -176,18 +176,24 @@ cose diverse, perché "è uscito qualcosa di nuovo" ha due forme:
 1. **Una nuova stagione di una serie già seguita.** Si legge l'elenco stagioni della serie su TMDB
    e si aggiunge quella che ha già una data di messa in onda passata. I campi (categoria, priorità,
    canone MCU sì/no) si ereditano dalle stagioni già presenti.
-2. **Un titolo nuovo di zecca.** Si interrogano le uscite delle case di produzione Marvel
-   (Marvel Studios, Marvel Television, Marvel Animation) e si tiene quello che il tracker non ha.
-   È così che *Avengers: Doomsday* comparirà da solo il giorno in cui esce.
+2. **Un titolo nuovo di zecca.** Si interrogano le uscite di Marvel Studios e Marvel Television e
+   si tiene quello che il tracker non ha. È così che *Avengers: Doomsday* comparirà da solo il
+   giorno in cui esce.
 
-Tre regole tengono pulito il risultato:
+Quattro regole tengono pulito il risultato, e la prima è quella che conta:
 
-- **Solo ciò che è già uscito.** Il tracker è una checklist di cose da guardare, non un calendario
-  di annunci: una stagione con data futura viene ignorata finché quella data non arriva.
-- **Niente dietro le quinte.** I documentari promozionali (*Assembled*, i "making of") escono con la
-  stessa casa di produzione dei film, e vengono scartati per genere.
-- **Niente doppioni.** Il confronto è sui titoli normalizzati, quindi rieseguire l'automazione
-  cento volte non aggiunge mai due volte la stessa cosa.
+- **Solo ciò che è uscito da poco**, dentro una finestra di 120 giorni (`DISCOVER_WINDOW_DAYS`).
+  La differenza fra "già uscito" e "appena uscito" è tutto: la prima condizione è vera per
+  l'intero catalogo Marvel dal 1967 in poi, e prenderla alla lettera seppellisce una checklist
+  curata sotto cartoni animati, corti LEGO e serie anni '90. Una stagione del 2022 che manca non è
+  una novità, è una lacuna del tracker, e va valutata a mano.
+- **Niente calendario.** Un titolo con data futura viene ignorato finché quella data non arriva.
+- **Solo Marvel Studios e Marvel Television.** Marvel Animation e Marvel Entertainment esistono da
+  decenni e pubblicano di continuo materiale che con l'MCU non c'entra.
+- **Niente dietro le quinte, niente doppioni.** I documentari promozionali (*Assembled*, i
+  "making of") escono con la stessa casa di produzione dei film e vengono scartati per genere; il
+  confronto sui titoli normalizzati fa sì che rieseguire l'automazione cento volte non aggiunga
+  mai due volte la stessa cosa.
 
 Le voci aggiunte così finiscono in fondo a `assets/data.js` con `"autoAdded": true`, e nel sito
 portano un contrassegno **NUOVO** per i primi 120 giorni dall'uscita. Restano modificabili a mano

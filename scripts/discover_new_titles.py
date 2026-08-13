@@ -12,8 +12,14 @@ cose diverse, perché "è uscito qualcosa di nuovo" ha due forme:
      le uscite delle case di produzione Marvel e si tiene quello che il
      tracker non ha ancora.
 
-In entrambi i casi si aggiunge solo ciò che è *già uscito*: il tracker è una
-checklist di cose da guardare, non un calendario di annunci.
+In entrambi i casi conta solo ciò che è uscito **da poco**, dentro una finestra
+di 120 giorni. La distinzione è tutto: "già uscito" è vero per l'intero catalogo
+Marvel dal 1967 in poi, e prendere quello significa seppellire una checklist
+curata sotto cartoni animati, corti LEGO e serie anni '90. Una stagione del 2022
+che manca non è una novità — è una lacuna del tracker, e va valutata a mano.
+
+Il tracker resta comunque una checklist di cose da guardare, non un calendario
+di annunci: un titolo con data futura viene ignorato finché quella data arriva.
 
 Il file assets/data.js viene riscritto solo se c'è davvero qualcosa da
 aggiungere, e le voci nuove finiscono in fondo con "autoAdded": true, così si
@@ -37,13 +43,18 @@ from fetch_tmdb_metadata import (  # noqa: E402  (riuso: stessa gestione di retr
 
 DRY_RUN = os.environ.get("DISCOVER_DRY_RUN", "").strip() not in ("", "0", "false")
 
-# Case di produzione che identificano un titolo come "roba nostra" su TMDB.
-MARVEL_COMPANIES = {
-    420: "MCU",            # Marvel Studios
-    7505: "MCU",           # Marvel Entertainment
-    19551: "MCU Disney+",  # Marvel Television
-    13252: "MCU Animated", # Marvel Animation
-}
+# Solo le due case che producono il canone che questo tracker segue. Marvel
+# Animation e Marvel Entertainment esistono da decenni e trascinerebbero dentro
+# tutto il catalogo storico — cartoni LEGO, serie animate anni '90 — che non
+# c'entra con una checklist dell'MCU. Quelle voci si aggiungono a mano.
+MARVEL_COMPANIES = (
+    420,    # Marvel Studios
+    19551,  # Marvel Television
+)
+
+# "Appena uscito" è una finestra, non "data già passata": senza questo vincolo
+# l'intero catalogo Marvel soddisfa la condizione, perché è tutto già uscito.
+WINDOW_DAYS = int(os.environ.get("DISCOVER_WINDOW_DAYS", "120"))
 
 # TMDB non conosce le Fasi: per i titoli nuovi si assume l'era corrente.
 # Da aggiornare quando Marvel apre la Fase 7 — è l'unica riga da toccare.
@@ -62,6 +73,16 @@ TYPICAL_EPISODE_MINUTES = 45
 
 def today():
     return datetime.date.today().isoformat()
+
+
+def window_start():
+    """La data più vecchia che conta ancora come "appena uscito"."""
+    return (datetime.date.today() - datetime.timedelta(days=WINDOW_DAYS)).isoformat()
+
+
+def just_released(date):
+    """Uscito davvero, e uscito da poco."""
+    return bool(date) and window_start() <= date <= today()
 
 
 def load_metadata_items():
@@ -136,8 +157,11 @@ def discover_new_seasons(items, metadata, api_key):
             air = season.get("air_date") or ""
             if number <= info["max_season"] or number == 0:
                 continue
-            if not air or air > today():
-                continue  # annunciata ma non ancora uscita
+            if not just_released(air):
+                # Annunciata ma non ancora in onda, oppure vecchia: una stagione
+                # del 2022 mancante non è una novità, è una lacuna del tracker,
+                # e va valutata a mano invece che etichettata come era corrente.
+                continue
             template = info["template"]
             episodes = season.get("episode_count") or 0
             found.append({
@@ -159,21 +183,24 @@ def discover_new_titles(items, api_key):
     """Film e serie Marvel usciti che il tracker non ha ancora."""
     known = tracked_keys(items)
     found = []
-    for company_id, category in MARVEL_COMPANIES.items():
+    for company_id in MARVEL_COMPANIES:
         for media_type in ("movie", "tv"):
-            date_field = "primary_release_date.lte" if media_type == "movie" else "first_air_date.lte"
-            sort_field = "primary_release_date.desc" if media_type == "movie" else "first_air_date.desc"
+            is_movie = media_type == "movie"
+            gte = "primary_release_date.gte" if is_movie else "first_air_date.gte"
+            lte = "primary_release_date.lte" if is_movie else "first_air_date.lte"
             try:
+                # La finestra si chiede direttamente a TMDB: così torna solo
+                # l'uscito di fresco invece di tutto il catalogo della casa.
                 data = api_get(f"/discover/{media_type}", {
                     "with_companies": company_id,
-                    date_field: today(),
-                    "sort_by": sort_field,
+                    gte: window_start(),
+                    lte: today(),
                 }, api_key)
             except Exception as e:
                 print(f"  [warn] discover {media_type} per la casa {company_id} fallito: {e}", file=sys.stderr)
                 continue
             time.sleep(REQUEST_DELAY)
-            for result in (data.get("results") or [])[:20]:
+            for result in data.get("results") or []:
                 genres = set(result.get("genre_ids") or [])
                 if genres & {DOCUMENTARY_GENRE, TALK_GENRE}:
                     continue  # dietro le quinte, non un contenuto da spuntare
@@ -184,15 +211,14 @@ def discover_new_titles(items, api_key):
                 if key in known:
                     continue
                 date = result.get("release_date") or result.get("first_air_date") or ""
-                if not date or date > today():
+                if not just_released(date):
                     continue
                 known.add(key)   # evita doppioni fra una casa e l'altra
-                is_movie = media_type == "movie"
                 found.append({
                     "title": title if is_movie else f"{title} S1",
                     "format": "Movie" if is_movie else "TV",
                     "hours": 2.0 if is_movie else 4.5,   # stima, poi corretta sui runtime veri
-                    "category": category if is_movie else "MCU Disney+",
+                    "category": "MCU" if is_movie else "MCU Disney+",
                     "priority": "Essential",
                     "phase": CURRENT_PHASE,
                     "saga": CURRENT_SAGA,
