@@ -778,6 +778,23 @@
   function showTmdbError(msg){ const e = $("#tmdb-error"); e.textContent = msg; e.hidden = false; }
   function hideTmdbError(){ $("#tmdb-error").hidden = true; }
 
+  /**
+   * In un'anteprima incorporata (iframe con sandbox/CSP restrittiva) le
+   * chiamate a TMDB vengono bloccate a prescindere dalla chiave. Meglio
+   * avvisare prima che l'utente la incolli e riceva un errore oscuro.
+   */
+  function checkEmbeddedContext(){
+    const el = $("#tmdb-embedded-warn");
+    let embedded = false;
+    try { embedded = window.self !== window.top; } catch(e) { embedded = true; }
+    const fileProtocol = location.protocol === "file:";
+    if(!embedded && !fileProtocol){ el.hidden = true; return; }
+    el.textContent = embedded
+      ? "Questa pagina è aperta dentro un'anteprima incorporata, che blocca le chiamate verso l'esterno: qui il caricamento non può funzionare. Apri il sito pubblicato in una scheda normale e il riquadro funzionerà."
+      : "La pagina è aperta come file locale: alcuni browser bloccano le chiamate esterne in questo caso. Servila da un server locale (per esempio python3 -m http.server) e il riquadro funzionerà.";
+    el.hidden = false;
+  }
+
   async function liveSync(force){
     if(!TMDB.getApiKey() || liveSyncing) return;
     liveSyncing = true;
@@ -804,10 +821,10 @@
           renderDashboard(); renderList();
           return;
         }
-        if(e.code === "NETWORK"){
+        if(e.code === "BLOCKED" || e.code === "OFFLINE"){
           liveSyncing = false;
           updateTmdbPanel();
-          showTmdbError("Connessione a TMDB non riuscita. I dati già caricati restano disponibili.");
+          showTmdbError(e.message + " I dati già caricati restano disponibili.");
           renderDashboard(); renderList();
           return;
         }
@@ -839,9 +856,10 @@
       const test = await TMDB.testKey(key);
       connectBtn.textContent = label; connectBtn.disabled = false;
       if(!test.ok){
+        // per BLOCKED/OFFLINE il client spiega già cosa è successo: non anteporre altro
         showTmdbError(test.code === "INVALID_KEY"
           ? "Chiave non valida. Controlla di averla copiata per intero."
-          : "Connessione a TMDB non riuscita: " + test.error);
+          : test.error);
         return;
       }
       TMDB.setApiKey(key);
@@ -1037,6 +1055,7 @@
   buildChips();
   wireControls();
   wireTmdbPanel();
+  checkEmbeddedContext();
   updateTmdbPanel();
   renderDataSourceInfo();
   renderDashboard();

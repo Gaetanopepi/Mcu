@@ -70,7 +70,18 @@
     });
     let res;
     try { res = await fetch(url.toString()); }
-    catch (e) { const err = new Error("Impossibile contattare TMDB. Controlla la connessione."); err.code = "NETWORK"; throw err; }
+    catch (e) {
+      // Un fetch che fallisce così non distingue da solo i casi. Il più
+      // frequente non è l'assenza di rete ma una policy che blocca le
+      // chiamate esterne (anteprime in iframe, estensioni, filtri di rete):
+      // dirlo evita di mandare l'utente a controllare il router per niente.
+      const offline = typeof navigator !== "undefined" && navigator.onLine === false;
+      const err = new Error(offline
+        ? "Sei offline: TMDB non è raggiungibile."
+        : "Le chiamate a TMDB risultano bloccate da questa pagina. Di solito succede in un'anteprima incorporata, o per un blocco di rete o un'estensione del browser. Apri il sito pubblicato (o servilo da un server locale) e riprova.");
+      err.code = offline ? "OFFLINE" : "BLOCKED";
+      throw err;
+    }
     if (!res.ok) {
       let body = {};
       try { body = await res.json(); } catch (e) { /* corpo non JSON */ }

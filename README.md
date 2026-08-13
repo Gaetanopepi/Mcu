@@ -106,6 +106,13 @@ scaricati subito dal tuo browser. La chiave resta nel `localStorage` di quel bro
 mai nel repository; i dati caricati valgono solo per te, non per gli altri visitatori. È la strada
 più rapida per vedere il risultato, o per usare una propria chiave su un sito altrui.
 
+> ⚠️ Questa strada richiede che la pagina possa contattare `api.themoviedb.org`. **Non funziona
+> nelle anteprime incorporate in un iframe** (comprese quelle di molti strumenti di sviluppo), che
+> bloccano le chiamate esterne per policy: il riquadro se ne accorge e lo segnala prima che tu
+> incolli la chiave. Serve il sito aperto in una scheda normale — pubblicato, oppure servito in
+> locale con `python3 -m http.server`. Le altre due strade (A e C) non hanno questo vincolo,
+> perché le chiamate partono da un server e non dal browser.
+
 **C — In locale, per popolare il sito una volta per tutte**
 ```bash
 TMDB_API_KEY=la_tua_chiave python3 scripts/fetch_tmdb_metadata.py

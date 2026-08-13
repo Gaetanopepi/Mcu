@@ -301,6 +301,12 @@ a:hover{ color: #fff; }
   background:rgba(237,29,36,0.12); border:1.5px solid var(--marvel-red-dim); color:#ff9a9d;
 }
 .tmdb-error[hidden]{ display:none; }
+.tmdb-embedded-warn{
+  margin:0 0 12px; padding:9px 12px; border-radius:6px;
+  background:rgba(242,201,76,0.1); border:1.5px solid var(--gold-dim);
+  color:var(--gold); font-family:var(--font-cond); font-size:0.85rem; max-width:78ch;
+}
+.tmdb-embedded-warn[hidden]{ display:none; }
 .tmdb-alt{
   margin:12px 0 0; padding-top:12px; border-top:1px dashed #333;
   color:var(--ink-faint); font-size:0.82rem; max-width:78ch;
