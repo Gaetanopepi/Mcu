@@ -154,11 +154,52 @@
       e da quel momento sostituiscono i segnaposto titolo per titolo.
     </p>
     <p class="data-empty-how">
-      Per popolarla serve una API key gratuita di TMDB, una sola volta. Due modi, entrambi descritti nel
-      <a href="https://github.com/Gaetanopepi/Mcu#come-funzionano-i-dati-tmdb-senza-che-nessuno-inserisca-una-chiave" target="_blank" rel="noopener noreferrer">README</a>:
-      impostare il secret <code>TMDB_API_KEY</code> nel repository e lanciare l'automazione
-      <em>Update TMDB metadata</em>, oppure eseguire lo script in locale e committare il file generato.
+      Per sostituirli subito basta incollare una chiave TMDB nel riquadro qui sotto. ↓
     </p>
+  </section>
+
+  <!-- CHIAVE TMDB (opzionale, scorciatoia) -->
+  <section class="panel tmdb-panel" id="tmdb-panel">
+    <div class="tmdb-head">
+      <h2 class="panel-title" id="tmdb-panel-title">🔑 Carica i dati ufficiali adesso</h2>
+      <span class="tmdb-status"><span class="status-dot" id="tmdb-dot"></span><span id="tmdb-status-text">Non collegato</span></span>
+      <button class="btn btn-ghost tmdb-collapse" id="tmdb-collapse" aria-expanded="true" aria-controls="tmdb-body">Nascondi</button>
+    </div>
+
+    <div id="tmdb-body">
+      <p class="tmdb-blurb" id="tmdb-blurb">
+        Se hai una <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer">chiave API gratuita di TMDB</a>
+        puoi incollarla qui e caricare subito locandine, sinossi, voti ed episodi ufficiali, senza aspettare
+        la sincronizzazione automatica. La chiave <strong>resta solo in questo browser</strong>: non viene inviata
+        a nessuno tranne che a TMDB e non finisce mai nel codice del sito.
+      </p>
+
+      <div id="tmdb-form">
+        <div class="tmdb-row">
+          <input type="password" id="tmdb-key-input" class="tmdb-key-input" placeholder="Incolla la chiave API (v3 auth)" autocomplete="off" spellcheck="false" aria-label="Chiave API TMDB">
+          <button class="btn btn-toggle" id="tmdb-connect">Collega</button>
+        </div>
+        <p class="tmdb-error" id="tmdb-error" hidden></p>
+        <p class="tmdb-alt">
+          In alternativa, per rendere i dati ufficiali visibili a <em>tutti</em> i visitatori senza che nessuno
+          incolli nulla, imposta il secret <code>TMDB_API_KEY</code> nel repository e lancia l'automazione
+          <em>Update TMDB metadata</em> — procedura nel
+          <a href="https://github.com/Gaetanopepi/Mcu#setup-one-time-solo-per-chi-possiede-il-repository" target="_blank" rel="noopener noreferrer">README</a>.
+        </p>
+      </div>
+
+      <div id="tmdb-connected" hidden>
+        <div class="tmdb-progress-row">
+          <div class="tmdb-progress"><div class="tmdb-progress-fill" id="tmdb-progress-fill"></div></div>
+          <span class="tmdb-progress-count" id="tmdb-progress-count"></span>
+        </div>
+        <div class="tmdb-actions">
+          <span class="tmdb-note" id="tmdb-note"></span>
+          <button class="btn btn-ghost" id="tmdb-refresh">↻ Aggiorna</button>
+          <button class="btn btn-ghost" id="tmdb-disconnect">⏻ Scollega</button>
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- ACHIEVEMENTS -->

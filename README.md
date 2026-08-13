@@ -20,6 +20,8 @@ interattivo con progresso persistente nel browser.
   italiane (TMDB `language=it-IT`, locandine con `include_image_language=it,null,en`)
 - 🖼️ **Nessuna scheda vuota alla prima apertura** — locandine e sinossi provvisorie del progetto
   finché TMDB non è sincronizzato, dichiarate come tali e sostituite titolo per titolo
+- 🔑 **Chiave TMDB opzionale in pagina** — chi ne ha una può incollarla e caricare i dati ufficiali
+  al volo dal proprio browser, senza toccare il repository (la chiave resta solo lì)
 - 🛡️ **Identità visiva propria** — logo/emblema del progetto (scudo comic con la spunta del tracker)
 - 📺 **Tracciamento per episodio** per tutte le serie — sinossi, immagine e durata reale di ogni
   episodio, con stato "parzialmente vista" e ricalcolo automatico delle ore totali sui runtime
@@ -57,7 +59,7 @@ assets/synopses.js                   Sinossi provvisorie scritte per il progetto
 assets/poster.js                     Generatore di locandine provvisorie SVG (ripiego)
 assets/logo.svg                      Emblema del progetto (in pagina è inline nell'header)
 assets/metadata.js                   Dati TMDB precalcolati (generato dalla GitHub Action, vedi sotto)
-assets/tmdb.js                       Helper per le URL delle immagini TMDB (nessuna chiave richiesta)
+assets/tmdb.js                       URL immagini + client TMDB live per la chiave inserita in pagina
 assets/ui.js                         Toast e modale di conferma riutilizzabili
 assets/app.js                        Logica: stato, filtri, rendering, localStorage
 assets/icons/                        Icone PWA (192/512/maskable/apple-touch)
@@ -97,7 +99,14 @@ Serve una API key gratuita v3 di [themoviedb.org/settings/api](https://www.themo
 3. Lancia la Action da *Actions → Update TMDB metadata → Run workflow*. Da lì in poi si aggiorna
    ogni notte da sola.
 
-**B — In locale, subito (utile per vedere il risultato in un minuto)**
+**B — Dal browser, senza toccare il repository**
+
+Nel sito c'è il riquadro *"Carica i dati ufficiali adesso"*: incolla lì la chiave e i dati vengono
+scaricati subito dal tuo browser. La chiave resta nel `localStorage` di quel browser e non finisce
+mai nel repository; i dati caricati valgono solo per te, non per gli altri visitatori. È la strada
+più rapida per vedere il risultato, o per usare una propria chiave su un sito altrui.
+
+**C — In locale, per popolare il sito una volta per tutte**
 ```bash
 TMDB_API_KEY=la_tua_chiave python3 scripts/fetch_tmdb_metadata.py
 git add assets/metadata.js && git commit -m "Aggiorna metadati TMDB" && git push

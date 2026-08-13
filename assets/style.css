@@ -274,6 +274,50 @@ a:hover{ color: #fff; }
   padding: 1px 6px; font-size: 0.85em;
 }
 
+/* ---------- pannello chiave TMDB (opzionale) ---------- */
+.tmdb-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+.tmdb-head .panel-title{ margin:0; flex:1; min-width:0; }
+.tmdb-status{ display:flex; align-items:center; gap:7px; font-family:var(--font-cond); font-weight:700; font-size:0.85rem; color:var(--ink-dim); }
+.status-dot{ width:10px; height:10px; border-radius:50%; background:var(--grey); box-shadow:0 0 0 3px rgba(138,138,153,0.15); }
+.status-dot.connected{ background:var(--green); box-shadow:0 0 0 3px rgba(61,220,151,0.2); }
+.status-dot.syncing{ background:var(--gold); box-shadow:0 0 0 3px rgba(242,201,76,0.2); }
+@media (prefers-reduced-motion: no-preference){
+  .status-dot.syncing{ animation: pulse-dot 1s ease-in-out infinite; }
+  @keyframes pulse-dot{ 0%,100%{opacity:1} 50%{opacity:0.4} }
+}
+.tmdb-collapse{ padding:5px 10px; font-size:0.8rem; }
+.tmdb-panel.collapsed #tmdb-body{ display:none; }
+
+.tmdb-blurb{ color:var(--ink-dim); font-size:0.9rem; margin:0 0 12px; max-width:74ch; }
+.tmdb-row{ display:flex; gap:10px; flex-wrap:wrap; }
+.tmdb-key-input{
+  flex:1; min-width:220px; background:var(--bg-card); color:var(--ink);
+  border:2px solid var(--line); border-radius:6px; padding:10px 12px;
+  font-family:monospace; font-size:0.88rem;
+}
+.tmdb-error{
+  margin:10px 0 0; padding:8px 12px; border-radius:6px;
+  font-family:var(--font-cond); font-size:0.85rem;
+  background:rgba(237,29,36,0.12); border:1.5px solid var(--marvel-red-dim); color:#ff9a9d;
+}
+.tmdb-error[hidden]{ display:none; }
+.tmdb-alt{
+  margin:12px 0 0; padding-top:12px; border-top:1px dashed #333;
+  color:var(--ink-faint); font-size:0.82rem; max-width:78ch;
+}
+.tmdb-alt code{ background:var(--bg-card); border:1px solid #333; border-radius:4px; padding:1px 5px; }
+.tmdb-progress-row{ display:flex; align-items:center; gap:12px; }
+.tmdb-progress{ flex:1; height:10px; background:#2a2a37; border:1px solid #000; border-radius:6px; overflow:hidden; }
+.tmdb-progress-fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--marvel-red),var(--gold)); transition:width 0.3s ease; }
+.tmdb-progress-count{ font-family:var(--font-cond); font-weight:700; font-size:0.85rem; color:var(--ink-dim); white-space:nowrap; }
+.tmdb-actions{ display:flex; align-items:center; gap:10px; margin-top:12px; flex-wrap:wrap; }
+.tmdb-note{ margin-right:auto; color:var(--ink-faint); font-family:var(--font-cond); font-size:0.8rem; }
+
+@media (max-width: 640px){
+  .tmdb-actions .btn{ flex:1; justify-content:center; }
+  .tmdb-note{ width:100%; margin-right:0; }
+}
+
 /* ---------- data source attribution ---------- */
 .tmdb-attribution{ margin: 10px 0 0; color: var(--ink-faint); font-size: 0.78rem; }
 
