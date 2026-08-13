@@ -71,13 +71,18 @@
     status: "all",   // all | watched | unwatched
     mcuOnly: false,
     sort: "order",
+    groupBy: "universe",
+    groupSeasons: false,
+    sagas: new Set(),
+    phases: new Set(),
   };
 
   // ---------------- baked TMDB metadata (loaded once, synchronously) ----------------
   // resolved[itemId] -> { ok, mediaType, tmdbId, posterPath, backdropPath, overview,
   //                       voteAverage, releaseDate/firstAirDate, providers, episodes? }
   const resolved = {};
-  const expandedItems = new Set(); // ephemeral, not persisted
+  const expandedItems = new Set();   // episodi aperti, non persistito
+  const expandedSeries = new Set();  // serie raggruppate aperte, non persistito
 
   function loadMetadata(){
     const items = (typeof TMDB_METADATA !== "undefined" && TMDB_METADATA.items) || {};
@@ -158,6 +163,19 @@
     saveState();
     renderDashboard();
     renderList();
+  }
+
+  /** Come toggleWatched ma senza salvare/ridisegnare: per operazioni in blocco. */
+  function toggleWatchedSilently(item, watch){
+    const r = resolved[item.id];
+    if(watch) state.watched[item.id] = true; else delete state.watched[item.id];
+    if(r && r.ok && r.episodes && r.episodes.length){
+      if(!state.episodes[item.id]) state.episodes[item.id] = {};
+      r.episodes.forEach(e=>{
+        if(watch) state.episodes[item.id][e.number] = true;
+        else delete state.episodes[item.id][e.number];
+      });
+    }
   }
 
   function toggleEpisodeWatched(item, epNumber){
@@ -327,6 +345,8 @@
     if(filters.mcuOnly && !MCU_CATEGORIES.has(item.category)) return false;
     if(filters.priorities.size && !filters.priorities.has(item.priority)) return false;
     if(filters.formats.size && !filters.formats.has(item.format)) return false;
+    if(filters.sagas.size && !filters.sagas.has(item.saga || "none")) return false;
+    if(filters.phases.size && !filters.phases.has(item.phase ? String(item.phase) : "none")) return false;
     if(filters.status === "watched" && !state.watched[item.id]) return false;
     if(filters.status === "unwatched" && state.watched[item.id]) return false;
     if(filters.search){
@@ -341,6 +361,8 @@
     const arr = items.slice();
     switch(filters.sort){
       case "alpha": arr.sort((a,b)=>displayTitle(a).localeCompare(displayTitle(b), "it")); break;
+      case "year-asc":  arr.sort((a,b)=> (yearOf(a)||9999) - (yearOf(b)||9999) || a.id-b.id); break;
+      case "year-desc": arr.sort((a,b)=> (yearOf(b)||0) - (yearOf(a)||0) || a.id-b.id); break;
       case "hours-desc": arr.sort((a,b)=>itemHourBreakdown(b).total - itemHourBreakdown(a).total); break;
       case "hours-asc": arr.sort((a,b)=>itemHourBreakdown(a).total - itemHourBreakdown(b).total); break;
       case "priority": {
@@ -388,10 +410,36 @@
     return (typeof BUILTIN_SYNOPSES !== "undefined" && BUILTIN_SYNOPSES[item.id]) || "";
   }
 
-  // Titolo da mostrare: quello italiano di TMDB quando c'è, altrimenti l'originale
+  /** Anno di uscita: quello di TMDB se sincronizzato, altrimenti quello del tracker. */
+  function yearOf(item){
+    const r = resolved[item.id];
+    const d = (r && r.ok) ? (r.releaseDate || r.firstAirDate) : null;
+    const y = d ? parseInt(String(d).slice(0,4), 10) : null;
+    return y || item.year || null;
+  }
+
+  /** Numero di stagione ricavato dal titolo del tracker ("Loki S2" -> 2), se c'è. */
+  function seasonOf(item){
+    const m = item.title.match(/\sS(\d{1,2})$/);
+    return m ? parseInt(m[1], 10) : null;
+  }
+  /** Nome della serie senza il suffisso di stagione ("Loki S2" -> "Loki"). */
+  function seriesBase(item){
+    return item.title.replace(/\sS\d{1,2}$/, "");
+  }
+
+  // Titolo da mostrare: quello italiano di TMDB quando c'è, altrimenti l'originale.
+  // TMDB restituisce il nome della serie senza stagione, quindi "Loki S1" e
+  // "Loki S2" diventerebbero due righe identiche: la stagione va rimessa.
   function displayTitle(item){
     const r = resolved[item.id];
-    return (r && r.ok && r.titleIt) ? r.titleIt : item.title;
+    if(!(r && r.ok && r.titleIt)) return item.title;
+    const season = seasonOf(item);
+    if(season === null) return r.titleIt;
+    if(/stagione/i.test(r.titleIt) || new RegExp("\\b" + season + "\\b").test(r.titleIt.replace(/\d{4}/g, ""))){
+      return r.titleIt;                       // TMDB indica già la stagione
+    }
+    return `${r.titleIt} — Stagione ${season}`;
   }
 
   function renderPosterInner(item){
@@ -650,6 +698,147 @@
     document.body.style.overflow = "hidden";
   }
 
+  // ---------------- raggruppamenti ----------------
+  // Ogni modalità restituisce, per un titolo, la chiave del gruppo a cui
+  // appartiene; GROUP_META dà etichetta, icona e colore della testata.
+  const PHASE_META = {
+    1: { label: "Fase 1 — Gli Eroi", color: "#c0392b" },
+    2: { label: "Fase 2 — L'Espansione", color: "#e67e22" },
+    3: { label: "Fase 3 — La Resa dei Conti", color: "#ed1d24" },
+    4: { label: "Fase 4 — Il Multiverso si apre", color: "#9b6bd9" },
+    5: { label: "Fase 5 — La Dinastia", color: "#4f8ef7" },
+    6: { label: "Fase 6 — Verso Secret Wars", color: "#f2c94c" },
+  };
+
+  const GROUPINGS = {
+    universe: {
+      keyOf: (i)=> i.category,
+      order: ()=> CATEGORY_ORDER,
+      meta: (k)=> CATEGORY_META[k] || { icon:"🎬", label:k, color:"#888" },
+    },
+    phase: {
+      keyOf: (i)=> i.phase ? String(i.phase) : "none",
+      order: ()=> ["1","2","3","4","5","6","none"],
+      meta: (k)=> k === "none"
+        ? { icon:"🌐", label:"Fuori dalle Fasi MCU", color:"#8a8a99" }
+        : { icon:"🎬", label: PHASE_META[k].label, color: PHASE_META[k].color },
+    },
+    saga: {
+      keyOf: (i)=> i.saga || "none",
+      order: ()=> ["Infinity Saga","Multiverse Saga","none"],
+      meta: (k)=> k === "Infinity Saga" ? { icon:"💎", label:"Saga dell'Infinito (Fasi 1-3)", color:"#f2c94c" }
+                : k === "Multiverse Saga" ? { icon:"🌌", label:"Saga del Multiverso (Fasi 4-6)", color:"#9b6bd9" }
+                : { icon:"🌐", label:"Fuori dalle Saghe MCU", color:"#8a8a99" },
+    },
+    format: {
+      keyOf: (i)=> i.format,
+      order: ()=> ["Movie","TV","Special","TV/Special"],
+      meta: (k)=> ({ icon: FORMAT_ICON[k] || "🎬", label: FORMAT_LABEL[k] || k, color:"#4f8ef7" }),
+    },
+    priority: {
+      keyOf: (i)=> i.priority,
+      order: ()=> PRIORITY_ORDER,
+      meta: (k)=> ({ icon: k==="Essential"?"⭐":k==="Recommended"?"👍":k==="Optional"?"🔹":"🎁",
+                     label: PRIORITY_LABEL[k] || k,
+                     color: k==="Essential"?"#ed1d24":k==="Recommended"?"#4f8ef7":k==="Optional"?"#8a8a99":"#f2c94c" }),
+    },
+    decade: {
+      keyOf: (i)=> i.year ? String(Math.floor(i.year/10)*10) : "none",
+      order: ()=> {
+        const ds = [...new Set(TRACKER_DATA.filter(i=>i.year).map(i=>String(Math.floor(i.year/10)*10)))]
+          .sort((a,b)=>Number(a)-Number(b));
+        return ds.concat("none");
+      },
+      meta: (k)=> k === "none"
+        ? { icon:"❓", label:"Anno sconosciuto", color:"#8a8a99" }
+        : { icon:"📅", label:`Anni ${k}`, color:"#16a085" },
+    },
+  };
+
+  function currentGrouping(){ return GROUPINGS[filters.groupBy] || GROUPINGS.universe; }
+
+  /**
+   * Accorpa le stagioni della stessa serie in un'unica voce espandibile.
+   * Restituisce una lista di "nodi": o un titolo singolo, o un gruppo-serie.
+   */
+  function clusterSeasons(items){
+    if(!filters.groupSeasons) return items.map(i=>({ type:"item", item:i }));
+    const byBase = new Map();
+    items.forEach(i=>{
+      const key = seasonOf(i) === null ? ("solo:" + i.id) : seriesBase(i);
+      if(!byBase.has(key)) byBase.set(key, []);
+      byBase.get(key).push(i);
+    });
+    const nodes = [];
+    byBase.forEach((group, key)=>{
+      if(group.length < 2){ nodes.push({ type:"item", item:group[0] }); return; }
+      group.sort((a,b)=> (seasonOf(a)||0) - (seasonOf(b)||0));
+      nodes.push({ type:"series", key, base: seriesBase(group[0]), seasons: group });
+    });
+    return nodes;
+  }
+
+  function buildSeriesRow(node){
+    const frag = document.createDocumentFragment();
+    const seasons = node.seasons;
+    const first = seasons[0];
+    const r = resolved[first.id];
+    const titleIt = (r && r.ok && r.titleIt) ? r.titleIt : node.base;
+
+    const totalH = seasons.reduce((s,i)=>s+itemHourBreakdown(i).total, 0);
+    const watchedCount = seasons.filter(i=>state.watched[i.id]).length;
+    const allWatched = watchedCount === seasons.length;
+    const expanded = expandedSeries.has(node.key);
+
+    const row = document.createElement("div");
+    row.className = "item-row series-row" + (allWatched ? " watched" : (watchedCount ? " partial" : ""));
+    const poster = posterSrc(first);
+    row.innerHTML = `
+      <button class="item-check" aria-label="Segna tutte le stagioni">${allWatched ? "✓" : (watchedCount ? "–" : "")}</button>
+      <div class="item-poster">${poster ? `<img src="${poster}" alt=""${hasOfficialPoster(first) ? ' loading="lazy"' : ' class="provisional" decoding="async"'}>` : `<span class="poster-empty"></span>`}</div>
+      <div class="item-content">
+        <div class="item-title-row">
+          <span class="item-title item-title-clickable">${escapeHtml(titleIt)}</span>
+          <span class="badge badge-seasons">${seasons.length} stagioni</span>
+          <span class="item-progress-frac">${watchedCount}/${seasons.length} viste</span>
+        </div>
+        ${renderSynopsis(first)}
+        <div class="item-badges">
+          <span class="badge badge-format">${FORMAT_ICON[first.format]||""} ${FORMAT_LABEL[first.format]||first.format}</span>
+          <span class="badge badge-priority-${first.priority}">${PRIORITY_LABEL[first.priority]}</span>
+          <span class="badge badge-hours-inline">${fmtNum(totalH,1)}h</span>
+        </div>
+      </div>
+      <span class="item-hours">${fmtNum(totalH,1)}h</span>
+    `;
+    row.querySelector(".item-check").addEventListener("click", ()=>{
+      const target = !allWatched;
+      seasons.forEach(i=>{
+        if(!!state.watched[i.id] !== target) toggleWatchedSilently(i, target);
+      });
+      saveState(); renderDashboard(); renderList();
+    });
+    row.querySelector(".item-title").addEventListener("click", ()=>{
+      if(expandedSeries.has(node.key)) expandedSeries.delete(node.key);
+      else expandedSeries.add(node.key);
+      renderList();
+    });
+    row.querySelector(".item-poster").addEventListener("click", ()=>{
+      if(expandedSeries.has(node.key)) expandedSeries.delete(node.key);
+      else expandedSeries.add(node.key);
+      renderList();
+    });
+    frag.appendChild(row);
+
+    if(expanded){
+      const wrap = document.createElement("div");
+      wrap.className = "series-seasons";
+      seasons.forEach(i=> wrap.appendChild(buildItemRow(i)));
+      frag.appendChild(wrap);
+    }
+    return frag;
+  }
+
   function renderList(){
     const filtered = TRACKER_DATA.filter(matchesFilters);
     let visibleCount = 0;
@@ -657,21 +846,33 @@
     categoriesRoot.innerHTML = "";
     const frag = document.createDocumentFragment();
 
-    CATEGORY_ORDER.forEach(cat=>{
-      const items = sortItems(filtered.filter(i=>i.category === cat));
+    const grouping = currentGrouping();
+    const buckets = new Map();
+    filtered.forEach(i=>{
+      const k = grouping.keyOf(i);
+      if(!buckets.has(k)) buckets.set(k, []);
+      buckets.get(k).push(i);
+    });
+
+    const order = grouping.order();
+    const keys = order.filter(k=>buckets.has(k))
+      .concat([...buckets.keys()].filter(k=>!order.includes(k)));
+
+    keys.forEach(key=>{
+      const items = sortItems(buckets.get(key));
       if(items.length === 0) return;
       visibleCount += items.length;
 
-      const allInCat = TRACKER_DATA.filter(i=>i.category === cat);
-      const watchedInCat = allInCat.filter(i=>state.watched[i.id]).length;
-      const pctCat = allInCat.length ? (watchedInCat/allInCat.length*100) : 0;
-      const catHours = allInCat.reduce((s,i)=>s+itemHourBreakdown(i).total,0);
-      const meta = CATEGORY_META[cat] || { icon:"🎬", label:cat, color:"#888" };
-      const collapsed = !!state.collapsed[cat];
+      const allInGroup = TRACKER_DATA.filter(i=>grouping.keyOf(i) === key);
+      const watchedInGroup = allInGroup.filter(i=>state.watched[i.id]).length;
+      const pct = allInGroup.length ? (watchedInGroup/allInGroup.length*100) : 0;
+      const groupHours = allInGroup.reduce((s,i)=>s+itemHourBreakdown(i).total,0);
+      const meta = grouping.meta(key);
+      const collapseKey = filters.groupBy + ":" + key;
+      const collapsed = !!state.collapsed[collapseKey];
 
       const section = document.createElement("div");
       section.className = "category-section" + (collapsed ? " collapsed" : "");
-      section.dataset.category = cat;
 
       const header = document.createElement("div");
       header.className = "category-header";
@@ -679,13 +880,13 @@
         <span class="category-icon">${meta.icon}</span>
         <div class="category-title-wrap">
           <div class="category-title">${escapeHtml(meta.label)}</div>
-          <div class="category-progress-bar"><div class="category-progress-fill" style="width:${pctCat}%; background:${meta.color};"></div></div>
+          <div class="category-progress-bar"><div class="category-progress-fill" style="width:${pct}%; background:${meta.color};"></div></div>
         </div>
-        <span class="category-count">${watchedInCat}/${allInCat.length} · ${fmtNum(catHours,1)}h</span>
+        <span class="category-count">${watchedInGroup}/${allInGroup.length} · ${fmtNum(groupHours,1)}h</span>
         <span class="category-chevron">▾</span>
       `;
       header.addEventListener("click", ()=>{
-        state.collapsed[cat] = !state.collapsed[cat];
+        state.collapsed[collapseKey] = !state.collapsed[collapseKey];
         saveState();
         section.classList.toggle("collapsed");
       });
@@ -693,8 +894,8 @@
 
       const list = document.createElement("div");
       list.className = "item-list";
-      items.forEach(item=>{
-        list.appendChild(buildItemRow(item));
+      clusterSeasons(items).forEach(node=>{
+        list.appendChild(node.type === "series" ? buildSeriesRow(node) : buildItemRow(node.item));
       });
       section.appendChild(list);
       frag.appendChild(section);
@@ -728,8 +929,17 @@
         txt += ` Per i restanti ${provisional} restano i segnaposto provvisori del progetto.`;
       }
       el.textContent = txt;
-      // il banner serve solo se manca ancora molto: sotto il 10% è rumore
-      if(banner) banner.hidden = provisional === 0 || provisional < total * 0.1;
+      // Sincronizzato: il banner ha esaurito il suo scopo. Il fatto che qualche
+      // titolo resti sui segnaposto continua a essere dichiarato dove serve
+      // davvero, cioè nella scheda del singolo titolo.
+      if(banner) banner.hidden = true;
+    } else if(TMDB.getApiKey() && provisional < total){
+      // nessun dato precalcolato, ma l'utente ha collegato la propria chiave
+      const enriched = total - provisional;
+      el.textContent = `Dati TMDB caricati con la tua chiave direttamente in questo browser: ` +
+        `${enriched} titoli su ${total} con dati ufficiali completi.` +
+        (provisional > 0 ? ` Per i restanti ${provisional} restano i segnaposto provvisori del progetto.` : "");
+      if(banner) banner.hidden = true;
     } else {
       el.textContent = `Nessun dato TMDB ancora sincronizzato: le ${total} locandine e sinossi mostrate sono ` +
         `segnaposto provvisori creati per questo progetto, non materiale ufficiale.`;
@@ -929,6 +1139,32 @@
       formatWrap.appendChild(b);
     });
 
+    const sagaWrap = $("#saga-chips");
+    [["Infinity Saga","💎 Saga dell'Infinito"],["Multiverse Saga","🌌 Saga del Multiverso"],["none","🌐 Fuori saga"]]
+      .forEach(([val,label])=>{
+        const b = document.createElement("button");
+        b.className = "chip"; b.textContent = label;
+        b.addEventListener("click", ()=>{
+          if(filters.sagas.has(val)) filters.sagas.delete(val); else filters.sagas.add(val);
+          b.classList.toggle("active");
+          render();
+        });
+        sagaWrap.appendChild(b);
+      });
+
+    const phaseWrap = $("#phase-chips");
+    ["1","2","3","4","5","6","none"].forEach(val=>{
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.textContent = val === "none" ? "Fuori fase" : "Fase " + val;
+      b.addEventListener("click", ()=>{
+        if(filters.phases.has(val)) filters.phases.delete(val); else filters.phases.add(val);
+        b.classList.toggle("active");
+        render();
+      });
+      phaseWrap.appendChild(b);
+    });
+
     $("#status-chips").addEventListener("click", (e)=>{
       const btn = e.target.closest(".chip");
       if(!btn) return;
@@ -956,6 +1192,18 @@
     });
     $("#hours-per-day").value = state.hoursPerDay;
 
+    $("#groupby-select").addEventListener("change", (e)=>{
+      filters.groupBy = e.target.value;
+      render();
+    });
+
+    $("#btn-group-seasons").addEventListener("click", (e)=>{
+      filters.groupSeasons = !filters.groupSeasons;
+      e.target.dataset.active = filters.groupSeasons;
+      expandedSeries.clear();
+      render();
+    });
+
     $("#btn-mcu-only").addEventListener("click", (e)=>{
       filters.mcuOnly = !filters.mcuOnly;
       e.target.dataset.active = filters.mcuOnly;
@@ -976,8 +1224,13 @@
     $("#btn-clear-filters").addEventListener("click", ()=>{
       filters.search = ""; filters.priorities.clear(); filters.formats.clear();
       filters.status = "all"; filters.mcuOnly = false; filters.sort = "order";
+      filters.sagas.clear(); filters.phases.clear();
+      filters.groupBy = "universe"; filters.groupSeasons = false;
+      expandedSeries.clear();
       $("#search-input").value = "";
       $("#sort-select").value = "order";
+      $("#groupby-select").value = "universe";
+      $("#btn-group-seasons").dataset.active = "false";
       document.querySelectorAll(".chips .chip").forEach(c=>c.classList.remove("active"));
       $("#status-chips .chip[data-status='all']").classList.add("active");
       $("#btn-mcu-only").dataset.active = "false";

@@ -13,7 +13,14 @@ interattivo con progresso persistente nel browser.
 - 📊 Dashboard con percentuale di completamento, ore viste/rimanenti, giorni stimati al ritmo scelto
 - 🎯 Widget "Prossimo su" — suggerisce il prossimo titolo da vedere in base a priorità e ordine consigliato
 - 🏆 Trofei sbloccabili per milestone di completamento e categorie finite al 100%
-- 🔍 Ricerca, filtri per priorità/formato/stato, ordinamento, toggle "Solo Canone MCU"
+- 🔍 Ricerca, filtri per priorità/formato/stato, toggle "Solo Canone MCU"
+- 🧭 **Filtri per Saga e per Fase MCU** — chip rapide per Saga dell'Infinito / Saga del Multiverso
+  e per le sei Fasi, il modo in cui la fan base parla davvero dell'ordine di visione
+- 🗂️ **Sei raggruppamenti** intercambiabili: universo, Fase MCU, Saga, formato, priorità, decennio
+- ↕️ **Otto ordinamenti**: ordine consigliato, anno (crescente/decrescente), alfabetico,
+  durata (lunghi/corti), priorità, voto TMDB
+- 📚 **Stagioni raggruppabili in un'unica riga** — le serie con più stagioni si compattano in un
+  solo collegamento espandibile, con conteggio stagioni, viste e ore totali
 - 💾 Progresso salvato in `localStorage`, con esportazione/importazione JSON per backup o cambio dispositivo
 - 🎉 Overlay speciale "Snap" al completamento del 100%
 - 🇮🇹 **Tutto in italiano** — interfaccia, e dal database anche titoli, sinossi e locandine
@@ -44,17 +51,28 @@ provvisorio serve solo a rendere la pagina già leggibile prima della prima sinc
 | Locandina e sfondo | artwork astratto generato per titolo | immagini TMDB, preferendo quelle con testo italiano (`include_image_language=it,null,en`) |
 | Voto, episodi, streaming | — | TMDB (regione IT) |
 | Elenco, ordine, ore, priorità | il tracker Excel originale (`assets/data.js`) | invariato |
+| Fase, Saga, anno | assegnati in `assets/data.js` | anno confermato dalla data TMDB |
 
 Il livello provvisorio è **dichiarato come tale** nell'interfaccia: un banner in cima alla pagina
 e una nota nella scheda di ogni titolo che ne fa ancora uso, così non viene mai scambiato per
 materiale ufficiale. Man mano che TMDB copre i titoli, i segnaposto spariscono da soli.
+
+### Fasi e Saghe
+
+TMDB non espone il concetto di "Fase MCU", quindi Fase e Saga sono attributi del dataset locale
+(`phase`, `saga` in `assets/data.js`); i titoli fuori dal canone MCU — serie ABC, universi Fox,
+Sony, Netflix e i Legacy pre-MCU — hanno `phase: null` e finiscono nel gruppo "Fuori dalle Fasi
+MCU". Le Fasi 1-4 seguono l'ufficialità Marvel; **le assegnazioni di Fase 5 e 6 per i titoli
+2025-26 sono la lettura più diffusa ma non sono incise nella pietra**: se Marvel ricolloca un
+titolo basta cambiare il campo `phase` (e se serve `saga`) nella riga corrispondente di
+`assets/data.js` — non c'è nient'altro da toccare.
 
 ## Struttura
 
 ```
 index.html                          Markup della pagina
 assets/style.css                     Tema comic dark (font Bangers/Barlow, pannelli in stile fumetto)
-assets/data.js                       Dataset dei 156 titoli (generato dal tracker Excel originale)
+assets/data.js                       Dataset dei 156 titoli (dal tracker Excel + Fase/Saga/anno)
 assets/synopses.js                   Sinossi provvisorie scritte per il progetto (ripiego)
 assets/poster.js                     Generatore di locandine provvisorie SVG (ripiego)
 assets/logo.svg                      Emblema del progetto (in pagina è inline nell'header)

@@ -5,7 +5,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.1,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 1,
+  "saga": "Infinity Saga",
+  "year": 2011
  },
  {
   "id": 2,
@@ -13,7 +16,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 6.0,
   "category": "MCU TV",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2015
  },
  {
   "id": 3,
@@ -21,7 +27,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 7.5,
   "category": "MCU TV",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2016
  },
  {
   "id": 4,
@@ -29,7 +38,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.1,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 3,
+  "saga": "Infinity Saga",
+  "year": 2019
  },
  {
   "id": 5,
@@ -37,7 +49,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.1,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 1,
+  "saga": "Infinity Saga",
+  "year": 2008
  },
  {
   "id": 6,
@@ -45,7 +60,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.9,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 1,
+  "saga": "Infinity Saga",
+  "year": 2008
  },
  {
   "id": 7,
@@ -53,7 +71,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.1,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 1,
+  "saga": "Infinity Saga",
+  "year": 2010
  },
  {
   "id": 8,
@@ -61,7 +82,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.9,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 1,
+  "saga": "Infinity Saga",
+  "year": 2011
  },
  {
   "id": 9,
@@ -69,7 +93,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.4,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 1,
+  "saga": "Infinity Saga",
+  "year": 2012
  },
  {
   "id": 10,
@@ -77,7 +104,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.2,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 2,
+  "saga": "Infinity Saga",
+  "year": 2013
  },
  {
   "id": 11,
@@ -85,7 +115,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.9,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 2,
+  "saga": "Infinity Saga",
+  "year": 2013
  },
  {
   "id": 12,
@@ -93,7 +126,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.3,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 2,
+  "saga": "Infinity Saga",
+  "year": 2014
  },
  {
   "id": 13,
@@ -101,7 +137,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.0,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 2,
+  "saga": "Infinity Saga",
+  "year": 2014
  },
  {
   "id": 14,
@@ -109,7 +148,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.3,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 3,
+  "saga": "Infinity Saga",
+  "year": 2017
  },
  {
   "id": 15,
@@ -117,7 +159,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.4,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 2,
+  "saga": "Infinity Saga",
+  "year": 2015
  },
  {
   "id": 16,
@@ -125,7 +170,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.0,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 2,
+  "saga": "Infinity Saga",
+  "year": 2015
  },
  {
   "id": 17,
@@ -133,7 +181,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.5,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 3,
+  "saga": "Infinity Saga",
+  "year": 2016
  },
  {
   "id": 18,
@@ -141,7 +192,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.2,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2021
  },
  {
   "id": 19,
@@ -149,7 +203,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.2,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 3,
+  "saga": "Infinity Saga",
+  "year": 2018
  },
  {
   "id": 20,
@@ -157,7 +214,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.2,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 3,
+  "saga": "Infinity Saga",
+  "year": 2017
  },
  {
   "id": 21,
@@ -165,7 +225,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.9,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 3,
+  "saga": "Infinity Saga",
+  "year": 2016
  },
  {
   "id": 22,
@@ -173,7 +236,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.2,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 3,
+  "saga": "Infinity Saga",
+  "year": 2017
  },
  {
   "id": 23,
@@ -181,7 +247,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.0,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 3,
+  "saga": "Infinity Saga",
+  "year": 2018
  },
  {
   "id": 24,
@@ -189,7 +258,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.5,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 3,
+  "saga": "Infinity Saga",
+  "year": 2018
  },
  {
   "id": 25,
@@ -197,7 +269,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 3.0,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 3,
+  "saga": "Infinity Saga",
+  "year": 2019
  },
  {
   "id": 26,
@@ -205,7 +280,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.2,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 3,
+  "saga": "Infinity Saga",
+  "year": 2019
  },
  {
   "id": 27,
@@ -213,7 +291,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 6.0,
   "category": "MCU Disney+",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2021
  },
  {
   "id": 28,
@@ -221,7 +302,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 5.0,
   "category": "MCU Disney+",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2021
  },
  {
   "id": 29,
@@ -229,7 +313,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 5.0,
   "category": "MCU Disney+",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2021
  },
  {
   "id": 30,
@@ -237,7 +324,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 4.5,
   "category": "MCU Animated",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2021
  },
  {
   "id": 31,
@@ -245,7 +335,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.2,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2021
  },
  {
   "id": 32,
@@ -253,7 +346,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 5.0,
   "category": "MCU Disney+",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2021
  },
  {
   "id": 33,
@@ -261,7 +357,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.6,
   "category": "MCU",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2021
  },
  {
   "id": 34,
@@ -269,7 +368,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.5,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2021
  },
  {
   "id": 35,
@@ -277,7 +379,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.1,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2022
  },
  {
   "id": 36,
@@ -285,7 +390,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 4.5,
   "category": "MCU Disney+",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2022
  },
  {
   "id": 37,
@@ -293,7 +401,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 4.5,
   "category": "MCU Disney+",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2022
  },
  {
   "id": 38,
@@ -301,7 +412,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.0,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2022
  },
  {
   "id": 39,
@@ -309,7 +423,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.7,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2022
  },
  {
   "id": 40,
@@ -317,7 +434,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 6.0,
   "category": "MCU Disney+",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2022
  },
  {
   "id": 41,
@@ -325,7 +445,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 3.8,
   "category": "MCU Disney+",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2024
  },
  {
   "id": 42,
@@ -333,7 +456,10 @@ const TRACKER_DATA = [
   "format": "Special",
   "hours": 0.9,
   "category": "MCU",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2022
  },
  {
   "id": 43,
@@ -341,7 +467,10 @@ const TRACKER_DATA = [
   "format": "Special",
   "hours": 0.7,
   "category": "MCU",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2022
  },
  {
   "id": 44,
@@ -349,7 +478,10 @@ const TRACKER_DATA = [
   "format": "Special",
   "hours": 0.4,
   "category": "MCU Animated",
-  "priority": "Bonus"
+  "priority": "Bonus",
+  "phase": 4,
+  "saga": "Multiverse Saga",
+  "year": 2022
  },
  {
   "id": 45,
@@ -357,7 +489,10 @@ const TRACKER_DATA = [
   "format": "Special",
   "hours": 0.4,
   "category": "MCU Animated",
-  "priority": "Bonus"
+  "priority": "Bonus",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2023
  },
  {
   "id": 46,
@@ -365,7 +500,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.1,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2023
  },
  {
   "id": 47,
@@ -373,7 +511,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.5,
   "category": "MCU",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2023
  },
  {
   "id": 48,
@@ -381,7 +522,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 5.5,
   "category": "MCU Disney+",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2023
  },
  {
   "id": 49,
@@ -389,7 +533,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.8,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2023
  },
  {
   "id": 50,
@@ -397,7 +544,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 5.0,
   "category": "MCU Disney+",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2023
  },
  {
   "id": 51,
@@ -405,7 +555,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 4.5,
   "category": "MCU Animated",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2023
  },
  {
   "id": 52,
@@ -413,7 +566,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 4.5,
   "category": "MCU Animated",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2024
  },
  {
   "id": 53,
@@ -421,7 +577,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.1,
   "category": "MCU/Multiverse",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2024
  },
  {
   "id": 54,
@@ -429,7 +588,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 6.8,
   "category": "MCU Disney+",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2024
  },
  {
   "id": 55,
@@ -437,7 +599,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 8.3,
   "category": "MCU Disney+",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2025
  },
  {
   "id": 56,
@@ -445,7 +610,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.0,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2025
  },
  {
   "id": 57,
@@ -453,7 +621,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.1,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2025
  },
  {
   "id": 58,
@@ -461,7 +632,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 5.0,
   "category": "MCU Disney+",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2025
  },
  {
   "id": 59,
@@ -469,7 +643,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.2,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 6,
+  "saga": "Multiverse Saga",
+  "year": 2025
  },
  {
   "id": 60,
@@ -477,7 +654,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 2.0,
   "category": "MCU Animated",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2025
  },
  {
   "id": 61,
@@ -485,7 +665,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 3.0,
   "category": "MCU Animated",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": 5,
+  "saga": "Multiverse Saga",
+  "year": 2025
  },
  {
   "id": 62,
@@ -493,7 +676,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 6.0,
   "category": "MCU Disney+",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": 6,
+  "saga": "Multiverse Saga",
+  "year": 2026
  },
  {
   "id": 63,
@@ -501,7 +687,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 6.0,
   "category": "MCU Disney+",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 6,
+  "saga": "Multiverse Saga",
+  "year": 2026
  },
  {
   "id": 64,
@@ -509,7 +698,10 @@ const TRACKER_DATA = [
   "format": "Special",
   "hours": 1.0,
   "category": "MCU Disney+",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": 6,
+  "saga": "Multiverse Saga",
+  "year": 2026
  },
  {
   "id": 65,
@@ -517,7 +709,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.2,
   "category": "MCU",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 6,
+  "saga": "Multiverse Saga",
+  "year": 2026
  },
  {
   "id": 66,
@@ -525,7 +720,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 6.0,
   "category": "MCU Disney+",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": 6,
+  "saga": "Multiverse Saga",
+  "year": 2026
  },
  {
   "id": 67,
@@ -533,7 +731,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 16.5,
   "category": "MCU TV",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2013
  },
  {
   "id": 68,
@@ -541,7 +742,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 16.5,
   "category": "MCU TV",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2014
  },
  {
   "id": 69,
@@ -549,7 +753,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 16.5,
   "category": "MCU TV",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2015
  },
  {
   "id": 70,
@@ -557,7 +764,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 16.5,
   "category": "MCU TV",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2016
  },
  {
   "id": 71,
@@ -565,7 +775,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 16.5,
   "category": "MCU TV",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2017
  },
  {
   "id": 72,
@@ -573,7 +786,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 9.8,
   "category": "MCU TV",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2018
  },
  {
   "id": 73,
@@ -581,7 +797,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 9.8,
   "category": "MCU TV",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2020
  },
  {
   "id": 74,
@@ -589,7 +808,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 11.0,
   "category": "Defenders",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2015
  },
  {
   "id": 75,
@@ -597,7 +819,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 11.0,
   "category": "Defenders",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2015
  },
  {
   "id": 76,
@@ -605,7 +830,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 11.0,
   "category": "Defenders",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2016
  },
  {
   "id": 77,
@@ -613,7 +841,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 11.0,
   "category": "Defenders",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2016
  },
  {
   "id": 78,
@@ -621,7 +852,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 11.0,
   "category": "Defenders",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2017
  },
  {
   "id": 79,
@@ -629,7 +863,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 8.0,
   "category": "Defenders",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2017
  },
  {
   "id": 80,
@@ -637,7 +874,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 11.9,
   "category": "Defenders",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2017
  },
  {
   "id": 81,
@@ -645,7 +885,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 11.0,
   "category": "Defenders",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2018
  },
  {
   "id": 82,
@@ -653,7 +896,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 11.0,
   "category": "Defenders",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2018
  },
  {
   "id": 83,
@@ -661,7 +907,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 7.5,
   "category": "Defenders",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2018
  },
  {
   "id": 84,
@@ -669,7 +918,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 11.0,
   "category": "Defenders",
-  "priority": "Essential"
+  "priority": "Essential",
+  "phase": null,
+  "saga": null,
+  "year": 2018
  },
  {
   "id": 85,
@@ -677,7 +929,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 11.9,
   "category": "Defenders",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2019
  },
  {
   "id": 86,
@@ -685,7 +940,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 11.0,
   "category": "Defenders",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2019
  },
  {
   "id": 87,
@@ -693,7 +951,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.2,
   "category": "Fox X-Men",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2011
  },
  {
   "id": 88,
@@ -701,7 +962,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.8,
   "category": "Fox X-Men",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2009
  },
  {
   "id": 89,
@@ -709,7 +973,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.7,
   "category": "Fox X-Men",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2000
  },
  {
   "id": 90,
@@ -717,7 +984,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.2,
   "category": "Fox X-Men",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2003
  },
  {
   "id": 91,
@@ -725,7 +995,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.7,
   "category": "Fox X-Men",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2006
  },
  {
   "id": 92,
@@ -733,7 +1006,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.1,
   "category": "Fox X-Men",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2013
  },
  {
   "id": 93,
@@ -741,7 +1017,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.2,
   "category": "Fox X-Men",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2014
  },
  {
   "id": 94,
@@ -749,7 +1028,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.4,
   "category": "Fox X-Men",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2016
  },
  {
   "id": 95,
@@ -757,7 +1039,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.9,
   "category": "Fox X-Men",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2019
  },
  {
   "id": 96,
@@ -765,7 +1050,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.6,
   "category": "Fox X-Men",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2020
  },
  {
   "id": 97,
@@ -773,7 +1061,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.3,
   "category": "Fox X-Men",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2017
  },
  {
   "id": 98,
@@ -781,7 +1072,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.8,
   "category": "Fox X-Men",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2016
  },
  {
   "id": 99,
@@ -789,7 +1083,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.0,
   "category": "Fox X-Men",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2018
  },
  {
   "id": 100,
@@ -797,7 +1094,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.0,
   "category": "Raimiverse",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2002
  },
  {
   "id": 101,
@@ -805,7 +1105,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.1,
   "category": "Raimiverse",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2004
  },
  {
   "id": 102,
@@ -813,7 +1116,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.3,
   "category": "Raimiverse",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2007
  },
  {
   "id": 103,
@@ -821,7 +1127,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.3,
   "category": "Webbverse",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2012
  },
  {
   "id": 104,
@@ -829,7 +1138,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.4,
   "category": "Webbverse",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2014
  },
  {
   "id": 105,
@@ -837,7 +1149,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.0,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 1998
  },
  {
   "id": 106,
@@ -845,7 +1160,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.0,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2002
  },
  {
   "id": 107,
@@ -853,7 +1171,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.9,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2004
  },
  {
   "id": 108,
@@ -861,7 +1182,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.8,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2005
  },
  {
   "id": 109,
@@ -869,7 +1193,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.5,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2007
  },
  {
   "id": 110,
@@ -877,7 +1204,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.7,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2015
  },
  {
   "id": 111,
@@ -885,7 +1215,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.3,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2003
  },
  {
   "id": 112,
@@ -893,7 +1226,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.7,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2003
  },
  {
   "id": 113,
@@ -901,7 +1237,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.6,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2005
  },
  {
   "id": 114,
@@ -909,7 +1248,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.0,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2004
  },
  {
   "id": 115,
@@ -917,7 +1259,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.7,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2008
  },
  {
   "id": 116,
@@ -925,7 +1270,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.9,
   "category": "Sony",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2018
  },
  {
   "id": 117,
@@ -933,7 +1281,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.6,
   "category": "Sony",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2021
  },
  {
   "id": 118,
@@ -941,7 +1292,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.7,
   "category": "Sony",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2022
  },
  {
   "id": 119,
@@ -949,7 +1303,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.9,
   "category": "Sony",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2024
  },
  {
   "id": 120,
@@ -957,7 +1314,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.8,
   "category": "Sony",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2024
  },
  {
   "id": 121,
@@ -965,7 +1325,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.1,
   "category": "Sony",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2024
  },
  {
   "id": 122,
@@ -973,7 +1336,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.0,
   "category": "Spider-Verse",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2018
  },
  {
   "id": 123,
@@ -981,7 +1347,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 2.3,
   "category": "Spider-Verse",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2023
  },
  {
   "id": 124,
@@ -989,7 +1358,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 5.0,
   "category": "Animated Multiverse",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2024
  },
  {
   "id": 125,
@@ -997,7 +1369,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 4.5,
   "category": "Animated Multiverse",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2026
  },
  {
   "id": 126,
@@ -1005,7 +1380,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 4.2,
   "category": "Animated Multiverse",
-  "priority": "Recommended"
+  "priority": "Recommended",
+  "phase": null,
+  "saga": null,
+  "year": 2025
  },
  {
   "id": 127,
@@ -1013,7 +1391,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 0.1,
   "category": "MCU Bonus",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2011
  },
  {
   "id": 128,
@@ -1021,7 +1402,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 0.1,
   "category": "MCU Bonus",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2011
  },
  {
   "id": 129,
@@ -1029,7 +1413,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 0.2,
   "category": "MCU Bonus",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2012
  },
  {
   "id": 130,
@@ -1037,7 +1424,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 0.2,
   "category": "MCU Bonus",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2014
  },
  {
   "id": 131,
@@ -1045,7 +1435,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 0.3,
   "category": "MCU Bonus",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2015
  },
  {
   "id": 132,
@@ -1053,7 +1446,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 0.3,
   "category": "MCU Bonus",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2016
  },
  {
   "id": 133,
@@ -1061,7 +1457,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 0.5,
   "category": "MCU Bonus",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2016
  },
  {
   "id": 134,
@@ -1069,7 +1468,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 0.1,
   "category": "MCU Bonus",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2017
  },
  {
   "id": 135,
@@ -1077,7 +1479,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 0.1,
   "category": "Bonus",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2016
  },
  {
   "id": 136,
@@ -1085,7 +1490,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 0.1,
   "category": "Bonus",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2017
  },
  {
   "id": 137,
@@ -1093,7 +1501,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 0.1,
   "category": "Bonus",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2017
  },
  {
   "id": 138,
@@ -1101,7 +1512,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 7.3,
   "category": "Marvel TV Extended",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2018
  },
  {
   "id": 139,
@@ -1109,7 +1523,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 7.3,
   "category": "Marvel TV Extended",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2019
  },
  {
   "id": 140,
@@ -1117,7 +1534,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 5.6,
   "category": "Marvel TV Extended",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2017
  },
  {
   "id": 141,
@@ -1125,7 +1545,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 9.2,
   "category": "Marvel TV Extended",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2017
  },
  {
   "id": 142,
@@ -1133,7 +1556,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 11.9,
   "category": "Marvel TV Extended",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2018
  },
  {
   "id": 143,
@@ -1141,7 +1567,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 9.2,
   "category": "Marvel TV Extended",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2019
  },
  {
   "id": 144,
@@ -1149,7 +1578,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 6.0,
   "category": "Marvel TV Extended",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2017
  },
  {
   "id": 145,
@@ -1157,7 +1589,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 8.3,
   "category": "Marvel TV Extended",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2018
  },
  {
   "id": 146,
@@ -1165,7 +1600,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 6.0,
   "category": "Marvel TV Extended",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2019
  },
  {
   "id": 147,
@@ -1173,7 +1611,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 9.3,
   "category": "Marvel TV Extended",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2017
  },
  {
   "id": 148,
@@ -1181,7 +1622,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 11.5,
   "category": "Marvel TV Extended",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2018
  },
  {
   "id": 149,
@@ -1189,7 +1633,10 @@ const TRACKER_DATA = [
   "format": "TV/Special",
   "hours": 7.5,
   "category": "Marvel TV Extended",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2020
  },
  {
   "id": 150,
@@ -1197,7 +1644,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 9.3,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2006
  },
  {
   "id": 151,
@@ -1205,7 +1655,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.9,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2007
  },
  {
   "id": 152,
@@ -1213,7 +1666,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.6,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2011
  },
  {
   "id": 153,
@@ -1221,7 +1677,10 @@ const TRACKER_DATA = [
   "format": "Movie",
   "hours": 1.6,
   "category": "Legacy",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2005
  },
  {
   "id": 154,
@@ -1229,7 +1688,10 @@ const TRACKER_DATA = [
   "format": "TV",
   "hours": 5.8,
   "category": "Spider-Verse",
-  "priority": "Optional"
+  "priority": "Optional",
+  "phase": null,
+  "saga": null,
+  "year": 2026
  },
  {
   "id": 155,
@@ -1237,7 +1699,10 @@ const TRACKER_DATA = [
   "format": "Special",
   "hours": 0.3,
   "category": "Sony/MCU Adjacent",
-  "priority": "Bonus"
+  "priority": "Bonus",
+  "phase": null,
+  "saga": null,
+  "year": 2019
  },
  {
   "id": 156,
@@ -1245,6 +1710,9 @@ const TRACKER_DATA = [
   "format": "Special",
   "hours": 0.3,
   "category": "Sony/MCU Adjacent",
-  "priority": "Bonus"
+  "priority": "Bonus",
+  "phase": null,
+  "saga": null,
+  "year": 2021
  }
 ];
