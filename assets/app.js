@@ -89,16 +89,6 @@
     Object.keys(items).forEach(id=>{ resolved[id] = items[id]; });
   }
 
-  // Dati recuperati live con la chiave dell'utente: si sovrappongono a quelli
-  // precalcolati, che restano per i titoli non ancora risolti.
-  let liveSyncing = false;
-  let liveProgress = { done: 0, total: TRACKER_DATA.length };
-
-  function mergeLive(itemId, entry){
-    if(entry && entry.ok) resolved[itemId] = entry;
-    else if(!resolved[itemId]) resolved[itemId] = entry;
-  }
-
   // ---------------- DOM refs ----------------
   const $ = (sel) => document.querySelector(sel);
   const categoriesRoot = $("#categories-root");
@@ -477,6 +467,22 @@
     }
   };
 
+  /**
+   * Il tracker si aggiorna da solo: senza un segno, un titolo comparso
+   * stanotte si confonderebbe con gli altri 156. Il contrassegno vale solo
+   * per i primi quattro mesi dall'uscita, altrimenti "NUOVO" resterebbe
+   * appiccicato per sempre a qualcosa che nuovo non è più.
+   */
+  const FRESH_DAYS = 120;
+  function isFreshlyAdded(item){
+    if(!item.autoAdded) return false;
+    const r = resolved[item.id];
+    const date = (r && r.ok) ? (r.releaseDate || r.firstAirDate) : null;
+    if(!date) return item.year === new Date().getFullYear();
+    const days = (Date.now() - new Date(date).getTime()) / 86400000;
+    return days >= 0 && days <= FRESH_DAYS;
+  }
+
   function renderPosterInner(item){
     const src = posterSrc(item);
     if(!src) return `<span class="poster-empty" aria-hidden="true"></span>`;
@@ -514,6 +520,7 @@
     const ratingBadge = (r && r.ok && r.voteAverage)
       ? `<span class="item-rating">⭐ ${r.voteAverage.toFixed(1)}</span>`
       : "";
+    const newBadge = isFreshlyAdded(item) ? `<span class="badge badge-new">NUOVO</span>` : "";
 
     const row = document.createElement("div");
     row.className = rowClass;
@@ -533,6 +540,7 @@
           <span class="badge badge-format">${FORMAT_ICON[item.format]||""} ${FORMAT_LABEL[item.format]||item.format}</span>
           <span class="badge badge-priority-${item.priority}">${PRIORITY_LABEL[item.priority]}</span>
           <span class="badge badge-hours-inline">${fmtNum(breakdown.total,1)}h</span>
+          ${newBadge}
         </div>
       </div>
       <span class="item-hours">${fmtNum(breakdown.total,1)}h</span>
@@ -713,18 +721,6 @@
       providersBody.innerHTML = `<p class="detail-providers-empty">Disponibilità streaming non ancora sincronizzata.</p>`;
     } else if(r.providers){
       renderProviders(r.providers);
-    } else if(TMDB.getApiKey()){
-      // dati live: i provider si scaricano solo all'apertura della scheda
-      providersBody.innerHTML = `<p class="detail-providers-empty">Caricamento…</p>`;
-      TMDB.fetchWatchProviders(r.tmdbId, r.mediaType).then((res)=>{
-        if(modal.dataset.itemId !== String(item.id)) return;  // nel frattempo si è aperto un altro titolo
-        if(res.ok){
-          resolved[item.id] = Object.assign({}, resolved[item.id], { providers: res.providers });
-          renderProviders(res.providers);
-        } else {
-          providersBody.innerHTML = `<p class="detail-providers-empty">Impossibile caricare la disponibilità streaming.</p>`;
-        }
-      });
     } else {
       providersBody.innerHTML = `<p class="detail-providers-empty">Disponibilità streaming non ancora sincronizzata.</p>`;
     }
@@ -967,180 +963,11 @@
       // titolo resti sui segnaposto continua a essere dichiarato dove serve
       // davvero, cioè nella scheda del singolo titolo.
       if(banner) banner.hidden = true;
-    } else if(TMDB.getApiKey() && provisional < total){
-      // nessun dato precalcolato, ma l'utente ha collegato la propria chiave
-      const enriched = total - provisional;
-      el.textContent = `Dati TMDB caricati con la tua chiave direttamente in questo browser: ` +
-        `${enriched} titoli su ${total} con dati ufficiali completi.` +
-        (provisional > 0 ? ` Per i restanti ${provisional} restano i segnaposto provvisori del progetto.` : "");
-      if(banner) banner.hidden = true;
     } else {
       el.textContent = `Nessun dato TMDB ancora sincronizzato: le ${total} locandine e sinossi mostrate sono ` +
         `segnaposto provvisori creati per questo progetto, non materiale ufficiale.`;
       if(banner) banner.hidden = false;
     }
-  }
-
-  // ---------------- pannello chiave TMDB (percorso opzionale) ----------------
-  function updateTmdbPanel(){
-    const connected = !!TMDB.getApiKey();
-    const dot = $("#tmdb-dot"), txt = $("#tmdb-status-text");
-    $("#tmdb-form").hidden = connected;
-    $("#tmdb-connected").hidden = !connected;
-
-    dot.classList.remove("connected","syncing");
-    if(liveSyncing){
-      dot.classList.add("syncing");
-      txt.textContent = "Caricamento…";
-    } else if(connected){
-      dot.classList.add("connected");
-      txt.textContent = "Collegato";
-    } else {
-      txt.textContent = "Non collegato";
-    }
-
-    if(connected){
-      const pct = liveProgress.total ? Math.round(liveProgress.done/liveProgress.total*100) : 0;
-      $("#tmdb-progress-fill").style.width = pct + "%";
-      $("#tmdb-progress-count").textContent = `${liveProgress.done}/${liveProgress.total}`;
-      $("#tmdb-note").textContent = liveSyncing
-        ? "Le chiamate partono da questo browser, non serve attendere."
-        : "Dati caricati con la tua chiave, salvati solo in questo browser.";
-    }
-
-    // se i dati ufficiali ci sono già quasi tutti, il pannello parte richiuso
-    const covered = TRACKER_DATA.filter(i => !isProvisional(i)).length;
-    const panel = $("#tmdb-panel");
-    if(!panel.dataset.userToggled && covered > TRACKER_DATA.length * 0.9){
-      panel.classList.add("collapsed");
-      $("#tmdb-collapse").setAttribute("aria-expanded","false");
-      $("#tmdb-collapse").textContent = "Mostra";
-      $("#tmdb-panel-title").textContent = "🔑 Chiave TMDB";
-    }
-  }
-
-  function showTmdbError(msg){ const e = $("#tmdb-error"); e.textContent = msg; e.hidden = false; }
-  function hideTmdbError(){ $("#tmdb-error").hidden = true; }
-
-  /**
-   * In un'anteprima incorporata (iframe con sandbox/CSP restrittiva) le
-   * chiamate a TMDB vengono bloccate a prescindere dalla chiave. Meglio
-   * avvisare prima che l'utente la incolli e riceva un errore oscuro.
-   */
-  function checkEmbeddedContext(){
-    const el = $("#tmdb-embedded-warn");
-    let embedded = false;
-    try { embedded = window.self !== window.top; } catch(e) { embedded = true; }
-    const fileProtocol = location.protocol === "file:";
-    if(!embedded && !fileProtocol){ el.hidden = true; return; }
-    el.textContent = embedded
-      ? "Questa pagina è aperta dentro un'anteprima incorporata, che blocca le chiamate verso l'esterno: qui il caricamento non può funzionare. Apri il sito pubblicato in una scheda normale e il riquadro funzionerà."
-      : "La pagina è aperta come file locale: alcuni browser bloccano le chiamate esterne in questo caso. Servila da un server locale (per esempio python3 -m http.server) e il riquadro funzionerà.";
-    el.hidden = false;
-  }
-
-  async function liveSync(force){
-    if(!TMDB.getApiKey() || liveSyncing) return;
-    liveSyncing = true;
-    liveProgress = { done: 0, total: TRACKER_DATA.length };
-    updateTmdbPanel();
-
-    for(const item of TRACKER_DATA){
-      try{
-        const r = await TMDB.resolveItem(item, force);
-        mergeLive(item.id, r);
-        if(r.ok && r.mediaType === "tv"){
-          const ep = await TMDB.fetchEpisodes(r.tmdbId, r.seasonNumber, force);
-          if(ep.ok && ep.episodes.length){
-            resolved[item.id] = Object.assign({}, resolved[item.id], { episodes: ep.episodes });
-            syncSeasonWatchedFlag(item);
-          }
-        }
-      }catch(e){
-        if(e.code === "INVALID_KEY"){
-          liveSyncing = false;
-          TMDB.clearApiKey();
-          updateTmdbPanel();
-          showTmdbError("Chiave rifiutata da TMDB. Controlla di averla copiata per intero.");
-          renderDashboard(); renderList();
-          return;
-        }
-        if(e.code === "BLOCKED" || e.code === "OFFLINE"){
-          liveSyncing = false;
-          updateTmdbPanel();
-          showTmdbError(e.message + " I dati già caricati restano disponibili.");
-          renderDashboard(); renderList();
-          return;
-        }
-      }
-      liveProgress.done++;
-      if(liveProgress.done % 4 === 0 || liveProgress.done === liveProgress.total) updateTmdbPanel();
-      if(liveProgress.done % 24 === 0 || liveProgress.done === liveProgress.total){
-        renderDashboard(); renderList(); renderDataSourceInfo();
-      }
-    }
-
-    liveSyncing = false;
-    saveState();
-    updateTmdbPanel();
-    renderDashboard(); renderList(); renderDataSourceInfo();
-    UI.toast("Dati TMDB caricati.", "success");
-  }
-
-  function wireTmdbPanel(){
-    const input = $("#tmdb-key-input");
-    const connectBtn = $("#tmdb-connect");
-
-    connectBtn.addEventListener("click", async ()=>{
-      const key = input.value.trim();
-      if(!key){ showTmdbError("Incolla prima la tua chiave TMDB."); return; }
-      input.blur(); hideTmdbError();
-      const label = connectBtn.textContent;
-      connectBtn.textContent = "Verifica…"; connectBtn.disabled = true;
-      const test = await TMDB.testKey(key);
-      connectBtn.textContent = label; connectBtn.disabled = false;
-      if(!test.ok){
-        // per BLOCKED/OFFLINE il client spiega già cosa è successo: non anteporre altro
-        showTmdbError(test.code === "INVALID_KEY"
-          ? "Chiave non valida. Controlla di averla copiata per intero."
-          : test.error);
-        return;
-      }
-      TMDB.setApiKey(key);
-      input.value = "";
-      updateTmdbPanel();
-      UI.toast("Chiave collegata, carico i dati…", "success");
-      liveSync(false);
-    });
-
-    input.addEventListener("keydown", (e)=>{ if(e.key === "Enter") connectBtn.click(); });
-    $("#tmdb-refresh").addEventListener("click", ()=> liveSync(true));
-
-    $("#tmdb-disconnect").addEventListener("click", async ()=>{
-      const ok = await UI.confirmDialog({
-        title: "Scollegare la chiave TMDB?",
-        message: "La chiave e i dati scaricati vengono rimossi da questo browser. Restano i dati precalcolati del sito e i segnaposto provvisori. Il tuo progresso di visione non viene toccato.",
-        confirmLabel: "Scolleghi",
-        cancelLabel: "Annulla",
-      });
-      if(!ok) return;
-      TMDB.clearApiKey();
-      TMDB.clearCache();
-      Object.keys(resolved).forEach(k=>delete resolved[k]);
-      loadMetadata();               // torna ai soli dati precalcolati
-      liveProgress = { done: 0, total: TRACKER_DATA.length };
-      updateTmdbPanel();
-      renderDashboard(); renderList(); renderDataSourceInfo();
-      UI.toast("Chiave scollegata.", "info");
-    });
-
-    $("#tmdb-collapse").addEventListener("click", ()=>{
-      const panel = $("#tmdb-panel");
-      panel.dataset.userToggled = "1";
-      const collapsed = panel.classList.toggle("collapsed");
-      $("#tmdb-collapse").setAttribute("aria-expanded", String(!collapsed));
-      $("#tmdb-collapse").textContent = collapsed ? "Mostra" : "Nascondi";
-    });
   }
 
   // ---------------- generic controls wiring ----------------
@@ -1341,14 +1168,10 @@
   loadMetadata();
   buildChips();
   wireControls();
-  wireTmdbPanel();
-  checkEmbeddedContext();
-  updateTmdbPanel();
   renderDataSourceInfo();
   renderDashboard();
   renderList();
   // chiave già salvata da una visita precedente: si riallinea da solo
-  if(TMDB.getApiKey()) liveSync(false);
 
   if("serviceWorker" in navigator){
     window.addEventListener("load", ()=>{

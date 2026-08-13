@@ -28,8 +28,11 @@ interattivo con progresso persistente nel browser.
 - 🖼️ **Nessuna scheda vuota, mai** — locandine e sinossi provvisorie del progetto finché TMDB non
   è sincronizzato, dichiarate come tali e sostituite titolo per titolo; se una locandina ufficiale
   non è raggiungibile il segnaposto rientra in campo al posto dell'immagine rotta
-- 🔑 **Chiave TMDB opzionale in pagina** — chi ne ha una può incollarla e caricare i dati ufficiali
-  al volo dal proprio browser, senza toccare il repository (la chiave resta solo lì)
+- 🤖 **Si aggiorna da solo** — ogni notte l'automazione cerca i contenuti Marvel appena usciti e li
+  aggiunge al tracker: quando esce un film nuovo o una nuova stagione, compaiono qui senza che
+  nessuno tocchi niente, contrassegnati **NUOVO** per i primi quattro mesi
+- 🔒 **Nessuna chiave da inserire, per nessuno** — chi visita il sito non configura nulla: i dati
+  sono già dentro il repository
 - 🛡️ **Identità visiva propria** — logo/emblema del progetto (scudo comic con la spunta del tracker)
 - 📺 **Tracciamento per episodio** per tutte le serie — sinossi, immagine e durata reale di ogni
   episodio, con stato "parzialmente vista" e ricalcolo automatico delle ore totali sui runtime
@@ -78,17 +81,18 @@ assets/synopses.js                   Sinossi provvisorie scritte per il progetto
 assets/poster.js                     Generatore di locandine provvisorie SVG (ripiego)
 assets/logo.svg                      Emblema del progetto (in pagina è inline nell'header)
 assets/metadata.js                   Dati TMDB precalcolati (generato dalla GitHub Action, vedi sotto)
-assets/tmdb.js                       URL immagini + client TMDB live per la chiave inserita in pagina
+assets/tmdb.js                       Costruzione degli URL delle immagini TMDB
 assets/ui.js                         Toast e modale di conferma riutilizzabili
 assets/app.js                        Logica: stato, filtri, rendering, localStorage
 assets/icons/                        Icone PWA (192/512/maskable/apple-touch)
 manifest.json                        Web app manifest per l'installazione
 sw.js                                Service worker: shell in cache, metadata.js sempre network-first
 scripts/fetch_tmdb_metadata.py       Script che genera assets/metadata.js (gira solo lato server)
-.github/workflows/update-metadata.yml Action manuale che lo esegue quando serve
+scripts/discover_new_titles.py       Trova i contenuti appena usciti e li aggiunge al tracker
+.github/workflows/update-metadata.yml Automazione giornaliera che esegue entrambi
 ```
 
-## Come funzionano i dati TMDB: si cuociono una volta e restano
+## Come funzionano i dati TMDB: cotti sul server, serviti come file statico
 
 Un sito statico non ha un backend dove nascondere un segreto: qualunque chiave scritta nel
 codice JS sarebbe visibile a chiunque apra i DevTools. Qui il problema non si pone, perché i dati
@@ -96,21 +100,26 @@ codice JS sarebbe visibile a chiunque apra i DevTools. Qui il problema non si po
 uno script, scritti in `assets/metadata.js` e **committati nel repository** come qualsiasi altro
 file del sito.
 
-La conseguenza è la parte importante: **una volta che `metadata.js` contiene un buon risultato,
-il sito non ha più bisogno di TMDB né di una chiave.** Né per te, né per i visitatori, né per
-sempre. L'unico filo che resta verso l'esterno sono le immagini, servite da `image.tmdb.org`:
-è una CDN pubblica, non richiede chiave e non sa nulla di te.
+La conseguenza è la parte importante: **chi visita il sito non ha bisogno di nessuna chiave e non
+contatta mai l'API di TMDB.** La chiave serve una volta sola, di notte, dentro la GitHub Action, e
+resta in un secret privato del repository. L'unico filo che il browser tende verso l'esterno sono
+le immagini, servite da `image.tmdb.org`: è una CDN pubblica, non richiede chiave, e se una
+immagine non arriva il sito ricade sull'artwork del progetto.
+
+E se l'automazione si fermasse — chiave revocata, TMDB giù, repository archiviato — **il sito
+continuerebbe a funzionare esattamente com'è**: i dati sono file committati, non chiamate di rete.
 
 1. Una **GitHub Action** ([.github/workflows/update-metadata.yml](.github/workflows/update-metadata.yml))
-   si lancia **a mano**, da *Actions → Update TMDB metadata → Run workflow*. Non è pianificata:
-   dati congelati non devono cambiare da soli.
+   parte **ogni notte alle 06:00 UTC**, da sola.
 2. Usa uno **secret privato del repository** (`TMDB_API_KEY`) — mai nel codice, mai nei file
    pubblicati, mai scaricato da chi visita il sito.
-3. Esegue [scripts/fetch_tmdb_metadata.py](scripts/fetch_tmdb_metadata.py), che interroga TMDB
-   per tutti i 156 titoli (ricerca, episodi, disponibilità streaming) e riscrive `assets/metadata.js`.
+3. Esegue [scripts/discover_new_titles.py](scripts/discover_new_titles.py), che cerca i contenuti
+   Marvel appena usciti e li aggiunge a `assets/data.js`, e poi
+   [scripts/fetch_tmdb_metadata.py](scripts/fetch_tmdb_metadata.py), che riscrive
+   `assets/metadata.js` con locandine, sinossi, voti, episodi e disponibilità streaming.
 4. La Action fa il commit. Il push su `main` fa ripartire il deploy, e il sito è aggiornato.
 
-Rilanciala solo quando aggiungi titoli al tracker o vuoi rinfrescare i dati di proposito.
+Puoi comunque forzare un giro a mano da *Actions → Update TMDB metadata → Run workflow*.
 
 ### Lo script non peggiora mai i dati già congelati
 
@@ -132,7 +141,7 @@ peggiori. Lo script è scritto per non permetterlo.
 ### Setup one-time (solo per chi possiede il repository)
 
 Serve una API key gratuita v3 di [themoviedb.org/settings/api](https://www.themoviedb.org/settings/api)
-(2 minuti, nessuna carta di credito). Poi scegli una delle tre strade.
+(2 minuti, nessuna carta di credito). Poi scegli una delle due strade.
 
 **A — Consigliata: la Action cuoce i dati e li committa**
 1. Nel repository GitHub: *Settings → Secrets and variables → Actions → New repository secret*,
@@ -142,27 +151,14 @@ Serve una API key gratuita v3 di [themoviedb.org/settings/api](https://www.themo
 3. Lancia la Action da *Actions → Update TMDB metadata → Run workflow*. Al termine il riepilogo
    dice quanti titoli ha risolto.
 
-Fatto questo la chiave ha esaurito il suo compito: puoi anche revocarla su TMDB, il sito continua
-a funzionare con i dati committati.
+Da lì in poi la Action gira ogni notte da sola. Il sito **non chiede mai una chiave a chi lo
+visita**: non c'è nessun campo da compilare, i dati sono già nel repository.
 
-**B — Dal browser, senza toccare il repository**
-
-Nel sito c'è il riquadro *"Carica i dati ufficiali adesso"*: incolla lì la chiave e i dati vengono
-scaricati subito dal tuo browser. La chiave resta nel `localStorage` di quel browser e non finisce
-mai nel repository; i dati caricati valgono solo per te, non per gli altri visitatori. È la strada
-più rapida per vedere il risultato, o per usare una propria chiave su un sito altrui.
-
-> ⚠️ Questa strada richiede che la pagina possa contattare `api.themoviedb.org`. **Non funziona
-> nelle anteprime incorporate in un iframe** (comprese quelle di molti strumenti di sviluppo), che
-> bloccano le chiamate esterne per policy: il riquadro se ne accorge e lo segnala prima che tu
-> incolli la chiave. Serve il sito aperto in una scheda normale — pubblicato, oppure servito in
-> locale con `python3 -m http.server`. Le altre due strade (A e C) non hanno questo vincolo,
-> perché le chiamate partono da un server e non dal browser.
-
-**C — In locale, se preferisci non mettere la chiave su GitHub**
+**B — In locale, se preferisci non mettere la chiave su GitHub**
 ```bash
+TMDB_API_KEY=la_tua_chiave python3 scripts/discover_new_titles.py
 TMDB_API_KEY=la_tua_chiave python3 scripts/fetch_tmdb_metadata.py
-git add assets/metadata.js && git commit -m "Aggiorna metadati TMDB" && git push
+git add assets/data.js assets/metadata.js && git commit -m "Aggiorna tracker e metadati" && git push
 ```
 Lo script stampa quanti titoli ha risolto e quante sinossi ha trovato in italiano. Richiede
 qualche minuto (rispetta i limiti di TMDB con una pausa fra le chiamate). Con questa strada la
@@ -171,6 +167,37 @@ chiave non lascia mai il tuo computer.
 Variabili opzionali: `TMDB_LANGUAGE` (default `it-IT`), `TMDB_REGION` (default `IT`, decide il
 paese per la disponibilità streaming), `TMDB_REQUEST_DELAY` (default `0.3` secondi),
 `TMDB_MAX_ATTEMPTS` (default `4`), `TMDB_ALLOW_REGRESSION` (vedi sopra).
+
+## Come fa la lista ad aggiornarsi da sola
+
+[scripts/discover_new_titles.py](scripts/discover_new_titles.py) gira prima del fetch e cerca due
+cose diverse, perché "è uscito qualcosa di nuovo" ha due forme:
+
+1. **Una nuova stagione di una serie già seguita.** Si legge l'elenco stagioni della serie su TMDB
+   e si aggiunge quella che ha già una data di messa in onda passata. I campi (categoria, priorità,
+   canone MCU sì/no) si ereditano dalle stagioni già presenti.
+2. **Un titolo nuovo di zecca.** Si interrogano le uscite delle case di produzione Marvel
+   (Marvel Studios, Marvel Television, Marvel Animation) e si tiene quello che il tracker non ha.
+   È così che *Avengers: Doomsday* comparirà da solo il giorno in cui esce.
+
+Tre regole tengono pulito il risultato:
+
+- **Solo ciò che è già uscito.** Il tracker è una checklist di cose da guardare, non un calendario
+  di annunci: una stagione con data futura viene ignorata finché quella data non arriva.
+- **Niente dietro le quinte.** I documentari promozionali (*Assembled*, i "making of") escono con la
+  stessa casa di produzione dei film, e vengono scartati per genere.
+- **Niente doppioni.** Il confronto è sui titoli normalizzati, quindi rieseguire l'automazione
+  cento volte non aggiunge mai due volte la stessa cosa.
+
+Le voci aggiunte così finiscono in fondo a `assets/data.js` con `"autoAdded": true`, e nel sito
+portano un contrassegno **NUOVO** per i primi 120 giorni dall'uscita. Restano modificabili a mano
+come tutte le altre.
+
+Un limite dichiarato: **TMDB non conosce le Fasi MCU**, quindi un titolo aggiunto in automatico
+riceve la Fase dell'era corrente, definita da `CURRENT_PHASE` in cima allo script. Quando Marvel
+aprirà la Fase 7 sarà l'unica riga da cambiare.
+
+Per vedere cosa farebbe senza toccare niente: `DISCOVER_DRY_RUN=1 TMDB_API_KEY=... python3 scripts/discover_new_titles.py`.
 
 ### E se volessi togliere TMDB del tutto?
 
