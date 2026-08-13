@@ -49,17 +49,20 @@
         <path d="M42 61 L55 74 L80 44" fill="none" stroke="#f2c94c" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
       <div class="brand-text">
-        <h1>MARVEL <span>ULTIMATE</span> FAN TRACKER</h1>
+        <h1>
+          <span class="brand-full">MARVEL <em>ULTIMATE</em> FAN TRACKER</span>
+          <span class="brand-compact">MCU <em>TRACKER</em></span>
+        </h1>
         <p class="brand-sub">Il multiverso, una checklist alla volta — edizione 2026</p>
       </div>
     </div>
     <div class="header-actions">
-      <button id="btn-export" class="btn btn-ghost" title="Esporta il tuo progresso in un file">⬇ Esporta</button>
+      <button id="btn-export" class="btn btn-ghost" title="Esporta il tuo progresso in un file" aria-label="Esporta il tuo progresso in un file">⬇<span class="btn-label"> Esporta</span></button>
       <label class="btn btn-ghost" title="Importa un progresso salvato">
-        ⬆ Importa
-        <input type="file" id="file-import" accept="application/json" hidden>
+        ⬆<span class="btn-label"> Importa</span>
+        <input type="file" id="file-import" accept="application/json" hidden aria-label="Importa un progresso salvato">
       </label>
-      <button id="btn-reset" class="btn btn-danger" title="Azzera tutto il progresso">↺ Reset</button>
+      <button id="btn-reset" class="btn btn-danger" title="Azzera tutto il progresso" aria-label="Azzera tutto il progresso">↺<span class="btn-label"> Reset</span></button>
     </div>
   </div>
 </header>
@@ -75,8 +78,8 @@
       <div class="hero-meta" id="hero-meta"></div>
       <p class="hero-overview" id="hero-overview"></p>
       <div class="hero-actions">
-        <button class="btn btn-toggle" id="hero-mark-watched">✓ Segna come visto</button>
-        <button class="btn btn-ghost" id="hero-more-info">ℹ️ Maggiori informazioni</button>
+        <button class="btn btn-toggle" id="hero-mark-watched">✓ <span class="lbl-full">Segna come visto</span><span class="lbl-short">Visto</span></button>
+        <button class="btn btn-ghost" id="hero-more-info">ℹ️ <span class="lbl-full">Maggiori informazioni</span><span class="lbl-short">Dettagli</span></button>
       </div>
     </div>
   </section>
@@ -163,7 +166,8 @@
   </section>
 
   <!-- FILTER TOOLBAR -->
-  <section class="toolbar panel">
+  <section class="toolbar panel" id="toolbar">
+    <button id="btn-toggle-filters" class="btn btn-ghost toolbar-toggle" aria-expanded="false" aria-controls="toolbar">⚙ Filtri e ordinamento</button>
     <div class="toolbar-row">
       <input type="search" id="search-input" placeholder="🔍 Cerca un titolo... (es. 'Loki', 'Blade', 'X-Men')" class="search-input">
       <select id="sort-select" class="sort-select">

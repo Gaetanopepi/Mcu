@@ -419,6 +419,7 @@
         <div class="item-badges">
           <span class="badge badge-format">${FORMAT_ICON[item.format]||""} ${FORMAT_LABEL[item.format]||item.format}</span>
           <span class="badge badge-priority-${item.priority}">${PRIORITY_LABEL[item.priority]}</span>
+          <span class="badge badge-hours-inline">${fmtNum(breakdown.total,1)}h</span>
         </div>
       </div>
       <span class="item-hours">${fmtNum(breakdown.total,1)}h</span>
@@ -805,6 +806,15 @@
 
     $("#snap-close").addEventListener("click", ()=>{
       $("#snap-overlay").hidden = true;
+    });
+
+    // su mobile i filtri partono chiusi: altrimenti spingono la checklist
+    // troppo in basso. Su desktop il pulsante non è visibile e non serve.
+    const filtersBtn = $("#btn-toggle-filters");
+    filtersBtn.addEventListener("click", ()=>{
+      const open = $("#toolbar").classList.toggle("filters-open");
+      filtersBtn.setAttribute("aria-expanded", String(open));
+      filtersBtn.textContent = open ? "⚙ Nascondi filtri" : "⚙ Filtri e ordinamento";
     });
   }
 
