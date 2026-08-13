@@ -1,6 +1,8 @@
 /* ============================================================
    MARVEL ULTIMATE FAN TRACKER — app logic
-   TRACKER_DATA is provided by data.js, TMDB client by tmdb.js
+   TRACKER_DATA is provided by data.js, TMDB_METADATA by metadata.js
+   (baked at build time — see scripts/fetch_tmdb_metadata.py), and
+   image-URL helpers by tmdb.js.
    ============================================================ */
 (function(){
   "use strict";
@@ -52,9 +54,9 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if(!raw) throw new Error("empty");
       const parsed = JSON.parse(raw);
-      return Object.assign({ watched:{}, episodes:{}, collapsed:{}, hoursPerDay:2, tmdbLastSync:null }, parsed);
+      return Object.assign({ watched:{}, episodes:{}, collapsed:{}, hoursPerDay:2 }, parsed);
     }catch(e){
-      return { watched:{}, episodes:{}, collapsed:{}, hoursPerDay:2, tmdbLastSync:null };
+      return { watched:{}, episodes:{}, collapsed:{}, hoursPerDay:2 };
     }
   }
   function saveState(){
@@ -70,16 +72,16 @@
     sort: "order",
   };
 
-  // ---------------- TMDB runtime state (in-memory, rebuilt each session) ----------------
-  const itemById = {};
-  TRACKER_DATA.forEach(i => { itemById[i.id] = i; });
-
-  const resolved = {};        // itemId -> TMDB.resolveItem() result
-  const episodesByItem = {};  // itemId -> TMDB.fetchEpisodes() result
-  const episodeLoading = {};  // itemId -> true while a fetch is in flight
+  // ---------------- baked TMDB metadata (loaded once, synchronously) ----------------
+  // resolved[itemId] -> { ok, mediaType, tmdbId, posterPath, backdropPath, overview,
+  //                       voteAverage, releaseDate/firstAirDate, providers, episodes? }
+  const resolved = {};
   const expandedItems = new Set(); // ephemeral, not persisted
-  let syncing = false;
-  let syncProgress = { done: 0, total: TRACKER_DATA.length };
+
+  function loadMetadata(){
+    const items = (typeof TMDB_METADATA !== "undefined" && TMDB_METADATA.items) || {};
+    Object.keys(items).forEach(id=>{ resolved[id] = items[id]; });
+  }
 
   // ---------------- DOM refs ----------------
   const $ = (sel) => document.querySelector(sel);
@@ -88,17 +90,17 @@
 
   // ---------------- hour math (episode-aware) ----------------
   function itemHourBreakdown(item){
-    const epData = episodesByItem[item.id];
-    if(epData && epData.ok && epData.episodes && epData.episodes.length){
+    const r = resolved[item.id];
+    if(r && r.ok && r.episodes && r.episodes.length){
       const epsState = state.episodes[item.id] || {};
       let total = 0, watchedH = 0, watchedCount = 0;
-      epData.episodes.forEach(e=>{
+      r.episodes.forEach(e=>{
         const h = (e.runtime||0)/60;
         total += h;
         if(epsState[e.number]){ watchedH += h; watchedCount++; }
       });
       if(total > 0){
-        return { total, watched: watchedH, granular:true, watchedCount, totalCount: epData.episodes.length };
+        return { total, watched: watchedH, granular:true, watchedCount, totalCount: r.episodes.length };
       }
     }
     return { total: item.hours, watched: state.watched[item.id] ? item.hours : 0, granular:false };
@@ -124,20 +126,20 @@
 
   // ---------------- watched toggling (episode-aware) ----------------
   function syncSeasonWatchedFlag(item){
-    const epData = episodesByItem[item.id];
-    if(!epData || !epData.ok || !epData.episodes || !epData.episodes.length) return;
+    const r = resolved[item.id];
+    if(!r || !r.ok || !r.episodes || !r.episodes.length) return;
     const epsState = state.episodes[item.id] || {};
-    const allWatched = epData.episodes.every(e => epsState[e.number]);
+    const allWatched = r.episodes.every(e => epsState[e.number]);
     if(allWatched) state.watched[item.id] = true; else delete state.watched[item.id];
   }
 
   function toggleWatched(item){
-    const epData = episodesByItem[item.id];
+    const r = resolved[item.id];
     const willWatch = !state.watched[item.id];
     if(willWatch) state.watched[item.id] = true; else delete state.watched[item.id];
-    if(epData && epData.ok && epData.episodes && epData.episodes.length){
+    if(r && r.ok && r.episodes && r.episodes.length){
       if(!state.episodes[item.id]) state.episodes[item.id] = {};
-      epData.episodes.forEach(e=>{
+      r.episodes.forEach(e=>{
         if(willWatch) state.episodes[item.id][e.number] = true;
         else delete state.episodes[item.id][e.number];
       });
@@ -158,10 +160,10 @@
   }
 
   function markAllEpisodes(item, watch){
-    const epData = episodesByItem[item.id];
-    if(!epData || !epData.ok) return;
+    const r = resolved[item.id];
+    if(!r || !r.ok || !r.episodes) return;
     if(!state.episodes[item.id]) state.episodes[item.id] = {};
-    epData.episodes.forEach(e=>{
+    r.episodes.forEach(e=>{
       if(watch) state.episodes[item.id][e.number] = true;
       else delete state.episodes[item.id][e.number];
     });
@@ -255,7 +257,7 @@
     const section = $("#hero-banner");
     if(!next){ section.hidden = true; return; }
     const r = resolved[next.id];
-    if(!TMDB.getApiKey() || !r || !r.ok || !r.backdropPath){
+    if(!r || !r.ok || !r.backdropPath){
       section.hidden = true;
       return;
     }
@@ -333,6 +335,11 @@
         arr.sort((a,b)=> rank[a.priority]-rank[b.priority] || a.id-b.id);
         break;
       }
+      case "rating": {
+        const rating = (i)=> (resolved[i.id] && resolved[i.id].ok) ? (resolved[i.id].voteAverage||0) : -1;
+        arr.sort((a,b)=> rating(b) - rating(a));
+        break;
+      }
       default: arr.sort((a,b)=>a.id-b.id);
     }
     return arr;
@@ -342,13 +349,7 @@
   function renderPosterInner(item){
     const r = resolved[item.id];
     const meta = CATEGORY_META[item.category] || { icon:"🎬" };
-    if(!TMDB.getApiKey()){
-      return { cls: "", html: `<span class="poster-fallback">${meta.icon}</span>` };
-    }
-    if(!r){
-      return { cls: "skeleton", html: "" };
-    }
-    if(r.ok && r.posterPath){
+    if(r && r.ok && r.posterPath){
       const url = TMDB.posterUrl(r.posterPath, "w185");
       return { cls: "", html: `<img src="${url}" alt="" loading="lazy" onerror="this.remove()">` };
     }
@@ -356,10 +357,8 @@
   }
 
   function renderSynopsis(item){
-    if(!TMDB.getApiKey()) return "";
     const r = resolved[item.id];
-    if(!r) return `<p class="item-synopsis skeleton-line"></p>`;
-    if(r.ok && r.overview){
+    if(r && r.ok && r.overview){
       return `<p class="item-synopsis" title="${escapeHtml(r.overview)}">${escapeHtml(r.overview)}</p>`;
     }
     return "";
@@ -369,8 +368,8 @@
     const watched = !!state.watched[item.id];
     const breakdown = itemHourBreakdown(item);
     const r = resolved[item.id];
-    const isTv = TMDB.isTvFormat(item.format);
-    const canExpand = TMDB.getApiKey() && r && r.ok && r.mediaType === "tv";
+    const hasDetail = !!(r && r.ok);
+    const canExpand = hasDetail && r.mediaType === "tv" && r.episodes && r.episodes.length;
     const expanded = expandedItems.has(item.id);
 
     let rowClass = "item-row";
@@ -379,7 +378,6 @@
 
     const poster = renderPosterInner(item);
     const synopsisHtml = renderSynopsis(item);
-    const hasDetail = TMDB.getApiKey() && r && r.ok;
 
     const fracBadge = (breakdown.granular)
       ? `<span class="item-progress-frac">${breakdown.watchedCount}/${breakdown.totalCount} ep.</span>`
@@ -436,19 +434,8 @@
     const panel = document.createElement("div");
     panel.className = "episode-panel";
 
-    const epData = episodesByItem[item.id];
-    if(episodeLoading[item.id] && !epData){
-      panel.innerHTML = `<div class="episode-panel-loading">Caricamento episodi…</div>`;
-      return panel;
-    }
-    if(!epData){
-      // trigger fetch (fire and forget; will re-render on completion)
-      ensureEpisodes(item, r);
-      panel.innerHTML = `<div class="episode-panel-loading">Caricamento episodi…</div>`;
-      return panel;
-    }
-    if(!epData.ok || !epData.episodes || !epData.episodes.length){
-      panel.innerHTML = `<div class="episode-panel-error">Impossibile caricare gli episodi al momento.</div>`;
+    if(!r.episodes || !r.episodes.length){
+      panel.innerHTML = `<div class="episode-panel-error">Dati sugli episodi non disponibili.</div>`;
       return panel;
     }
 
@@ -465,7 +452,7 @@
 
     const list = document.createElement("div");
     list.className = "episode-list";
-    epData.episodes.forEach(ep=>{
+    r.episodes.forEach(ep=>{
       const isWatched = !!epsState[ep.number];
       const row = document.createElement("div");
       row.className = "episode-row" + (isWatched ? " watched" : "");
@@ -487,22 +474,6 @@
     });
     panel.appendChild(list);
     return panel;
-  }
-
-  async function ensureEpisodes(item, r){
-    if(episodeLoading[item.id]) return;
-    episodeLoading[item.id] = true;
-    try{
-      const data = await TMDB.fetchEpisodes(r.tmdbId, r.seasonNumber);
-      episodesByItem[item.id] = data;
-      syncSeasonWatchedFlag(item);
-      saveState();
-    }catch(e){
-      episodesByItem[item.id] = { ok:false, error: e.message };
-    }
-    episodeLoading[item.id] = false;
-    renderDashboard();
-    renderList();
   }
 
   // ---------------- title detail modal ----------------
@@ -543,11 +514,10 @@
     }
   }
 
-  async function openDetailModal(item){
+  function openDetailModal(item){
     const modal = ensureDetailModal();
     const r = resolved[item.id];
     const meta = CATEGORY_META[item.category] || { icon:"🎬" };
-    modal.dataset.itemId = String(item.id);
 
     const heroEl = modal.querySelector("#detail-hero");
     const posterEl = modal.querySelector("#detail-poster");
@@ -585,29 +555,19 @@
       closeDetailModal();
     });
 
+    const region = (typeof TMDB_METADATA !== "undefined" && TMDB_METADATA.region) || "IT";
+    if(!r || !r.ok){
+      providersBody.innerHTML = `<p class="detail-providers-empty">Dati non disponibili per questo titolo.</p>`;
+    } else if(r.providers && r.providers.length){
+      providersBody.innerHTML = `<div class="provider-logos">${r.providers.map(p=>
+        `<div class="provider-logo" title="${escapeHtml(p.name)}"><img src="${TMDB.logoUrl(p.logoPath,'w92')}" alt="${escapeHtml(p.name)}" loading="lazy"></div>`
+      ).join("")}</div>`;
+    } else {
+      providersBody.innerHTML = `<p class="detail-providers-empty">Non disponibile in streaming al momento (regione ${region}).</p>`;
+    }
+
     modal.hidden = false;
     document.body.style.overflow = "hidden";
-
-    if(!TMDB.getApiKey() || !r || !r.ok){
-      providersBody.innerHTML = `<p class="detail-providers-empty">Connettiti a TMDB per vedere dove guardarlo.</p>`;
-      return;
-    }
-
-    providersBody.innerHTML = `<p class="detail-providers-loading">Caricamento…</p>`;
-    try{
-      const data = await TMDB.fetchWatchProviders(r.tmdbId, r.mediaType);
-      if(modal.dataset.itemId !== String(item.id)) return; // modal moved on to another title
-      if(data.ok && data.providers.length){
-        providersBody.innerHTML = `<div class="provider-logos">${data.providers.map(p=>
-          `<div class="provider-logo" title="${escapeHtml(p.name)}"><img src="${TMDB.logoUrl(p.logoPath,'w92')}" alt="${escapeHtml(p.name)}" loading="lazy"></div>`
-        ).join("")}</div>`;
-      } else {
-        providersBody.innerHTML = `<p class="detail-providers-empty">Non disponibile in streaming al momento (regione IT).</p>`;
-      }
-    }catch(e){
-      if(modal.dataset.itemId !== String(item.id)) return;
-      providersBody.innerHTML = `<p class="detail-providers-empty">Impossibile caricare la disponibilità streaming.</p>`;
-    }
   }
 
   function renderList(){
@@ -669,157 +629,17 @@
     renderList();
   }
 
-  // ---------------- TMDB connection & sync ----------------
-  function updateTmdbUI(){
-    const connected = !!TMDB.getApiKey();
-    const dot = $("#tmdb-status-dot");
-    const text = $("#tmdb-status-text");
-    const connectForm = $("#tmdb-connect-form");
-    if(connected && !connectForm.hidden && connectForm.contains(document.activeElement)){
-      document.activeElement.blur();
-    }
-    connectForm.hidden = connected;
-    $("#tmdb-sync-status").hidden = !connected;
-
-    dot.classList.remove("connected","syncing","error");
-    if(syncing){
-      dot.classList.add("syncing");
-      text.textContent = "Sincronizzazione in corso…";
-    } else if(connected){
-      dot.classList.add("connected");
-      text.textContent = "Connesso a TMDB";
+  // ---------------- data source info (static, no user action needed) ----------------
+  function renderDataSourceInfo(){
+    const el = $("#data-source-info");
+    if(!el) return;
+    if(typeof TMDB_METADATA !== "undefined" && TMDB_METADATA.generatedAt){
+      const d = new Date(TMDB_METADATA.generatedAt);
+      el.textContent = "Locandine, sinossi, valutazioni e disponibilità streaming sono fornite da TMDB e aggiornate automaticamente. Ultimo aggiornamento: " +
+        d.toLocaleDateString("it-IT", { day:"numeric", month:"long", year:"numeric" }) + ".";
     } else {
-      text.textContent = "Non connesso";
+      el.textContent = "Locandine e sinossi non ancora sincronizzate: verranno popolate automaticamente al primo aggiornamento del database.";
     }
-
-    if(connected){
-      const pct = syncProgress.total ? Math.round(syncProgress.done/syncProgress.total*100) : 0;
-      $("#tmdb-sync-fill").style.width = pct + "%";
-      $("#tmdb-sync-count").textContent = `${syncProgress.done}/${syncProgress.total}`;
-      const lastSyncEl = $("#tmdb-last-sync");
-      if(state.tmdbLastSync){
-        const d = new Date(state.tmdbLastSync);
-        lastSyncEl.textContent = "Ultima sincronizzazione: " + d.toLocaleString("it-IT", { day:"numeric", month:"short", hour:"2-digit", minute:"2-digit" });
-      } else {
-        lastSyncEl.textContent = "";
-      }
-    }
-  }
-
-  function showConnectError(msg){
-    const el = $("#tmdb-connect-error");
-    el.textContent = msg;
-    el.hidden = false;
-  }
-  function hideConnectError(){
-    $("#tmdb-connect-error").hidden = true;
-  }
-
-  async function syncAll(force){
-    if(!TMDB.getApiKey()) return;
-    syncing = true;
-    syncProgress = { done: 0, total: TRACKER_DATA.length };
-    updateTmdbUI();
-
-    for(const item of TRACKER_DATA){
-      try{
-        const r = await TMDB.resolveItem(item, force);
-        resolved[item.id] = r;
-        if(r.ok && r.mediaType === "tv"){
-          const ep = await TMDB.fetchEpisodes(r.tmdbId, r.seasonNumber, force);
-          episodesByItem[item.id] = ep;
-          syncSeasonWatchedFlag(item);
-        }
-      }catch(e){
-        if(e.code === "INVALID_KEY"){
-          syncing = false;
-          TMDB.clearApiKey();
-          updateTmdbUI();
-          showConnectError("La chiave salvata non è più valida. Ricollegala qui sotto.");
-          renderDashboard();
-          renderList();
-          return;
-        }
-        resolved[item.id] = { ok:false, code: e.code || "ERROR" };
-      }
-      syncProgress.done++;
-      // Cheap, frequent: progress bar + stats. Expensive full-list rebuild: rarer,
-      // to avoid repeated layout shifts fighting the browser's scroll anchoring.
-      if(syncProgress.done % 4 === 0 || syncProgress.done === syncProgress.total){
-        updateTmdbUI();
-        renderDashboard();
-      }
-      if(syncProgress.done % 24 === 0 || syncProgress.done === syncProgress.total){
-        renderList();
-      }
-    }
-
-    syncing = false;
-    state.tmdbLastSync = Date.now();
-    saveState();
-    updateTmdbUI();
-    renderDashboard();
-    renderList();
-  }
-
-  function resetTmdbRuntimeState(){
-    Object.keys(resolved).forEach(k=>delete resolved[k]);
-    Object.keys(episodesByItem).forEach(k=>delete episodesByItem[k]);
-    Object.keys(episodeLoading).forEach(k=>delete episodeLoading[k]);
-    expandedItems.clear();
-    syncProgress = { done: 0, total: TRACKER_DATA.length };
-  }
-
-  function wireTmdbControls(){
-    $("#tmdb-connect-btn").addEventListener("click", async ()=>{
-      const input = $("#tmdb-key-input");
-      const key = input.value.trim();
-      if(!key){ showConnectError("Incolla prima la tua API key TMDB."); return; }
-      input.blur();
-      hideConnectError();
-      const btn = $("#tmdb-connect-btn");
-      const originalLabel = btn.textContent;
-      btn.textContent = "Verifica in corso…";
-      btn.disabled = true;
-      const test = await TMDB.testKey(key);
-      btn.textContent = originalLabel;
-      btn.disabled = false;
-      if(!test.ok){
-        if(test.code === "INVALID_KEY") showConnectError("Chiave non valida. Controlla di averla copiata per intero.");
-        else showConnectError("Errore di connessione: " + test.error);
-        return;
-      }
-      TMDB.setApiKey(key);
-      input.value = "";
-      updateTmdbUI();
-      UI.toast("Connesso a TMDB! Sincronizzazione in corso…", "success");
-      syncAll(false);
-    });
-
-    $("#tmdb-key-input").addEventListener("keydown", (e)=>{
-      if(e.key === "Enter") $("#tmdb-connect-btn").click();
-    });
-
-    $("#tmdb-refresh-btn").addEventListener("click", ()=> syncAll(true));
-
-    $("#tmdb-disconnect-btn").addEventListener("click", async ()=>{
-      const ok = await UI.confirmDialog({
-        title: "Disconnettere TMDB?",
-        message: "Locandine, sinossi, rating ed episodi non saranno più mostrati. Il tuo progresso di visione resta salvato.",
-        confirmLabel: "Disconnetti",
-        cancelLabel: "Annulla",
-      });
-      if(!ok) return;
-      TMDB.clearApiKey();
-      TMDB.clearCache();
-      resetTmdbRuntimeState();
-      state.tmdbLastSync = null;
-      saveState();
-      updateTmdbUI();
-      renderDashboard();
-      renderList();
-      UI.toast("Disconnesso da TMDB.", "info");
-    });
   }
 
   // ---------------- generic controls wiring ----------------
@@ -910,12 +730,12 @@
     $("#btn-reset").addEventListener("click", async ()=>{
       const ok = await UI.confirmDialog({
         title: "Azzerare tutto il progresso?",
-        message: "Non è (facilmente) reversibile, un po' come lo Snap. Il collegamento a TMDB resta attivo.",
+        message: "Non è (facilmente) reversibile, un po' come lo Snap.",
         confirmLabel: "Sì, azzera",
         cancelLabel: "Annulla",
       });
       if(ok){
-        state = { watched:{}, episodes:{}, collapsed:{}, hoursPerDay: state.hoursPerDay, tmdbLastSync: state.tmdbLastSync };
+        state = { watched:{}, episodes:{}, collapsed:{}, hoursPerDay: state.hoursPerDay };
         saveState();
         renderDashboard();
         renderList();
@@ -946,7 +766,7 @@
           if(!imported || typeof imported !== "object" || !imported.watched){
             throw new Error("Formato non valido");
           }
-          state = Object.assign({ watched:{}, episodes:{}, collapsed:{}, hoursPerDay:2, tmdbLastSync:null }, imported);
+          state = Object.assign({ watched:{}, episodes:{}, collapsed:{}, hoursPerDay:2 }, imported);
           saveState();
           renderDashboard();
           renderList();
@@ -965,13 +785,12 @@
   }
 
   // ---------------- init ----------------
+  loadMetadata();
   buildChips();
   wireControls();
-  wireTmdbControls();
-  updateTmdbUI();
+  renderDataSourceInfo();
   renderDashboard();
   renderList();
-  if(TMDB.getApiKey()) syncAll(false);
 
   if("serviceWorker" in navigator){
     window.addEventListener("load", ()=>{
