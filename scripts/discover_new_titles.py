@@ -110,10 +110,19 @@ def load_metadata_items():
 
 
 def tracked_keys(items):
-    """Titoli già presenti, normalizzati, per non aggiungere doppioni."""
+    """Titoli già presenti, normalizzati, per non aggiungere doppioni.
+
+    Di ogni serie si registra sia il titolo come sta nel tracker ("Loki S1")
+    sia quello senza suffisso di stagione ("Loki"), perché TMDB conosce solo
+    il secondo: confrontando solo il primo, ogni serie già seguita risulterebbe
+    sconosciuta e verrebbe riaggiunta come nuova.
+    """
     keys = set()
     for item in items:
         keys.add(normalize(clean_title(item["title"])))
+        parsed = parse_season_suffix(item["title"])
+        if parsed:
+            keys.add(normalize(clean_title(parsed[0])))
     return keys
 
 

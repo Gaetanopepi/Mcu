@@ -716,7 +716,7 @@ const TRACKER_DATA = [
  },
  {
   "id": 66,
-  "title": "VisionQuest S1",
+  "title": "Vision Quest S1",
   "format": "TV",
   "hours": 6.0,
   "category": "MCU Disney+",
