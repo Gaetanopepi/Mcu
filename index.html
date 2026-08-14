@@ -139,16 +139,13 @@
 
     </div>
 
-    <div class="next-up" id="next-up">
-      <!-- populated by JS -->
-    </div>
   </section>
 
   <!-- DATI NON ANCORA SINCRONIZZATI -->
   <section class="panel data-empty-banner" id="data-empty-banner" hidden>
     <h2 class="panel-title">🗄️ Stai vedendo contenuti provvisori</h2>
     <p>
-      Le locandine e le sinossi mostrate ora sono <strong>segnaposto creati per questo progetto</strong>, così la
+      Le locandine mostrate ora sono <strong>segnaposto creati per questo progetto</strong>, uno per formato, così la
       checklist è già leggibile. Non sono materiale ufficiale: locandine reali, sinossi italiane, valutazioni,
       episodi e disponibilità streaming arrivano da
       <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDB</a>
@@ -173,14 +170,13 @@
       <div class="toolbar-row">
         <input type="search" id="search-input" placeholder="🔍 Cerca un titolo... (es. 'Loki', 'Blade', 'X-Men')" class="search-input">
         <select id="sort-select" class="sort-select" aria-label="Ordinamento">
-          <option value="order">Ordine consigliato</option>
-          <option value="year-asc">Anno di uscita: dal primo</option>
-          <option value="year-desc">Anno di uscita: dall'ultimo</option>
+          <option value="order">Cronologico (in universo)</option>
+          <option value="release-asc">Ordine di uscita: dal primo</option>
+          <option value="release-desc">Ordine di uscita: dall'ultimo</option>
+          <option value="priority">Prima gli essenziali</option>
+          <option value="rating">Voto TMDB: dal più alto</option>
+          <option value="hours-asc">Durata: dalla più breve</option>
           <option value="alpha">Alfabetico A-Z</option>
-          <option value="hours-desc">Durata: più lunghi</option>
-          <option value="hours-asc">Durata: più corti</option>
-          <option value="priority">Priorità</option>
-          <option value="rating">Voto TMDB</option>
         </select>
         <select id="groupby-select" class="sort-select" aria-label="Raggruppamento">
           <option value="universe">Raggruppa per universo</option>
@@ -245,18 +241,12 @@
         <a href="https://marvelwatchlist.com/watch-order/" target="_blank" rel="noopener noreferrer">marvelwatchlist.com ↗</a>
       </li>
     </ul>
-    <p class="methodology-note">
-      <strong>Nota metodologica:</strong> il tracker esclude <em>Avengers: Doomsday</em> perché non ancora uscito al 13/08/2026.
-      Runtime di base arrotondati in decimi d'ora; il perimetro "Ultimate" include anche i franchise legacy e del multiverso
-      pertinenti (Fox X-Men, Sony, Raimiverse, Webbverse, Spider-Verse animato, TV extended universe). Le ore delle serie con
-      dati episodio-per-episodio disponibili vengono ricalcolate sui runtime reali invece delle stime del foglio originale.
-    </p>
     <p class="methodology-note" id="data-source-info"></p>
     <p class="tmdb-attribution">
       <strong>Progetto fan non ufficiale.</strong> Non affiliato, sponsorizzato o approvato da Marvel, Disney o dai
       rispettivi detentori dei diritti; tutti i marchi e i titoli citati appartengono ai legittimi proprietari.
-      Il logo, le sinossi provvisorie e le locandine provvisorie sono originali di questo progetto e non
-      riproducono materiale promozionale ufficiale.
+      Il logo e le locandine segnaposto sono originali di questo progetto e non riproducono materiale
+      promozionale ufficiale.
     </p>
     <p class="tmdb-attribution">
       Titoli italiani, sinossi, locandine, valutazioni, episodi e disponibilità streaming ufficiali provengono da
@@ -266,7 +256,6 @@
   </section>
 
   <footer class="site-footer">
-    <p>Realizzato per chi ha ancora la sveglia puntata a "Ant-Man e la Wasp: Quantumania" da recuperare. Nessun Infinity Stone è stato maltrattato nella creazione di questo sito.</p>
     <p class="footer-small">Il progresso è salvato solo nel tuo browser (localStorage). Usa "Esporta" per fare un backup prima di cambiare dispositivo.</p>
   </footer>
 
@@ -282,7 +271,6 @@
 </div>
 
 <script src="assets/data.js"></script>
-<script src="assets/synopses.js"></script>
 <script src="assets/metadata.js"></script>
 <script src="assets/poster.js"></script>
 <script src="assets/tmdb.js"></script>

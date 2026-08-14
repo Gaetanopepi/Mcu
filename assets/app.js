@@ -153,8 +153,13 @@
   const SAGA_VALUES  = ["Infinity Saga", "Multiverse Saga", "none"];
   const PHASE_VALUES = ["1", "2", "3", "4", "5", "6", "none"];
   const STATUS_VALUES = ["all", "watched", "unwatched"];
-  const SORT_VALUES = ["order", "year-asc", "year-desc", "alpha",
-                       "hours-desc", "hours-asc", "priority", "rating"];
+  const SORT_VALUES = ["order", "release-asc", "release-desc", "priority",
+                       "rating", "hours-asc", "alpha"];
+  // I link condivisi prima di questa versione portano i vecchi nomi: si
+  // traducono invece di ricadere sul default, altrimenti un indirizzo già
+  // mandato a qualcuno smetterebbe di mostrare la vista promessa.
+  const SORT_ALIASES = { "year-asc": "release-asc", "year-desc": "release-desc",
+                         "hours-desc": "hours-asc" };
 
   /** I valori di un insieme nell'ordine canonico, così lo stesso filtro
    *  produce sempre lo stesso URL da condividere. */
@@ -200,7 +205,9 @@
     };
 
     filters.search = (p.get("q") || "").trim();
-    filters.sort = one("s", SORT_VALUES, "order");
+    const sortRaw = p.get("s");
+    filters.sort = SORT_VALUES.includes(sortRaw) ? sortRaw
+                 : (SORT_ALIASES[sortRaw] || "order");
     filters.groupBy = one("g", Object.keys(GROUPINGS), "universe");
     filters.status = one("st", STATUS_VALUES, "all");
     filters.mcuOnly = p.get("mcu") === "1";
@@ -485,7 +492,6 @@
     $("#milestone-badge").textContent = current.label;
 
     const nextItem = computeNextUpCandidate();
-    renderNextUp(nextItem);
     renderHero(nextItem);
     renderAchievements(pct);
 
@@ -505,26 +511,6 @@
         return a.id - b.id;
       });
     return candidates[0] || null;
-  }
-
-  function renderNextUp(next){
-    const wrap = $("#next-up");
-    if(!next){
-      wrap.innerHTML = '<div class="next-up-empty">🎉 Nessun titolo rimasto. Sei ufficialmente aggiornato con l\'intero multiverso.</div>';
-      return;
-    }
-    const meta = CATEGORY_META[next.category] || { icon:"🎬" };
-    const breakdown = itemHourBreakdown(next);
-    wrap.innerHTML = `
-      <div class="next-up-card">
-        <span class="next-up-tag">PROSSIMO SU:</span>
-        <span class="next-up-title">${meta.icon} ${escapeHtml(displayTitle(next))}</span>
-        <span class="next-up-meta">${escapeHtml((CATEGORY_META[next.category]||{}).label || next.category)} · ${FORMAT_ICON[next.format]||""} ${FORMAT_LABEL[next.format]||next.format} · ${fmtNum(breakdown.total,1)}h · ${PRIORITY_LABEL[next.priority]}</span>
-        <button class="btn btn-toggle" data-mark-next="${next.id}">✓ Segna come visto</button>
-      </div>`;
-    wrap.querySelector("[data-mark-next]").addEventListener("click", ()=>{
-      toggleWatched(next);
-    });
   }
 
   function renderHero(next){
@@ -619,13 +605,23 @@
     return true;
   }
 
+  /** Data di uscita come stringa ordinabile; i titoli senza data vanno in fondo. */
+  function releaseKey(item){
+    const r = resolved[item.id];
+    const d = (r && r.ok) ? (r.releaseDate || r.firstAirDate) : null;
+    return d || (item.year ? item.year + "-99-99" : "9999-99-99");
+  }
+  const cmp = (a, b) => a < b ? -1 : (a > b ? 1 : 0);
+
   function sortItems(items){
     const arr = items.slice();
     switch(filters.sort){
       case "alpha": arr.sort((a,b)=>displayTitle(a).localeCompare(displayTitle(b), "it")); break;
-      case "year-asc":  arr.sort((a,b)=> (yearOf(a)||9999) - (yearOf(b)||9999) || a.id-b.id); break;
-      case "year-desc": arr.sort((a,b)=> (yearOf(b)||0) - (yearOf(a)||0) || a.id-b.id); break;
-      case "hours-desc": arr.sort((a,b)=>itemHourBreakdown(b).total - itemHourBreakdown(a).total); break;
+      // Per l'ordine di uscita conta la data intera, non il solo anno: nel 2021
+      // sono usciti nove titoli e metterli in fila per id sarebbe cronologia
+      // in universo, cioè l'esatto contrario di quello che si è chiesto.
+      case "release-asc":  arr.sort((a,b)=> cmp(releaseKey(a), releaseKey(b)) || a.id-b.id); break;
+      case "release-desc": arr.sort((a,b)=> cmp(releaseKey(b), releaseKey(a)) || a.id-b.id); break;
       case "hours-asc": arr.sort((a,b)=>itemHourBreakdown(a).total - itemHourBreakdown(b).total); break;
       case "priority": {
         const rank = { Essential:0, Recommended:1, Optional:2, Bonus:3 };
@@ -651,13 +647,9 @@
     const r = resolved[item.id];
     return !!(r && r.ok && r.posterPath);
   }
-  function hasOfficialSynopsis(item){
-    const r = resolved[item.id];
-    return !!(r && r.ok && r.overview);
-  }
-  /** true quando almeno uno fra locandina e sinossi mostrati è del ripiego */
+  /** true quando la locandina mostrata è il segnaposto del progetto */
   function isProvisional(item){
-    return !hasOfficialPoster(item) || !hasOfficialSynopsis(item);
+    return !hasOfficialPoster(item);
   }
 
   function posterSrc(item, size){
@@ -666,19 +658,13 @@
     return (typeof PosterArt !== "undefined") ? PosterArt.posterDataUri(item) : null;
   }
 
+  /** Solo TMDB: le sinossi non ufficiali non esistono più. */
   function synopsisFor(item){
     const r = resolved[item.id];
-    if(r && r.ok && r.overview) return r.overview;
-    return (typeof BUILTIN_SYNOPSES !== "undefined" && BUILTIN_SYNOPSES[item.id]) || "";
+    return (r && r.ok && r.overview) ? r.overview : "";
   }
+  const SYNOPSIS_MISSING = "Sinossi non disponibile.";
 
-  /** Anno di uscita: quello di TMDB se sincronizzato, altrimenti quello del tracker. */
-  function yearOf(item){
-    const r = resolved[item.id];
-    const d = (r && r.ok) ? (r.releaseDate || r.firstAirDate) : null;
-    const y = d ? parseInt(String(d).slice(0,4), 10) : null;
-    return y || item.year || null;
-  }
 
   /** Numero di stagione ricavato dal titolo del tracker ("Loki S2" -> 2), se c'è. */
   function seasonOf(item){
@@ -749,7 +735,7 @@
 
   function renderSynopsis(item){
     const text = synopsisFor(item);
-    if(!text) return "";
+    if(!text) return `<p class="item-synopsis item-synopsis-missing">${SYNOPSIS_MISSING}</p>`;
     return `<p class="item-synopsis" title="${escapeHtml(text)}">${escapeHtml(text)}</p>`;
   }
 
@@ -1015,14 +1001,11 @@
       <span>${fmtNum(breakdown.total,1)}h</span>
     `;
 
-    overviewEl.textContent = synopsisFor(item) || "Sinossi non disponibile.";
+    overviewEl.textContent = synopsisFor(item) || SYNOPSIS_MISSING;
 
     const noteEl = modal.querySelector("#detail-provisional");
     if(isProvisional(item)){
-      const what = [];
-      if(!hasOfficialPoster(item)) what.push("la locandina");
-      if(!hasOfficialSynopsis(item)) what.push("la sinossi");
-      noteEl.textContent = `Provvisorio: ${what.join(" e ")} ${what.length > 1 ? "sono segnaposto" : "è un segnaposto"} del progetto, in attesa dei dati ufficiali TMDB.`;
+      noteEl.textContent = "Provvisorio: la locandina è un segnaposto del progetto, in attesa di quella ufficiale TMDB.";
       noteEl.hidden = false;
     } else {
       noteEl.hidden = true;
@@ -1292,7 +1275,7 @@
         `${enriched} titoli su ${total} con dati ufficiali completi, ultimo aggiornamento ` +
         `${d.toLocaleDateString("it-IT", { day:"numeric", month:"long", year:"numeric" })}.`;
       if(provisional > 0){
-        txt += ` Per i restanti ${provisional} restano i segnaposto provvisori del progetto.`;
+        txt += ` Per i restanti ${provisional} resta la locandina segnaposto del progetto.`;
       }
       el.textContent = txt;
       // Sincronizzato: il banner ha esaurito il suo scopo. Il fatto che qualche
@@ -1300,8 +1283,8 @@
       // davvero, cioè nella scheda del singolo titolo.
       if(banner) banner.hidden = true;
     } else {
-      el.textContent = `Nessun dato TMDB ancora sincronizzato: le ${total} locandine e sinossi mostrate sono ` +
-        `segnaposto provvisori creati per questo progetto, non materiale ufficiale.`;
+      el.textContent = `Nessun dato TMDB ancora sincronizzato: le locandine mostrate sono segnaposto ` +
+        `creati per questo progetto, uno per formato, e le sinossi non sono disponibili.`;
       if(banner) banner.hidden = false;
     }
   }

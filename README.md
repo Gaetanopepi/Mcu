@@ -11,14 +11,13 @@ interattivo con progresso persistente nel browser.
 
 - ✅ Checklist con 156 titoli raggruppati in 17 categorie/universi, ognuna comprimibile
 - 📊 Dashboard con percentuale di completamento, ore viste/rimanenti, giorni stimati al ritmo scelto
-- 🎯 Widget "Prossimo su" — suggerisce il prossimo titolo da vedere in base a priorità e ordine consigliato
 - 🏆 Trofei sbloccabili per milestone di completamento e categorie finite al 100%
 - 🔍 Ricerca, filtri per priorità/formato/stato, toggle "Solo Canone MCU"
 - 🧭 **Filtri per Saga e per Fase MCU** — chip rapide per Saga dell'Infinito / Saga del Multiverso
   e per le sei Fasi, il modo in cui la fan base parla davvero dell'ordine di visione
 - 🗂️ **Sei raggruppamenti** intercambiabili: universo, Fase MCU, Saga, formato, priorità, decennio
-- ↕️ **Otto ordinamenti**: ordine consigliato, anno (crescente/decrescente), alfabetico,
-  durata (lunghi/corti), priorità, voto TMDB
+- ↕️ **Sette ordinamenti**: cronologico in universo (il default), ordine di uscita crescente e
+  decrescente, prima gli essenziali, voto TMDB, durata, alfabetico
 - 📚 **Stagioni raggruppabili in un'unica riga** — le serie con più stagioni si compattano in un
   solo collegamento espandibile, con conteggio stagioni, viste e ore totali
 - 💾 Progresso salvato in `localStorage` con **la data di ogni spunta** (`{ at: "<ISO>" }`), base per
@@ -27,9 +26,10 @@ interattivo con progresso persistente nel browser.
 - 🎉 Overlay speciale "Snap" al completamento del 100%
 - 🇮🇹 **Tutto in italiano** — interfaccia, e dal database anche titoli, sinossi e locandine
   italiane (TMDB `language=it-IT`, locandine con `include_image_language=it,null,en`)
-- 🖼️ **Nessuna scheda vuota, mai** — locandine e sinossi provvisorie del progetto finché TMDB non
-  è sincronizzato, dichiarate come tali e sostituite titolo per titolo; se una locandina ufficiale
-  non è raggiungibile il segnaposto rientra in campo al posto dell'immagine rotta
+- 🖼️ **Nessuna scheda vuota, mai** — quattro locandine segnaposto, una per formato, finché TMDB non
+  copre un titolo; se una locandina ufficiale non è raggiungibile il segnaposto rientra in campo al
+  posto dell'immagine rotta. Le sinossi sono solo quelle TMDB: dove mancano si legge
+  "Sinossi non disponibile"
 - 🤖 **Si aggiorna da solo** — ogni notte l'automazione cerca i contenuti Marvel appena usciti e li
   aggiunge al tracker: quando esce un film nuovo o una nuova stagione, compaiono qui senza che
   nessuno tocchi niente, contrassegnati **NUOVO** per i primi quattro mesi
@@ -39,7 +39,7 @@ interattivo con progresso persistente nel browser.
 - 📺 **Tracciamento per episodio** per tutte le serie — sinossi, immagine e durata reale di ogni
   episodio, con stato "parzialmente vista" e ricalcolo automatico delle ore totali sui runtime
   effettivi invece delle stime del foglio originale
-- 🎬 **Hero cinematico** con il backdrop del prossimo titolo consigliato, in stile streaming service
+- 🎬 **Hero "Prossimo consigliato"** con il backdrop del titolo suggerito, in stile streaming service
 - ⭐ **Rating TMDB** e scheda dettaglio per ogni titolo (locandina, sinossi completa, voto)
 - 📺 **"Dove guardarlo"** — disponibilità streaming (Disney+, Netflix, ecc.) per regione IT
 - 🔔 Notifiche in-app e modali di conferma al posto degli `alert()`/`confirm()` nativi del browser
@@ -53,15 +53,16 @@ provvisorio serve solo a rendere la pagina già leggibile prima della prima sinc
 | Contenuto | Livello provvisorio (subito) | Livello TMDB (dopo la sincronizzazione) |
 |---|---|---|
 | Titolo | titolo originale dal tracker | titolo italiano TMDB (`language=it-IT`) |
-| Sinossi | 156 sinossi scritte per il progetto | sinossi italiana TMDB; se manca in italiano ripiega sull'inglese e lo segna in `overviewLang` |
-| Locandina e sfondo | artwork astratto generato per titolo | immagini TMDB, preferendo quelle con testo italiano (`include_image_language=it,null,en`) |
+| Sinossi | "Sinossi non disponibile" | sinossi italiana TMDB; se manca in italiano ripiega sull'inglese e lo segna in `overviewLang` |
+| Locandina e sfondo | segnaposto del formato (film, serie, speciale, speciale TV) | immagini TMDB, preferendo quelle con testo italiano (`include_image_language=it,null,en`) |
 | Voto, episodi, streaming | — | TMDB (regione IT) |
 | Elenco, ordine, ore, priorità | il tracker Excel originale (`assets/data.js`) | invariato |
 | Fase, Saga, anno | assegnati in `assets/data.js` | anno confermato dalla data TMDB |
 
-Il livello provvisorio è **dichiarato come tale** nell'interfaccia: un banner in cima alla pagina
-e una nota nella scheda di ogni titolo che ne fa ancora uso, così non viene mai scambiato per
-materiale ufficiale. Man mano che TMDB copre i titoli, i segnaposto spariscono da soli.
+Il segnaposto è **dichiarato come tale** nell'interfaccia: un banner in cima alla pagina e una nota
+nella scheda di ogni titolo che ne fa ancora uso, così non viene mai scambiato per materiale
+ufficiale. Man mano che TMDB copre i titoli, i segnaposto spariscono da soli. Le sinossi non sono
+mai scritte da questo progetto: o sono quelle ufficiali TMDB, o si dichiara che mancano.
 
 ### Fasi e Saghe
 
@@ -79,8 +80,7 @@ titolo basta cambiare il campo `phase` (e se serve `saga`) nella riga corrispond
 index.html                          Markup della pagina
 assets/style.css                     Tema comic dark (font Bangers/Barlow, pannelli in stile fumetto)
 assets/data.js                       Dataset dei 156 titoli (dal tracker Excel + Fase/Saga/anno)
-assets/synopses.js                   Sinossi provvisorie scritte per il progetto (ripiego)
-assets/poster.js                     Generatore di locandine provvisorie SVG (ripiego)
+assets/poster.js                     Locandine segnaposto SVG, una per formato
 assets/logo.svg                      Emblema del progetto (in pagina è inline nell'header)
 assets/metadata.js                   Dati TMDB precalcolati (generato dalla GitHub Action, vedi sotto)
 data/episodes/{id}.json              Elenco episodi di una serie, scaricato solo all'apertura del pannello
@@ -255,7 +255,6 @@ python3 -m http.server 8080
 - [Marvel — Complete MCU Timeline](https://www.marvel.com/articles/movies/mcu-timeline-order-disney-plus)
 - [MCU Watchlist 2026](https://marvelwatchlist.com/watch-order/)
 
-Il tracker esclude *Avengers: Doomsday* perché non ancora uscito al 13/08/2026.
 
 ## Nota legale
 
