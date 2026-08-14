@@ -556,7 +556,8 @@
     const row = document.createElement("div");
     row.className = rowClass;
     row.innerHTML = `
-      <button class="item-check" aria-label="Segna come visto">${watched ? "✓" : (breakdown.granular && breakdown.watchedCount>0 ? "–" : "")}</button>
+      <button type="button" class="item-check" role="checkbox" aria-checked="${watched}"
+              aria-label="${escapeHtml(displayTitle(item))}">${watched ? "✓" : (breakdown.granular && breakdown.watchedCount>0 ? "–" : "")}</button>
       ${hasDetail
         ? `<button type="button" class="item-poster clickable" aria-label="Dettagli su ${escapeHtml(displayTitle(item))}">${poster}</button>`
         : `<div class="item-poster">${poster}</div>`}
@@ -859,7 +860,9 @@
     const row = document.createElement("div");
     row.className = "item-row series-row" + (allWatched ? " watched" : (watchedCount ? " partial" : ""));
     row.innerHTML = `
-      <button class="item-check" aria-label="Segna tutte le stagioni">${allWatched ? "✓" : (watchedCount ? "–" : "")}</button>
+      <button type="button" class="item-check" role="checkbox"
+              aria-checked="${allWatched ? "true" : (watchedCount ? "mixed" : "false")}"
+              aria-label="${escapeHtml(titleIt)}, tutte le stagioni">${allWatched ? "✓" : (watchedCount ? "–" : "")}</button>
       <button type="button" class="item-poster" aria-expanded="${expanded}"
               aria-label="Stagioni di ${escapeHtml(titleIt)}">${renderPosterInner(first)}</button>
       <div class="item-content">
