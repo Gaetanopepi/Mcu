@@ -1,0 +1,42 @@
+[
+ {
+  "number": 1,
+  "name": "Episodio 1",
+  "overview": "",
+  "stillPath": "/xGKvlBgcz2z9B0NZW5dl57CobCu.jpg",
+  "airDate": "2016-04-22",
+  "runtime": 3
+ },
+ {
+  "number": 2,
+  "name": "Episodio 2",
+  "overview": "",
+  "stillPath": "/8YvyP8d7iUqfMpQVpazcVg8TWRL.jpg",
+  "airDate": "2016-04-26",
+  "runtime": 3
+ },
+ {
+  "number": 3,
+  "name": "Episodio 3",
+  "overview": "",
+  "stillPath": "/tr0xgog8nFUyXSHcvJdxqD76XfF.jpg",
+  "airDate": "2016-04-28",
+  "runtime": 3
+ },
+ {
+  "number": 4,
+  "name": "Episodio 4",
+  "overview": "",
+  "stillPath": "/6T9A5kSnj6W95ukAKuz3Bi8cuRZ.jpg",
+  "airDate": "2016-05-03",
+  "runtime": 3
+ },
+ {
+  "number": 5,
+  "name": "Episodio 5",
+  "overview": "",
+  "stillPath": "/uQwWjfj1RT6Ukqap59tHKbGhnJW.jpg",
+  "airDate": "2016-05-03",
+  "runtime": 3
+ }
+]

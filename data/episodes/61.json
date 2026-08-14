@@ -1,0 +1,34 @@
+[
+ {
+  "number": 1,
+  "name": "Episodio 1",
+  "overview": "Gli ultimi sopravvissuti affrontano un mondo spietato pieno di orrori",
+  "stillPath": "/25QjykMVOADHoKBre3bLovFrz0j.jpg",
+  "airDate": "2025-09-24",
+  "runtime": 38
+ },
+ {
+  "number": 2,
+  "name": "Episodio 2",
+  "overview": "Per le strade abbandonate, la fame di carne regna sovrana.",
+  "stillPath": "/vvbPNdHl8gjuRnrU0YhbHrNXLlS.jpg",
+  "airDate": "2025-09-24",
+  "runtime": 34
+ },
+ {
+  "number": 3,
+  "name": "Episodio 3",
+  "overview": "I morti in decomposizione assaporeranno la loro paura.",
+  "stillPath": "/8frDsFuOxAVVFzACTMQsk8vDXcP.jpg",
+  "airDate": "2025-09-24",
+  "runtime": 33
+ },
+ {
+  "number": 4,
+  "name": "Episodio 4",
+  "overview": "Una fine sanguinosa.",
+  "stillPath": "/qNQjFDAeqMDA3ISOUBYikkaVEI0.jpg",
+  "airDate": "2025-09-24",
+  "runtime": 32
+ }
+]

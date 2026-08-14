@@ -1,0 +1,66 @@
+[
+ {
+  "number": 1,
+  "name": "Episodio 1",
+  "overview": "",
+  "stillPath": null,
+  "airDate": "2026-10-14",
+  "runtime": 0
+ },
+ {
+  "number": 2,
+  "name": "Episodio 2",
+  "overview": "",
+  "stillPath": null,
+  "airDate": null,
+  "runtime": 0
+ },
+ {
+  "number": 3,
+  "name": "Episodio 3",
+  "overview": "",
+  "stillPath": null,
+  "airDate": null,
+  "runtime": 0
+ },
+ {
+  "number": 4,
+  "name": "Episodio 4",
+  "overview": "",
+  "stillPath": null,
+  "airDate": null,
+  "runtime": 0
+ },
+ {
+  "number": 5,
+  "name": "Episodio 5",
+  "overview": "",
+  "stillPath": null,
+  "airDate": null,
+  "runtime": 0
+ },
+ {
+  "number": 6,
+  "name": "Episodio 6",
+  "overview": "",
+  "stillPath": null,
+  "airDate": null,
+  "runtime": 0
+ },
+ {
+  "number": 7,
+  "name": "Episodio 7",
+  "overview": "",
+  "stillPath": null,
+  "airDate": null,
+  "runtime": 0
+ },
+ {
+  "number": 8,
+  "name": "Episodio 8",
+  "overview": "",
+  "stillPath": null,
+  "airDate": null,
+  "runtime": 0
+ }
+]

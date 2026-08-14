@@ -108,20 +108,74 @@
   const categoriesRoot = $("#categories-root");
   const noResultsEl = $("#no-results");
 
+  // ---------------- episodi: elenco a richiesta ----------------
+  // Gli elenchi degli episodi sono tre quarti dei metadati e servono solo a chi
+  // apre il pannello di una serie: stanno in data/episodes/{id}.json e si
+  // scaricano al primo clic. Qui restano l'esito e le richieste in volo.
+  const episodeCache = new Map();    // id -> array di episodi
+  const episodePending = new Map();  // id -> promessa in corso, per non chiedere due volte
+
+  function episodeCountOf(item){
+    const r = resolved[item.id];
+    return (r && r.ok && r.episodeCount) || 0;
+  }
+
+  /**
+   * I numeri degli episodi di una serie. Con l'elenco scaricato sono quelli
+   * veri; senza, si ricavano dal conteggio — TMDB numera le stagioni da 1 in
+   * avanti, e questo basta per spuntare o de-spuntare tutto senza aspettare
+   * nessun file.
+   */
+  function episodeNumbers(item){
+    const cached = episodeCache.get(item.id);
+    if(cached) return cached.map(e=>e.number);
+    return Array.from({ length: episodeCountOf(item) }, (_, i)=> i + 1);
+  }
+
+  function loadEpisodes(item){
+    if(episodeCache.has(item.id)) return Promise.resolve(episodeCache.get(item.id));
+    if(episodePending.has(item.id)) return episodePending.get(item.id);
+    const p = fetch(`./data/episodes/${item.id}.json`)
+      .then(res=>{
+        if(!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      })
+      .then(eps=>{
+        episodeCache.set(item.id, eps);
+        episodePending.delete(item.id);
+        return eps;
+      })
+      .catch(err=>{
+        episodePending.delete(item.id);
+        throw err;
+      });
+    episodePending.set(item.id, p);
+    return p;
+  }
+
   // ---------------- hour math (episode-aware) ----------------
   function itemHourBreakdown(item){
     const r = resolved[item.id];
-    if(r && r.ok && r.episodes && r.episodes.length){
+    const count = episodeCountOf(item);
+    const hours = (r && r.ok && r.episodeHours) || 0;
+    if(count && hours > 0){
       const epsState = state.episodes[item.id] || {};
-      let total = 0, watchedH = 0, watchedCount = 0;
-      r.episodes.forEach(e=>{
-        const h = (e.runtime||0)/60;
-        total += h;
-        if(epsState[e.number]){ watchedH += h; watchedCount++; }
-      });
-      if(total > 0){
-        return { total, watched: watchedH, granular:true, watchedCount, totalCount: r.episodes.length };
+      const cached = episodeCache.get(item.id);
+      let watchedCount = 0, watchedH = 0;
+      if(cached){
+        // elenco già scaricato: durate esatte, episodio per episodio
+        cached.forEach(e=>{
+          if(epsState[e.number]){ watchedCount++; watchedH += (e.runtime||0)/60; }
+        });
+      } else {
+        // senza elenco si usa la durata media della stagione: il conteggio
+        // resta esatto, le ore viste sono una stima che si corregge da sola
+        // appena il pannello viene aperto. Il calcolo non dipende mai da un
+        // fetch: senza rete la checklist funziona comunque.
+        watchedCount = Math.min(count, Object.keys(epsState).filter(k=>epsState[k]).length);
+        watchedH = hours * (watchedCount / count);
       }
+      return { total: hours, watched: watchedH, granular:true, watchedCount, totalCount: count };
     }
     return { total: item.hours, watched: state.watched[item.id] ? item.hours : 0, granular:false };
   }
@@ -164,22 +218,21 @@
 
   // ---------------- watched toggling (episode-aware) ----------------
   function syncSeasonWatchedFlag(item){
-    const r = resolved[item.id];
-    if(!r || !r.ok || !r.episodes || !r.episodes.length) return;
+    const count = episodeCountOf(item);
+    if(!count) return;
     const epsState = state.episodes[item.id] || {};
-    const allWatched = r.episodes.every(e => epsState[e.number]);
-    if(allWatched) state.watched[item.id] = true; else delete state.watched[item.id];
+    const watched = episodeNumbers(item).filter(n => epsState[n]).length;
+    if(watched === count) state.watched[item.id] = true; else delete state.watched[item.id];
   }
 
   function toggleWatched(item){
-    const r = resolved[item.id];
     const willWatch = !state.watched[item.id];
     if(willWatch) state.watched[item.id] = true; else delete state.watched[item.id];
-    if(r && r.ok && r.episodes && r.episodes.length){
+    if(episodeCountOf(item)){
       if(!state.episodes[item.id]) state.episodes[item.id] = {};
-      r.episodes.forEach(e=>{
-        if(willWatch) state.episodes[item.id][e.number] = true;
-        else delete state.episodes[item.id][e.number];
+      episodeNumbers(item).forEach(n=>{
+        if(willWatch) state.episodes[item.id][n] = true;
+        else delete state.episodes[item.id][n];
       });
     }
     saveState();
@@ -189,13 +242,12 @@
 
   /** Come toggleWatched ma senza salvare/ridisegnare: per operazioni in blocco. */
   function toggleWatchedSilently(item, watch){
-    const r = resolved[item.id];
     if(watch) state.watched[item.id] = true; else delete state.watched[item.id];
-    if(r && r.ok && r.episodes && r.episodes.length){
+    if(episodeCountOf(item)){
       if(!state.episodes[item.id]) state.episodes[item.id] = {};
-      r.episodes.forEach(e=>{
-        if(watch) state.episodes[item.id][e.number] = true;
-        else delete state.episodes[item.id][e.number];
+      episodeNumbers(item).forEach(n=>{
+        if(watch) state.episodes[item.id][n] = true;
+        else delete state.episodes[item.id][n];
       });
     }
   }
@@ -211,12 +263,11 @@
   }
 
   function markAllEpisodes(item, watch){
-    const r = resolved[item.id];
-    if(!r || !r.ok || !r.episodes) return;
+    if(!episodeCountOf(item)) return;
     if(!state.episodes[item.id]) state.episodes[item.id] = {};
-    r.episodes.forEach(e=>{
-      if(watch) state.episodes[item.id][e.number] = true;
-      else delete state.episodes[item.id][e.number];
+    episodeNumbers(item).forEach(n=>{
+      if(watch) state.episodes[item.id][n] = true;
+      else delete state.episodes[item.id][n];
     });
     syncSeasonWatchedFlag(item);
     saveState();
@@ -535,7 +586,7 @@
     const breakdown = itemHourBreakdown(item);
     const r = resolved[item.id];
     const hasDetail = true; // la scheda si apre sempre: mostra i dati TMDB se ci sono
-    const canExpand = !!(r && r.ok && r.mediaType === "tv" && r.episodes && r.episodes.length);
+    const canExpand = !!(r && r.ok && r.mediaType === "tv" && r.episodeCount);
     const expanded = expandedItems.has(item.id);
 
     let rowClass = "item-row";
@@ -604,15 +655,84 @@
     return frag;
   }
 
+  /**
+   * Il pannello si apre subito, con l'elenco se è già in memoria e con uno
+   * scheletro altrimenti: l'attesa del file non deve mai sembrare un clic
+   * andato a vuoto.
+   */
   function buildEpisodePanel(item, r){
     const panel = document.createElement("div");
     panel.className = "episode-panel";
 
-    if(!r.episodes || !r.episodes.length){
+    if(!episodeCountOf(item)){
       panel.innerHTML = `<div class="episode-panel-error">Dati sugli episodi non disponibili.</div>`;
       return panel;
     }
 
+    const cached = episodeCache.get(item.id);
+    if(cached){
+      fillEpisodePanel(panel, item, cached);
+      return panel;
+    }
+
+    panel.appendChild(episodeSkeleton(episodeCountOf(item)));
+    loadEpisodes(item).then(episodes=>{
+      if(!panel.isConnected) return;   // nel frattempo la lista è stata ridisegnata
+      panel.innerHTML = "";
+      fillEpisodePanel(panel, item, episodes);
+      // ora le durate sono quelle vere: le ore stimate si correggono da sole
+      renderDashboard();
+    }).catch(()=>{
+      if(!panel.isConnected) return;
+      panel.innerHTML = "";
+      panel.appendChild(episodeError(item, panel));
+    });
+    return panel;
+  }
+
+  function episodeSkeleton(count){
+    const wrap = document.createElement("div");
+    wrap.className = "episode-list episode-list-loading";
+    wrap.setAttribute("aria-busy", "true");
+    wrap.setAttribute("aria-label", "Caricamento degli episodi");
+    for(let i = 0; i < Math.min(count, 6); i++){
+      const row = document.createElement("div");
+      row.className = "episode-row episode-row-skeleton";
+      row.innerHTML = `<span class="sk sk-check"></span><span class="sk sk-still"></span>
+        <span class="sk-main"><span class="sk sk-line sk-line-title"></span><span class="sk sk-line"></span></span>`;
+      wrap.appendChild(row);
+    }
+    return wrap;
+  }
+
+  function episodeError(item, panel){
+    const box = document.createElement("div");
+    box.className = "episode-panel-error";
+    box.innerHTML = `<span>Non è stato possibile caricare gli episodi. Il resto della checklist
+      funziona lo stesso: le ore e lo stato di questa serie restano quelli salvati.</span>`;
+    const retry = document.createElement("button");
+    retry.type = "button";
+    retry.className = "btn btn-ghost";
+    retry.textContent = "↻ Riprova";
+    retry.addEventListener("click", ()=>{
+      panel.innerHTML = "";
+      panel.appendChild(episodeSkeleton(episodeCountOf(item)));
+      loadEpisodes(item).then(episodes=>{
+        if(!panel.isConnected) return;
+        panel.innerHTML = "";
+        fillEpisodePanel(panel, item, episodes);
+        renderDashboard();
+      }).catch(()=>{
+        if(!panel.isConnected) return;
+        panel.innerHTML = "";
+        panel.appendChild(episodeError(item, panel));
+      });
+    });
+    box.appendChild(retry);
+    return box;
+  }
+
+  function fillEpisodePanel(panel, item, episodes){
     const epsState = state.episodes[item.id] || {};
     const actions = document.createElement("div");
     actions.className = "episode-panel-actions";
@@ -626,7 +746,7 @@
 
     const list = document.createElement("div");
     list.className = "episode-list";
-    r.episodes.forEach(ep=>{
+    episodes.forEach(ep=>{
       const isWatched = !!epsState[ep.number];
       const row = document.createElement("div");
       row.className = "episode-row" + (isWatched ? " watched" : "");
@@ -647,7 +767,6 @@
       list.appendChild(row);
     });
     panel.appendChild(list);
-    return panel;
   }
 
   // ---------------- title detail modal ----------------

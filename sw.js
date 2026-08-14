@@ -1,6 +1,6 @@
 /* Minimal offline cache for the app shell. Never touches TMDB or image
    requests — those stay live so data can't go stale silently. */
-const CACHE_NAME = "mcu-tracker-v5";
+const CACHE_NAME = "mcu-tracker-v6";
 const APP_SHELL = [
   "./",
   "./index.html",
@@ -19,6 +19,12 @@ const APP_SHELL = [
 // notte): vanno serviti network-first, altrimenti l'utente vedrebbe i dati del
 // giorno prima. Tutto il resto è shell statica e sta bene in cache-first.
 const NETWORK_FIRST = ["/assets/metadata.js"];
+
+// Gli elenchi degli episodi si scaricano solo quando qualcuno apre il pannello
+// di una serie. Stale-while-revalidate: si risponde subito con la copia in
+// cache — così riaprire lo stesso pannello è immediato e funziona offline — e
+// intanto si va in rete per aggiornarla per la prossima volta.
+const STALE_WHILE_REVALIDATE = ["/data/episodes/"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -53,6 +59,20 @@ self.addEventListener("fetch", (event) => {
     // dati freschi se la rete c'è, cache solo come rete di sicurezza offline
     event.respondWith(
       fetch(event.request).then(store).catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  if (STALE_WHILE_REVALIDATE.some((path) => url.pathname.includes(path))) {
+    event.respondWith(
+      caches.match(event.request).then((cached) => {
+        const network = fetch(event.request).then(store).catch(() => cached);
+        if (cached) {
+          event.waitUntil(network);   // l'aggiornamento prosegue dopo la risposta
+          return cached;
+        }
+        return network;
+      })
     );
     return;
   }

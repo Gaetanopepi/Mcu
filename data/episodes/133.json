@@ -1,0 +1,50 @@
+[
+ {
+  "number": 1,
+  "name": "Episodio 1",
+  "overview": "",
+  "stillPath": "/aMSFIzD3v4t6rGbmwsdEVcwEaJW.jpg",
+  "airDate": "2016-12-13",
+  "runtime": 5
+ },
+ {
+  "number": 2,
+  "name": "Episodio 2",
+  "overview": "",
+  "stillPath": "/htOLq5o9IR7a84H3KcrwVZFeHxr.jpg",
+  "airDate": "2016-12-13",
+  "runtime": 4
+ },
+ {
+  "number": 3,
+  "name": "Episodio 3",
+  "overview": "",
+  "stillPath": "/1GAJ2OuYZgHbkcUefoyzV0HaAbc.jpg",
+  "airDate": "2016-12-13",
+  "runtime": 6
+ },
+ {
+  "number": 4,
+  "name": "Episodio 4",
+  "overview": "",
+  "stillPath": "/AwukG9o5maRkX21YTZDuMnnL2B.jpg",
+  "airDate": "2016-12-13",
+  "runtime": 5
+ },
+ {
+  "number": 5,
+  "name": "Episodio 5",
+  "overview": "",
+  "stillPath": "/uYBlDgf7lHgoNmjZ6qebLbVs1wH.jpg",
+  "airDate": "2016-12-13",
+  "runtime": 4
+ },
+ {
+  "number": 6,
+  "name": "Episodio 6",
+  "overview": "",
+  "stillPath": "/urvNwKiT22zCv0DPBAhw3qCPy2F.jpg",
+  "airDate": "2016-12-13",
+  "runtime": 4
+ }
+]

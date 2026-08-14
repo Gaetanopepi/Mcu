@@ -1,0 +1,42 @@
+[
+ {
+  "number": 1,
+  "name": "I primi passi di Groot",
+  "overview": "Groot muove i primi passi fuori dal vasetto, solo per capire che prima di correre bisogna camminare.",
+  "stillPath": "/iecIwrRoq1uZfhJ9XRrZD29Zr4R.jpg",
+  "airDate": "2022-08-10",
+  "runtime": 6
+ },
+ {
+  "number": 2,
+  "name": "Il piccoletto",
+  "overview": "Groot scopre una civiltà in miniatura che lo ritiene l'eroe che stavano aspettando.",
+  "stillPath": "/6pFcTY18M9EpKQEEZZMzVnX4bMF.jpg",
+  "airDate": "2022-08-10",
+  "runtime": 6
+ },
+ {
+  "number": 3,
+  "name": "Il passatempo di Groot",
+  "overview": "Groot indaga su uno strano suono che tormenta il Quadrante e conduce a un'intensa gara di ballo.",
+  "stillPath": "/nv0q5V1vGwRVO4Rv3MOEmniUbWj.jpg",
+  "airDate": "2022-08-10",
+  "runtime": 6
+ },
+ {
+  "number": 4,
+  "name": "Groot fa il bagno",
+  "overview": "Tutti hanno bisogno di fare il bagno, ma le cose sono diverse quando si è un piccolo Flora Colossi.",
+  "stillPath": "/stKeLppDBwscxoE9RXxNyrur27G.jpg",
+  "airDate": "2022-08-10",
+  "runtime": 6
+ },
+ {
+  "number": 5,
+  "name": "Magnum Opus",
+  "overview": "Groot dipinge un quadro di famiglia di sé e dei Guardiani, ma scopre quanto possa essere complicato.",
+  "stillPath": "/cnhzecqkKHBIyM4QMbxRy5fbW3l.jpg",
+  "airDate": "2022-08-10",
+  "runtime": 5
+ }
+]

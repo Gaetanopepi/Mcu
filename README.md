@@ -81,12 +81,14 @@ assets/synopses.js                   Sinossi provvisorie scritte per il progetto
 assets/poster.js                     Generatore di locandine provvisorie SVG (ripiego)
 assets/logo.svg                      Emblema del progetto (in pagina è inline nell'header)
 assets/metadata.js                   Dati TMDB precalcolati (generato dalla GitHub Action, vedi sotto)
+data/episodes/{id}.json              Elenco episodi di una serie, scaricato solo all'apertura del pannello
 assets/tmdb.js                       Costruzione degli URL delle immagini TMDB
 assets/ui.js                         Toast e modale di conferma riutilizzabili
 assets/app.js                        Logica: stato, filtri, rendering, localStorage
 assets/icons/                        Icone PWA (192/512/maskable/apple-touch)
 manifest.json                        Web app manifest per l'installazione
-sw.js                                Service worker: shell in cache, metadata.js sempre network-first
+sw.js                                Service worker: shell in cache, metadata.js network-first,
+                                     data/episodes stale-while-revalidate
 scripts/fetch_tmdb_metadata.py       Script che genera assets/metadata.js (gira solo lato server)
 scripts/discover_new_titles.py       Trova i contenuti appena usciti e li aggiunge al tracker
 .github/workflows/update-metadata.yml Automazione giornaliera che esegue entrambi
@@ -120,6 +122,22 @@ continuerebbe a funzionare esattamente com'è**: i dati sono file committati, no
 4. La Action fa il commit. Il push su `main` fa ripartire il deploy, e il sito è aggiornato.
 
 Puoi comunque forzare un giro a mano da *Actions → Update TMDB metadata → Run workflow*.
+
+### Perché gli episodi stanno in file separati
+
+Gli elenchi degli episodi erano **tre quarti** del peso di `metadata.js` — 385 KB su 568, di cui
+287 KB di sole sinossi — e servono soltanto a chi apre il pannello di una delle 67 serie. Ora
+`metadata.js` porta solo `episodeCount` ed `episodeHours` per serie, quanto basta per il badge
+"n/m ep." e per le ore totali, mentre l'elenco vero sta in `data/episodes/{id}.json` e si scarica
+al primo clic (circa 6 KB a serie).
+
+Il payload iniziale passa da **568 KB / 178 KB gzip a 148 KB / 39 KB gzip**, cioè −74% raw e −78%
+compresso.
+
+Due proprietà volute: **le ore non dipendono mai da un fetch** — senza rete restano il conteggio
+esatto degli episodi visti e una stima delle ore basata sulla durata media della stagione, che si
+corregge da sola non appena il pannello viene aperto — e **il pannello si apre subito**, con uno
+scheletro di caricamento e, se il file non arriva, un messaggio con un pulsante per riprovare.
 
 ### Lo script non peggiora mai i dati già congelati
 

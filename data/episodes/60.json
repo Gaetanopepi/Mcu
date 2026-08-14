@@ -1,0 +1,34 @@
+[
+ {
+  "number": 1,
+  "name": "Nella Tana del Leone",
+  "overview": "Una ex Dora Milaje viene inviata a fermare un wakandiano ribelle chiamato Il Leone.",
+  "stillPath": "/7Ex7F84z8fiJKC8X1juNYX3z1oM.jpg",
+  "airDate": "2025-08-01",
+  "runtime": 32
+ },
+ {
+  "number": 2,
+  "name": "Leggende e Menzogne",
+  "overview": "Durante la Guerra di Troia, un soldato deve far breccia nella città per recuperare un artefatto.",
+  "stillPath": "/wjA5EoEmEfacfzrdcJ6JoyNqPFo.jpg",
+  "airDate": "2025-08-01",
+  "runtime": 32
+ },
+ {
+  "number": 3,
+  "name": "Artefatti Smarriti",
+  "overview": "Un potetente clandestino s'infiltra nella Città Dorata e minaccia i suoi segreti.",
+  "stillPath": "/lRKiS5NhEqquh19eySRWgaZU3Oe.jpg",
+  "airDate": "2025-08-01",
+  "runtime": 31
+ },
+ {
+  "number": 4,
+  "name": "L’Ultima Pantera",
+  "overview": "Due wakandiani scelgono se completare la missione o sottrarsi al loro dovere per salvare il mondo.",
+  "stillPath": "/p7o7jgI2CVKnTS7DMKJ9vmFbzJw.jpg",
+  "airDate": "2025-08-01",
+  "runtime": 30
+ }
+]

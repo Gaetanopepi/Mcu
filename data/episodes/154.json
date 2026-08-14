@@ -1,0 +1,66 @@
+[
+ {
+  "number": 1,
+  "name": "Entra nel mio ufficio",
+  "overview": "Non andrà a finire come vorresti.",
+  "stillPath": "/avaOuuMGhci0mIR1rQDaS0PEmtZ.jpg",
+  "airDate": "2026-05-25",
+  "runtime": 45
+ },
+ {
+  "number": 2,
+  "name": "Cammina con cautela",
+  "overview": "Sei un investigatore. Indaga.",
+  "stillPath": "/jm6IM5Suxd3zKnSyLd7ef1XhF7V.jpg",
+  "airDate": "2026-05-25",
+  "runtime": 41
+ },
+ {
+  "number": 3,
+  "name": "Doppio gioco",
+  "overview": "Prima lo dimostri, prima moriranno.",
+  "stillPath": "/pi81YdQAAXOgD4LypoDO76kKwcY.jpg",
+  "airDate": "2026-05-25",
+  "runtime": 44
+ },
+ {
+  "number": 4,
+  "name": "Un errore che non ripeterò",
+  "overview": "Non so, credo che sia ancora in forma.",
+  "stillPath": "/mKiPRJrGUdtgOwo6AUV81rr1aNP.jpg",
+  "airDate": "2026-05-25",
+  "runtime": 47
+ },
+ {
+  "number": 5,
+  "name": "Tradimento",
+  "overview": "\"Attenzione\" è per i consigli finanziari e la salsa piccante.",
+  "stillPath": "/laPPd7YkmXSGey4VyuQFS6ELTT3.jpg",
+  "airDate": "2026-05-25",
+  "runtime": 48
+ },
+ {
+  "number": 6,
+  "name": "Incubo su una barella",
+  "overview": "Se non hai trovato la risposta, è perché non c'è.",
+  "stillPath": "/yVAh5HmppUTdMqnoxpZVLuFzGWc.jpg",
+  "airDate": "2026-05-25",
+  "runtime": 41
+ },
+ {
+  "number": 7,
+  "name": "L'eroe di nessuno",
+  "overview": "Non posso proteggerti da morto.",
+  "stillPath": "/ar6dHtsfCb1e0bBXd70Gtu63Ek5.jpg",
+  "airDate": "2026-05-25",
+  "runtime": 41
+ },
+ {
+  "number": 8,
+  "name": "L'uomo mascherato",
+  "overview": "Caspita, cosa può fare un investigatore privato in un momento sfortunato?",
+  "stillPath": "/aMsalh2p6NuBOQx6KhuZQOxsTFo.jpg",
+  "airDate": "2026-05-25",
+  "runtime": 46
+ }
+]

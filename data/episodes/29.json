@@ -1,0 +1,50 @@
+[
+ {
+  "number": 1,
+  "name": "Gloriosi propositi",
+  "overview": "Dopo aver rubato il Tesseract in \"Avengers: Endgame\", Loki si trova al cospetto della TVA.",
+  "stillPath": "/gxh0k3aADsYkt9tgkfm2kGn2qQj.jpg",
+  "airDate": "2021-06-09",
+  "runtime": 53
+ },
+ {
+  "number": 2,
+  "name": "La variante",
+  "overview": "Mobius mette Loki al lavoro, ma non tutti alla TVA sono entusiasti della presenza del dio.",
+  "stillPath": "/gqpcfkdmSsm6xiX2EsLkwUvA8g8.jpg",
+  "airDate": "2021-06-16",
+  "runtime": 56
+ },
+ {
+  "number": 3,
+  "name": "Lamentis",
+  "overview": "Loki scopre il piano della variante, ma anche lui ne ha uno che cambierà il destino di entrambi.",
+  "stillPath": "/aTjfWml9Prd8cUB9cfk8yOAEh7v.jpg",
+  "airDate": "2021-06-23",
+  "runtime": 44
+ },
+ {
+  "number": 4,
+  "name": "L'evento Nexus",
+  "overview": "Nervi tesi e paranoia si insinuano nella TVA mentre Mobius e Hunter B-15 cercano Loki e Sylvie.",
+  "stillPath": "/niIXLqEr98mnQuYuMuEvq9Y6OQa.jpg",
+  "airDate": "2021-06-30",
+  "runtime": 50
+ },
+ {
+  "number": 5,
+  "name": "Viaggio nel mistero",
+  "overview": "Loki cerca di scappare dal Vuoto, un purgatorio dove incontra diverse  versioni di se stesso.",
+  "stillPath": "/5fRAAO13URmteku8mb39V9YPJBb.jpg",
+  "airDate": "2021-07-07",
+  "runtime": 51
+ },
+ {
+  "number": 6,
+  "name": "Per tutti i tempi. Sempre",
+  "overview": "Il tempo sta per scadere nel finale in cui Loki e Sylvie hanno un appuntamento con il destino.",
+  "stillPath": "/98hGgYbNFP8GnZhJzAar22bWIAT.jpg",
+  "airDate": "2021-07-14",
+  "runtime": 48
+ }
+]
