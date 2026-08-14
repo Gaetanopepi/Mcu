@@ -714,3 +714,11 @@ a:hover{ color: #fff; }
 .snap-emoji{ font-size: 3.5rem; margin-bottom: 10px; }
 .snap-content h2{ font-family: var(--font-display); color: var(--gold); font-size: 1.8rem; letter-spacing: 1px; margin: 0 0 10px; }
 .snap-content p{ color: var(--ink-dim); margin-bottom: 20px; }
+
+/* ---------- focus visibile ---------- */
+/* Non c'era nessuna regola di focus in tutto il foglio: chi naviga da
+   tastiera non sapeva dove si trovava. L'anello usa l'oro del tema e
+   compare solo quando il browser lo ritiene utile (:focus-visible), così
+   il clic col mouse non lascia contorni. L'outline di default non viene
+   rimosso da nessuna parte. */
+:focus-visible{ outline: 3px solid var(--gold); outline-offset: 2px; }
