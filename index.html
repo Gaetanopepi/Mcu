@@ -70,6 +70,67 @@
 
 <main>
 
+  <!-- FILTER TOOLBAR -->
+  <section class="toolbar panel" id="toolbar">
+    <button id="btn-toggle-filters" class="btn btn-ghost toolbar-toggle" aria-expanded="false" aria-controls="toolbar-filters">⚙ Filtri e ordinamento</button>
+    <div id="toolbar-filters">
+      <div class="toolbar-row">
+        <input type="search" id="search-input" placeholder="🔍 Cerca un titolo... (es. 'Loki', 'Blade', 'X-Men')" class="search-input">
+        <select id="sort-select" class="sort-select" aria-label="Ordinamento">
+          <option value="order">Cronologico (in universo)</option>
+          <option value="release-asc">Ordine di uscita: dal primo</option>
+          <option value="release-desc">Ordine di uscita: dall'ultimo</option>
+          <option value="priority">Prima gli essenziali</option>
+          <option value="rating">Voto TMDB: dal più alto</option>
+          <option value="hours-asc">Durata: dalla più breve</option>
+          <option value="alpha">Alfabetico A-Z</option>
+        </select>
+        <select id="groupby-select" class="sort-select" aria-label="Raggruppamento">
+          <option value="continuity">Raggruppa per continuità</option>
+          <option value="universe">Raggruppa per universo</option>
+          <option value="phase">Raggruppa per Fase MCU</option>
+          <option value="saga">Raggruppa per Saga</option>
+          <option value="format">Raggruppa per formato</option>
+          <option value="priority">Raggruppa per priorità</option>
+          <option value="decade">Raggruppa per decennio</option>
+        </select>
+      </div>
+      <div class="toolbar-row chips-row">
+        <span class="chips-label">Saga:</span>
+        <div id="saga-chips" class="chips"></div>
+      </div>
+      <div class="toolbar-row chips-row">
+        <span class="chips-label">Fase:</span>
+        <div id="phase-chips" class="chips"></div>
+      </div>
+      <div class="toolbar-row chips-row">
+        <span class="chips-label">Priorità:</span>
+        <div id="priority-chips" class="chips"></div>
+      </div>
+      <div class="toolbar-row chips-row">
+        <span class="chips-label">Formato:</span>
+        <div id="format-chips" class="chips"></div>
+      </div>
+      <div class="toolbar-row chips-row">
+        <span class="chips-label">Stato:</span>
+        <div id="status-chips" class="chips">
+          <button class="chip active" data-status="all">Tutti</button>
+          <button class="chip" data-status="unwatched">Da vedere</button>
+          <button class="chip" data-status="watched">Visti ✓</button>
+        </div>
+      </div>
+      <div class="toolbar-row toolbar-bottom">
+        <button id="btn-mcu-only" class="btn btn-toggle" data-active="false">🛡️ Solo Canone MCU</button>
+        <button id="btn-group-seasons" class="btn btn-toggle" data-active="false">📚 Raggruppa stagioni</button>
+        <button id="btn-expand-all" class="btn btn-ghost">⤢ Espandi tutto</button>
+        <button id="btn-collapse-all" class="btn btn-ghost">⤡ Comprimi tutto</button>
+        <button id="btn-clear-filters" class="btn btn-ghost">✕ Pulisci filtri</button>
+        <button id="btn-copy-link" class="btn btn-ghost" title="Copia l'indirizzo di questa vista filtrata">🔗<span class="btn-label"> Copia link a questa vista</span></button>
+        <span class="results-count" id="results-count"></span>
+      </div>
+    </div>
+  </section>
+
   <!-- CINEMATIC HERO -->
   <section class="hero-banner" id="hero-banner" hidden>
     <div class="hero-banner-bg" id="hero-banner-bg"></div>
@@ -161,67 +222,6 @@
   <section class="achievements panel" id="achievements-panel">
     <h2 class="panel-title">🏆 Trofei del Multiverso</h2>
     <div class="achievements-row" id="achievements-row"></div>
-  </section>
-
-  <!-- FILTER TOOLBAR -->
-  <section class="toolbar panel" id="toolbar">
-    <button id="btn-toggle-filters" class="btn btn-ghost toolbar-toggle" aria-expanded="false" aria-controls="toolbar-filters">⚙ Filtri e ordinamento</button>
-    <div id="toolbar-filters">
-      <div class="toolbar-row">
-        <input type="search" id="search-input" placeholder="🔍 Cerca un titolo... (es. 'Loki', 'Blade', 'X-Men')" class="search-input">
-        <select id="sort-select" class="sort-select" aria-label="Ordinamento">
-          <option value="order">Cronologico (in universo)</option>
-          <option value="release-asc">Ordine di uscita: dal primo</option>
-          <option value="release-desc">Ordine di uscita: dall'ultimo</option>
-          <option value="priority">Prima gli essenziali</option>
-          <option value="rating">Voto TMDB: dal più alto</option>
-          <option value="hours-asc">Durata: dalla più breve</option>
-          <option value="alpha">Alfabetico A-Z</option>
-        </select>
-        <select id="groupby-select" class="sort-select" aria-label="Raggruppamento">
-          <option value="continuity">Raggruppa per continuità</option>
-          <option value="universe">Raggruppa per universo</option>
-          <option value="phase">Raggruppa per Fase MCU</option>
-          <option value="saga">Raggruppa per Saga</option>
-          <option value="format">Raggruppa per formato</option>
-          <option value="priority">Raggruppa per priorità</option>
-          <option value="decade">Raggruppa per decennio</option>
-        </select>
-      </div>
-      <div class="toolbar-row chips-row">
-        <span class="chips-label">Saga:</span>
-        <div id="saga-chips" class="chips"></div>
-      </div>
-      <div class="toolbar-row chips-row">
-        <span class="chips-label">Fase:</span>
-        <div id="phase-chips" class="chips"></div>
-      </div>
-      <div class="toolbar-row chips-row">
-        <span class="chips-label">Priorità:</span>
-        <div id="priority-chips" class="chips"></div>
-      </div>
-      <div class="toolbar-row chips-row">
-        <span class="chips-label">Formato:</span>
-        <div id="format-chips" class="chips"></div>
-      </div>
-      <div class="toolbar-row chips-row">
-        <span class="chips-label">Stato:</span>
-        <div id="status-chips" class="chips">
-          <button class="chip active" data-status="all">Tutti</button>
-          <button class="chip" data-status="unwatched">Da vedere</button>
-          <button class="chip" data-status="watched">Visti ✓</button>
-        </div>
-      </div>
-      <div class="toolbar-row toolbar-bottom">
-        <button id="btn-mcu-only" class="btn btn-toggle" data-active="false">🛡️ Solo Canone MCU</button>
-        <button id="btn-group-seasons" class="btn btn-toggle" data-active="false">📚 Raggruppa stagioni</button>
-        <button id="btn-expand-all" class="btn btn-ghost">⤢ Espandi tutto</button>
-        <button id="btn-collapse-all" class="btn btn-ghost">⤡ Comprimi tutto</button>
-        <button id="btn-clear-filters" class="btn btn-ghost">✕ Pulisci filtri</button>
-        <button id="btn-copy-link" class="btn btn-ghost" title="Copia l'indirizzo di questa vista filtrata">🔗<span class="btn-label"> Copia link a questa vista</span></button>
-        <span class="results-count" id="results-count"></span>
-      </div>
-    </div>
   </section>
 
   <!-- CATEGORY SECTIONS -->
