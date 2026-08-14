@@ -55,11 +55,25 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if(!raw) throw new Error("empty");
       const parsed = JSON.parse(raw);
-      return Object.assign({ watched:{}, episodes:{}, collapsed:{}, hoursPerDay:2 }, parsed);
+      const merged = Object.assign({ watched:{}, episodes:{}, collapsed:{}, hoursPerDay:2 }, parsed);
+      pruneLegacyCollapsed(merged);
+      return merged;
     }catch(e){
       return { watched:{}, episodes:{}, collapsed:{}, hoursPerDay:2 };
     }
   }
+  /**
+   * Prima che esistessero i raggruppamenti multipli, lo stato di chiusura era
+   * indicizzato per sola categoria ("MCU"); ora la chiave è composta
+   * ("universe:MCU"). Le vecchie non vengono più lette da nessuno: si tolgono
+   * una volta sola, così il localStorage non si porta dietro residui.
+   */
+  function pruneLegacyCollapsed(s){
+    Object.keys(s.collapsed || {}).forEach(k=>{
+      if(!k.includes(":")) delete s.collapsed[k];
+    });
+  }
+
   function saveState(){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
@@ -1074,16 +1088,18 @@
       render();
     });
 
-    $("#btn-expand-all").addEventListener("click", ()=>{
-      CATEGORY_ORDER.forEach(c=> state.collapsed[c] = false);
+    // renderList indicizza lo stato con "raggruppamento:gruppo": scrivere la
+    // sola categoria non veniva mai riletto, e i due pulsanti non facevano
+    // nulla in nessuna modalità di raggruppamento.
+    const setAllCollapsed = (val) => {
+      currentGrouping().order().forEach(k => {
+        state.collapsed[filters.groupBy + ":" + k] = val;
+      });
       saveState();
       render();
-    });
-    $("#btn-collapse-all").addEventListener("click", ()=>{
-      CATEGORY_ORDER.forEach(c=> state.collapsed[c] = true);
-      saveState();
-      render();
-    });
+    };
+    $("#btn-expand-all").addEventListener("click", ()=> setAllCollapsed(false));
+    $("#btn-collapse-all").addEventListener("click", ()=> setAllCollapsed(true));
 
     $("#btn-clear-filters").addEventListener("click", ()=>{
       filters.search = ""; filters.priorities.clear(); filters.formats.clear();
