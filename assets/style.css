@@ -383,6 +383,13 @@ a:hover{ color: #fff; }
   cursor: pointer;
   user-select: none;
   background: var(--bg-panel-2);
+  /* è un <button>: azzera gli stili che il browser gli mette d'ufficio,
+     senza cambiare il layout flex già in uso */
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  border: 0;
 }
 .category-icon{ font-size: 1.5rem; }
 .category-title-wrap{ flex:1; min-width: 0; }

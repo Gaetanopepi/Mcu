@@ -935,8 +935,12 @@
       const section = document.createElement("div");
       section.className = "category-section" + (collapsed ? " collapsed" : "");
 
-      const header = document.createElement("div");
+      // Un <button> invece di un <div>: l'intestazione è un comando, e come
+      // <div> restava fuori dall'ordine di tabulazione e muta agli screen reader.
+      const header = document.createElement("button");
+      header.type = "button";
       header.className = "category-header";
+      header.setAttribute("aria-expanded", String(!collapsed));
       header.innerHTML = `
         <span class="category-icon">${meta.icon}</span>
         <div class="category-title-wrap">
@@ -950,6 +954,7 @@
         state.collapsed[collapseKey] = !state.collapsed[collapseKey];
         saveState();
         section.classList.toggle("collapsed");
+        header.setAttribute("aria-expanded", String(!state.collapsed[collapseKey]));
       });
       section.appendChild(header);
 
