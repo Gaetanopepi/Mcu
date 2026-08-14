@@ -146,6 +146,123 @@
     phases: new Set(),
   };
 
+  // ---------------- filtri nell'URL ----------------
+  // I filtri stanno nella query string così una vista si può linkare, mettere
+  // nei preferiti e ritrovare col tasto Indietro. Il progresso no: quello è
+  // dell'utente e resta nel localStorage, non in un indirizzo condivisibile.
+  const SAGA_VALUES  = ["Infinity Saga", "Multiverse Saga", "none"];
+  const PHASE_VALUES = ["1", "2", "3", "4", "5", "6", "none"];
+  const STATUS_VALUES = ["all", "watched", "unwatched"];
+  const SORT_VALUES = ["order", "year-asc", "year-desc", "alpha",
+                       "hours-desc", "hours-asc", "priority", "rating"];
+
+  /** I valori di un insieme nell'ordine canonico, così lo stesso filtro
+   *  produce sempre lo stesso URL da condividere. */
+  function orderedCsv(order, set){
+    return order.filter(v => set.has(v)).join(",");
+  }
+
+  function filtersToQuery(){
+    const p = new URLSearchParams();
+    // I default non si scrivono: senza filtri l'indirizzo resta pulito.
+    if(filters.search) p.set("q", filters.search);
+    if(filters.sort !== "order") p.set("s", filters.sort);
+    if(filters.groupBy !== "universe") p.set("g", filters.groupBy);
+    if(filters.status !== "all") p.set("st", filters.status);
+    if(filters.mcuOnly) p.set("mcu", "1");
+    if(filters.groupSeasons) p.set("gs", "1");
+    if(filters.priorities.size) p.set("p", orderedCsv(PRIORITY_ORDER, filters.priorities));
+    if(filters.formats.size) p.set("f", orderedCsv(Object.keys(FORMAT_ICON), filters.formats));
+    if(filters.sagas.size) p.set("sg", orderedCsv(SAGA_VALUES, filters.sagas));
+    if(filters.phases.size) p.set("ph", orderedCsv(PHASE_VALUES, filters.phases));
+    // La virgola è un carattere legale in un valore di query e non separa
+    // niente: lasciarla codificata come %2C renderebbe solo più brutto un
+    // indirizzo fatto per essere incollato in chat. Alla rilettura
+    // URLSearchParams la tratta comunque come testo.
+    return p.toString().replace(/%2C/g, ",");
+  }
+
+  /**
+   * Legge i filtri dalla query string. Ogni valore viene confrontato con
+   * quelli ammessi: un indirizzo scritto a mano, o rimasto in giro da una
+   * versione precedente, non deve poter mettere l'interfaccia in uno stato
+   * che nessun controllo saprebbe più rappresentare.
+   */
+  function readFiltersFromUrl(){
+    const p = new URLSearchParams(location.search);
+    const one = (key, ammessi, fallback) => {
+      const v = p.get(key);
+      return (v && ammessi.includes(v)) ? v : fallback;
+    };
+    const many = (key, ammessi, set) => {
+      set.clear();
+      (p.get(key) || "").split(",").forEach(v=>{ if(ammessi.includes(v)) set.add(v); });
+    };
+
+    filters.search = (p.get("q") || "").trim();
+    filters.sort = one("s", SORT_VALUES, "order");
+    filters.groupBy = one("g", Object.keys(GROUPINGS), "universe");
+    filters.status = one("st", STATUS_VALUES, "all");
+    filters.mcuOnly = p.get("mcu") === "1";
+    filters.groupSeasons = p.get("gs") === "1";
+    many("p", PRIORITY_ORDER, filters.priorities);
+    many("f", Object.keys(FORMAT_ICON), filters.formats);
+    many("sg", SAGA_VALUES, filters.sagas);
+    many("ph", PHASE_VALUES, filters.phases);
+  }
+
+  /**
+   * Riporta i controlli sullo schermo a combaciare con `filters`. Serve
+   * all'avvio, quando i filtri arrivano da un link, e al tasto Indietro:
+   * senza, le chip resterebbero spente su una vista che invece è filtrata.
+   */
+  function syncControlsToFilters(){
+    $("#search-input").value = filters.search;
+    $("#sort-select").value = filters.sort;
+    $("#groupby-select").value = filters.groupBy;
+    $("#btn-mcu-only").dataset.active = String(filters.mcuOnly);
+    $("#btn-group-seasons").dataset.active = String(filters.groupSeasons);
+    const accendi = (sel, attr, set) => {
+      document.querySelectorAll(sel).forEach(c=>{
+        c.classList.toggle("active", set.has(c.dataset[attr]));
+      });
+    };
+    accendi("#priority-chips .chip", "priority", filters.priorities);
+    accendi("#format-chips .chip", "format", filters.formats);
+    accendi("#saga-chips .chip", "saga", filters.sagas);
+    accendi("#phase-chips .chip", "phase", filters.phases);
+    document.querySelectorAll("#status-chips .chip").forEach(c=>{
+      c.classList.toggle("active", c.dataset.status === filters.status);
+    });
+  }
+
+  /**
+   * @param {boolean} discreto true per una scelta netta (raggruppamento,
+   *   ordinamento, stato): quelle meritano una voce di cronologia. Tutto il
+   *   resto sostituisce l'ultima, altrimenti ogni tasto premuto nella ricerca
+   *   lascerebbe un passo indietro da rifare.
+   */
+  /** Ripiego per la copia dove navigator.clipboard non è disponibile. */
+  function copiaConSelezione(testo){
+    const ta = document.createElement("textarea");
+    ta.value = testo;
+    ta.setAttribute("readonly", "");
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    const ok = document.execCommand("copy");
+    ta.remove();
+    if(!ok) throw new Error("copia rifiutata");
+  }
+
+  function syncUrl(discreto){
+    const query = filtersToQuery();
+    const url = location.pathname + (query ? "?" + query : "") + location.hash;
+    if(discreto) history.pushState(null, "", url);
+    else history.replaceState(null, "", url);
+  }
+
   // ---------------- baked TMDB metadata (loaded once, synchronously) ----------------
   // resolved[itemId] -> { ok, mediaType, tmdbId, posterPath, backdropPath, overview,
   //                       voteAverage, releaseDate/firstAirDate, providers, episodes? }
@@ -1200,7 +1317,7 @@
       b.addEventListener("click", ()=>{
         if(filters.priorities.has(p)) filters.priorities.delete(p); else filters.priorities.add(p);
         b.classList.toggle("active");
-        render();
+        render(); syncUrl(false);
       });
       priorityWrap.appendChild(b);
     });
@@ -1214,7 +1331,7 @@
       b.addEventListener("click", ()=>{
         if(filters.formats.has(f)) filters.formats.delete(f); else filters.formats.add(f);
         b.classList.toggle("active");
-        render();
+        render(); syncUrl(false);
       });
       formatWrap.appendChild(b);
     });
@@ -1224,10 +1341,11 @@
       .forEach(([val,label])=>{
         const b = document.createElement("button");
         b.className = "chip"; b.textContent = label;
+        b.dataset.saga = val;
         b.addEventListener("click", ()=>{
           if(filters.sagas.has(val)) filters.sagas.delete(val); else filters.sagas.add(val);
           b.classList.toggle("active");
-          render();
+          render(); syncUrl(false);
         });
         sagaWrap.appendChild(b);
       });
@@ -1237,10 +1355,11 @@
       const b = document.createElement("button");
       b.className = "chip";
       b.textContent = val === "none" ? "Fuori fase" : "Fase " + val;
+      b.dataset.phase = val;
       b.addEventListener("click", ()=>{
         if(filters.phases.has(val)) filters.phases.delete(val); else filters.phases.add(val);
         b.classList.toggle("active");
-        render();
+        render(); syncUrl(false);
       });
       phaseWrap.appendChild(b);
     });
@@ -1250,7 +1369,7 @@
       if(!btn) return;
       filters.status = btn.dataset.status;
       $("#status-chips").querySelectorAll(".chip").forEach(c=>c.classList.toggle("active", c===btn));
-      render();
+      render(); syncUrl(true);
     });
   }
 
@@ -1262,13 +1381,13 @@
       clearTimeout(searchTimer);
       searchTimer = setTimeout(()=>{
         filters.search = value;
-        render();
+        render(); syncUrl(false);
       }, 200);
     });
 
     $("#sort-select").addEventListener("change", (e)=>{
       filters.sort = e.target.value;
-      render();
+      render(); syncUrl(true);
     });
 
     $("#hours-per-day").addEventListener("input", (e)=>{
@@ -1280,20 +1399,20 @@
 
     $("#groupby-select").addEventListener("change", (e)=>{
       filters.groupBy = e.target.value;
-      render();
+      render(); syncUrl(true);
     });
 
     $("#btn-group-seasons").addEventListener("click", (e)=>{
       filters.groupSeasons = !filters.groupSeasons;
       e.target.dataset.active = filters.groupSeasons;
       expandedSeries.clear();
-      render();
+      render(); syncUrl(false);
     });
 
     $("#btn-mcu-only").addEventListener("click", (e)=>{
       filters.mcuOnly = !filters.mcuOnly;
       e.target.dataset.active = filters.mcuOnly;
-      render();
+      render(); syncUrl(false);
     });
 
     // renderList indicizza lo stato con "raggruppamento:gruppo": scrivere la
@@ -1316,14 +1435,31 @@
       filters.sagas.clear(); filters.phases.clear();
       filters.groupBy = "universe"; filters.groupSeasons = false;
       expandedSeries.clear();
-      $("#search-input").value = "";
-      $("#sort-select").value = "order";
-      $("#groupby-select").value = "universe";
-      $("#btn-group-seasons").dataset.active = "false";
-      document.querySelectorAll(".chips .chip").forEach(c=>c.classList.remove("active"));
-      $("#status-chips .chip[data-status='all']").classList.add("active");
-      $("#btn-mcu-only").dataset.active = "false";
+      syncControlsToFilters();
       render();
+      syncUrl(false);   // niente filtri, niente query: l'indirizzo torna pulito
+    });
+
+    $("#btn-copy-link").addEventListener("click", async ()=>{
+      const link = location.href;
+      try{
+        // L'API moderna esiste solo in contesti sicuri e può essere negata dai
+        // permessi: se non c'è o rifiuta si passa alla selezione di un campo
+        // temporaneo, che funziona ovunque.
+        if(navigator.clipboard && window.isSecureContext){
+          await navigator.clipboard.writeText(link);
+        } else {
+          copiaConSelezione(link);
+        }
+        UI.toast("Link copiato: apre il tracker con questi filtri già applicati.", "success");
+      }catch(err){
+        try{
+          copiaConSelezione(link);
+          UI.toast("Link copiato: apre il tracker con questi filtri già applicati.", "success");
+        }catch(err2){
+          UI.toast("Copia non riuscita. Puoi comunque copiare l'indirizzo dalla barra del browser.", "error");
+        }
+      }
     });
 
     $("#btn-reset").addEventListener("click", async ()=>{
@@ -1417,10 +1553,24 @@
     });
   }
 
+  // Il tasto Indietro riporta ai filtri di prima. Non si tocca l'URL qui:
+  // il browser l'ha già cambiato lui, riscriverlo aggiungerebbe una voce.
+  window.addEventListener("popstate", ()=>{
+    readFiltersFromUrl();
+    syncControlsToFilters();
+    expandedSeries.clear();
+    render();
+  });
+
   // ---------------- init ----------------
   loadMetadata();
+  // I filtri si leggono prima di costruire i controlli, così il primo render
+  // è già quello giusto: aprire un link filtrato non deve mostrare per un
+  // istante la lista intera.
+  readFiltersFromUrl();
   buildChips();
   wireControls();
+  syncControlsToFilters();
   renderDataSourceInfo();
   renderDashboard();
   renderList();
