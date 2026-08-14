@@ -168,59 +168,61 @@
 
   <!-- FILTER TOOLBAR -->
   <section class="toolbar panel" id="toolbar">
-    <button id="btn-toggle-filters" class="btn btn-ghost toolbar-toggle" aria-expanded="false" aria-controls="toolbar">⚙ Filtri e ordinamento</button>
-    <div class="toolbar-row">
-      <input type="search" id="search-input" placeholder="🔍 Cerca un titolo... (es. 'Loki', 'Blade', 'X-Men')" class="search-input">
-      <select id="sort-select" class="sort-select" aria-label="Ordinamento">
-        <option value="order">Ordine consigliato</option>
-        <option value="year-asc">Anno di uscita: dal primo</option>
-        <option value="year-desc">Anno di uscita: dall'ultimo</option>
-        <option value="alpha">Alfabetico A-Z</option>
-        <option value="hours-desc">Durata: più lunghi</option>
-        <option value="hours-asc">Durata: più corti</option>
-        <option value="priority">Priorità</option>
-        <option value="rating">Voto TMDB</option>
-      </select>
-      <select id="groupby-select" class="sort-select" aria-label="Raggruppamento">
-        <option value="universe">Raggruppa per universo</option>
-        <option value="phase">Raggruppa per Fase MCU</option>
-        <option value="saga">Raggruppa per Saga</option>
-        <option value="format">Raggruppa per formato</option>
-        <option value="priority">Raggruppa per priorità</option>
-        <option value="decade">Raggruppa per decennio</option>
-      </select>
-    </div>
-    <div class="toolbar-row chips-row">
-      <span class="chips-label">Saga:</span>
-      <div id="saga-chips" class="chips"></div>
-    </div>
-    <div class="toolbar-row chips-row">
-      <span class="chips-label">Fase:</span>
-      <div id="phase-chips" class="chips"></div>
-    </div>
-    <div class="toolbar-row chips-row">
-      <span class="chips-label">Priorità:</span>
-      <div id="priority-chips" class="chips"></div>
-    </div>
-    <div class="toolbar-row chips-row">
-      <span class="chips-label">Formato:</span>
-      <div id="format-chips" class="chips"></div>
-    </div>
-    <div class="toolbar-row chips-row">
-      <span class="chips-label">Stato:</span>
-      <div id="status-chips" class="chips">
-        <button class="chip active" data-status="all">Tutti</button>
-        <button class="chip" data-status="unwatched">Da vedere</button>
-        <button class="chip" data-status="watched">Visti ✓</button>
+    <button id="btn-toggle-filters" class="btn btn-ghost toolbar-toggle" aria-expanded="false" aria-controls="toolbar-filters">⚙ Filtri e ordinamento</button>
+    <div id="toolbar-filters">
+      <div class="toolbar-row">
+        <input type="search" id="search-input" placeholder="🔍 Cerca un titolo... (es. 'Loki', 'Blade', 'X-Men')" class="search-input">
+        <select id="sort-select" class="sort-select" aria-label="Ordinamento">
+          <option value="order">Ordine consigliato</option>
+          <option value="year-asc">Anno di uscita: dal primo</option>
+          <option value="year-desc">Anno di uscita: dall'ultimo</option>
+          <option value="alpha">Alfabetico A-Z</option>
+          <option value="hours-desc">Durata: più lunghi</option>
+          <option value="hours-asc">Durata: più corti</option>
+          <option value="priority">Priorità</option>
+          <option value="rating">Voto TMDB</option>
+        </select>
+        <select id="groupby-select" class="sort-select" aria-label="Raggruppamento">
+          <option value="universe">Raggruppa per universo</option>
+          <option value="phase">Raggruppa per Fase MCU</option>
+          <option value="saga">Raggruppa per Saga</option>
+          <option value="format">Raggruppa per formato</option>
+          <option value="priority">Raggruppa per priorità</option>
+          <option value="decade">Raggruppa per decennio</option>
+        </select>
       </div>
-    </div>
-    <div class="toolbar-row toolbar-bottom">
-      <button id="btn-mcu-only" class="btn btn-toggle" data-active="false">🛡️ Solo Canone MCU</button>
-      <button id="btn-group-seasons" class="btn btn-toggle" data-active="false">📚 Raggruppa stagioni</button>
-      <button id="btn-expand-all" class="btn btn-ghost">⤢ Espandi tutto</button>
-      <button id="btn-collapse-all" class="btn btn-ghost">⤡ Comprimi tutto</button>
-      <button id="btn-clear-filters" class="btn btn-ghost">✕ Pulisci filtri</button>
-      <span class="results-count" id="results-count"></span>
+      <div class="toolbar-row chips-row">
+        <span class="chips-label">Saga:</span>
+        <div id="saga-chips" class="chips"></div>
+      </div>
+      <div class="toolbar-row chips-row">
+        <span class="chips-label">Fase:</span>
+        <div id="phase-chips" class="chips"></div>
+      </div>
+      <div class="toolbar-row chips-row">
+        <span class="chips-label">Priorità:</span>
+        <div id="priority-chips" class="chips"></div>
+      </div>
+      <div class="toolbar-row chips-row">
+        <span class="chips-label">Formato:</span>
+        <div id="format-chips" class="chips"></div>
+      </div>
+      <div class="toolbar-row chips-row">
+        <span class="chips-label">Stato:</span>
+        <div id="status-chips" class="chips">
+          <button class="chip active" data-status="all">Tutti</button>
+          <button class="chip" data-status="unwatched">Da vedere</button>
+          <button class="chip" data-status="watched">Visti ✓</button>
+        </div>
+      </div>
+      <div class="toolbar-row toolbar-bottom">
+        <button id="btn-mcu-only" class="btn btn-toggle" data-active="false">🛡️ Solo Canone MCU</button>
+        <button id="btn-group-seasons" class="btn btn-toggle" data-active="false">📚 Raggruppa stagioni</button>
+        <button id="btn-expand-all" class="btn btn-ghost">⤢ Espandi tutto</button>
+        <button id="btn-collapse-all" class="btn btn-ghost">⤡ Comprimi tutto</button>
+        <button id="btn-clear-filters" class="btn btn-ghost">✕ Pulisci filtri</button>
+        <span class="results-count" id="results-count"></span>
+      </div>
     </div>
   </section>
 
