@@ -11,7 +11,7 @@
   --line: #000000;
   --ink: #f3f1ea;
   --ink-dim: #b9b6c9;
-  --ink-faint: #7d7a90;
+  --ink-faint: #9a97ad;   /* 5,7:1 sulle card: sotto questo valore non passa AA */
 
   --marvel-red: #ed1d24;
   --marvel-red-dim: #a3151a;
