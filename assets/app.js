@@ -140,7 +140,7 @@
     status: "all",   // all | watched | unwatched
     mcuOnly: false,
     sort: "order",
-    groupBy: "universe",
+    groupBy: "continuity",
     groupSeasons: false,
     sagas: new Set(),
     phases: new Set(),
@@ -172,7 +172,7 @@
     // I default non si scrivono: senza filtri l'indirizzo resta pulito.
     if(filters.search) p.set("q", filters.search);
     if(filters.sort !== "order") p.set("s", filters.sort);
-    if(filters.groupBy !== "universe") p.set("g", filters.groupBy);
+    if(filters.groupBy !== "continuity") p.set("g", filters.groupBy);
     if(filters.status !== "all") p.set("st", filters.status);
     if(filters.mcuOnly) p.set("mcu", "1");
     if(filters.groupSeasons) p.set("gs", "1");
@@ -208,7 +208,7 @@
     const sortRaw = p.get("s");
     filters.sort = SORT_VALUES.includes(sortRaw) ? sortRaw
                  : (SORT_ALIASES[sortRaw] || "order");
-    filters.groupBy = one("g", Object.keys(GROUPINGS), "universe");
+    filters.groupBy = one("g", Object.keys(GROUPINGS), "continuity");
     filters.status = one("st", STATUS_VALUES, "all");
     filters.mcuOnly = p.get("mcu") === "1";
     filters.groupSeasons = p.get("gs") === "1";
@@ -508,7 +508,7 @@
       .sort((a,b)=>{
         const pr = priorityRank[a.priority]-priorityRank[b.priority];
         if(pr !== 0) return pr;
-        return a.id - b.id;
+        return chronoCompare(a, b);
       });
     return candidates[0] || null;
   }
@@ -605,6 +605,41 @@
     return true;
   }
 
+  /**
+   * Ordine cronologico: prima la continuità (la timeline MCU, poi ciascun
+   * altro universo come blocco a sé), poi la posizione dentro quella timeline.
+   * Universi diversi non si mescolano: gli X-Men Fox e lo Spider-Man di Raimi
+   * non condividono una linea temporale con l'MCU, e intercalarli darebbe un
+   * ordine che non significa niente.
+   */
+  const CONTINUITY_ORDER = [
+    "MCU", "Defenders", "Fox X-Men", "Raimiverse", "Webbverse",
+    "Sony", "Spider-Verse", "Animated Multiverse", "Marvel TV Extended",
+    "Bonus", "Legacy",
+  ];
+  const CONTINUITY_LABEL = {
+    "MCU": "🛡️ Marvel Cinematic Universe",
+    "Defenders": "🥊 Defenders (Netflix)",
+    "Fox X-Men": "🧬 X-Men (Fox)",
+    "Raimiverse": "🕷️ Spider-Man di Sam Raimi",
+    "Webbverse": "🕸️ The Amazing Spider-Man",
+    "Sony": "☠️ Universo Sony",
+    "Spider-Verse": "🌀 Spider-Verse",
+    "Animated Multiverse": "📺 Multiverso animato",
+    "Marvel TV Extended": "📼 Universo TV Marvel esteso",
+    "Bonus": "🍿 Cortometraggi bonus",
+    "Legacy": "🧟 Marvel classico (pre-MCU)",
+  };
+  function continuityRank(item){
+    const idx = CONTINUITY_ORDER.indexOf(item.continuity);
+    return idx === -1 ? CONTINUITY_ORDER.length : idx;
+  }
+  function chronoCompare(a, b){
+    return continuityRank(a) - continuityRank(b)
+        || (a.chrono || 9999) - (b.chrono || 9999)
+        || a.id - b.id;
+  }
+
   /** Data di uscita come stringa ordinabile; i titoli senza data vanno in fondo. */
   function releaseKey(item){
     const r = resolved[item.id];
@@ -620,12 +655,12 @@
       // Per l'ordine di uscita conta la data intera, non il solo anno: nel 2021
       // sono usciti nove titoli e metterli in fila per id sarebbe cronologia
       // in universo, cioè l'esatto contrario di quello che si è chiesto.
-      case "release-asc":  arr.sort((a,b)=> cmp(releaseKey(a), releaseKey(b)) || a.id-b.id); break;
-      case "release-desc": arr.sort((a,b)=> cmp(releaseKey(b), releaseKey(a)) || a.id-b.id); break;
+      case "release-asc":  arr.sort((a,b)=> cmp(releaseKey(a), releaseKey(b)) || chronoCompare(a,b)); break;
+      case "release-desc": arr.sort((a,b)=> cmp(releaseKey(b), releaseKey(a)) || chronoCompare(a,b)); break;
       case "hours-asc": arr.sort((a,b)=>itemHourBreakdown(a).total - itemHourBreakdown(b).total); break;
       case "priority": {
         const rank = { Essential:0, Recommended:1, Optional:2, Bonus:3 };
-        arr.sort((a,b)=> rank[a.priority]-rank[b.priority] || a.id-b.id);
+        arr.sort((a,b)=> rank[a.priority]-rank[b.priority] || chronoCompare(a,b));
         break;
       }
       case "rating": {
@@ -633,7 +668,7 @@
         arr.sort((a,b)=> rating(b) - rating(a));
         break;
       }
-      default: arr.sort((a,b)=>a.id-b.id);
+      default: arr.sort(chronoCompare);
     }
     return arr;
   }
@@ -1052,6 +1087,17 @@
   };
 
   const GROUPINGS = {
+    // La continuità è il raggruppamento che accompagna la cronologia: dice
+    // "questa è una timeline a sé" invece di frammentare in 17 categorie.
+    continuity: {
+      keyOf: (i)=> i.continuity || "Legacy",
+      order: ()=> CONTINUITY_ORDER,
+      meta: (k)=> {
+        const label = CONTINUITY_LABEL[k] || k;
+        const space = label.indexOf(" ");
+        return { icon: label.slice(0, space), label: label.slice(space + 1), color: "#ed1d24" };
+      },
+    },
     universe: {
       keyOf: (i)=> i.category,
       order: ()=> CATEGORY_ORDER,
@@ -1416,7 +1462,7 @@
       filters.search = ""; filters.priorities.clear(); filters.formats.clear();
       filters.status = "all"; filters.mcuOnly = false; filters.sort = "order";
       filters.sagas.clear(); filters.phases.clear();
-      filters.groupBy = "universe"; filters.groupSeasons = false;
+      filters.groupBy = "continuity"; filters.groupSeasons = false;
       expandedSeries.clear();
       syncControlsToFilters();
       render();

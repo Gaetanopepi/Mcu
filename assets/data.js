@@ -8,7 +8,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 1,
   "saga": "Infinity Saga",
-  "year": 2011
+  "year": 2011,
+  "continuity": "MCU",
+  "chrono": 2
  },
  {
   "id": 2,
@@ -19,7 +21,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2015
+  "year": 2015,
+  "continuity": "MCU",
+  "chrono": 3
  },
  {
   "id": 3,
@@ -30,7 +34,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2016
+  "year": 2016,
+  "continuity": "MCU",
+  "chrono": 4
  },
  {
   "id": 4,
@@ -41,7 +47,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 3,
   "saga": "Infinity Saga",
-  "year": 2019
+  "year": 2019,
+  "continuity": "MCU",
+  "chrono": 5
  },
  {
   "id": 5,
@@ -52,7 +60,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 1,
   "saga": "Infinity Saga",
-  "year": 2008
+  "year": 2008,
+  "continuity": "MCU",
+  "chrono": 6
  },
  {
   "id": 6,
@@ -63,7 +73,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 1,
   "saga": "Infinity Saga",
-  "year": 2008
+  "year": 2008,
+  "continuity": "MCU",
+  "chrono": 8
  },
  {
   "id": 7,
@@ -74,7 +86,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 1,
   "saga": "Infinity Saga",
-  "year": 2010
+  "year": 2010,
+  "continuity": "MCU",
+  "chrono": 7
  },
  {
   "id": 8,
@@ -85,7 +99,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 1,
   "saga": "Infinity Saga",
-  "year": 2011
+  "year": 2011,
+  "continuity": "MCU",
+  "chrono": 9
  },
  {
   "id": 9,
@@ -96,7 +112,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 1,
   "saga": "Infinity Saga",
-  "year": 2012
+  "year": 2012,
+  "continuity": "MCU",
+  "chrono": 12
  },
  {
   "id": 10,
@@ -107,7 +125,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 2,
   "saga": "Infinity Saga",
-  "year": 2013
+  "year": 2013,
+  "continuity": "MCU",
+  "chrono": 14
  },
  {
   "id": 11,
@@ -118,7 +138,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 2,
   "saga": "Infinity Saga",
-  "year": 2013
+  "year": 2013,
+  "continuity": "MCU",
+  "chrono": 16
  },
  {
   "id": 12,
@@ -129,7 +151,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 2,
   "saga": "Infinity Saga",
-  "year": 2014
+  "year": 2014,
+  "continuity": "MCU",
+  "chrono": 18
  },
  {
   "id": 13,
@@ -140,7 +164,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 2,
   "saga": "Infinity Saga",
-  "year": 2014
+  "year": 2014,
+  "continuity": "MCU",
+  "chrono": 19
  },
  {
   "id": 14,
@@ -151,7 +177,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 3,
   "saga": "Infinity Saga",
-  "year": 2017
+  "year": 2017,
+  "continuity": "MCU",
+  "chrono": 20
  },
  {
   "id": 15,
@@ -162,7 +190,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 2,
   "saga": "Infinity Saga",
-  "year": 2015
+  "year": 2015,
+  "continuity": "MCU",
+  "chrono": 22
  },
  {
   "id": 16,
@@ -173,7 +203,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 2,
   "saga": "Infinity Saga",
-  "year": 2015
+  "year": 2015,
+  "continuity": "MCU",
+  "chrono": 23
  },
  {
   "id": 17,
@@ -184,7 +216,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 3,
   "saga": "Infinity Saga",
-  "year": 2016
+  "year": 2016,
+  "continuity": "MCU",
+  "chrono": 27
  },
  {
   "id": 18,
@@ -195,7 +229,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2021
+  "year": 2021,
+  "continuity": "MCU",
+  "chrono": 28
  },
  {
   "id": 19,
@@ -206,7 +242,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 3,
   "saga": "Infinity Saga",
-  "year": 2018
+  "year": 2018,
+  "continuity": "MCU",
+  "chrono": 29
  },
  {
   "id": 20,
@@ -217,7 +255,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 3,
   "saga": "Infinity Saga",
-  "year": 2017
+  "year": 2017,
+  "continuity": "MCU",
+  "chrono": 30
  },
  {
   "id": 21,
@@ -228,7 +268,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 3,
   "saga": "Infinity Saga",
-  "year": 2016
+  "year": 2016,
+  "continuity": "MCU",
+  "chrono": 34
  },
  {
   "id": 22,
@@ -239,7 +281,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 3,
   "saga": "Infinity Saga",
-  "year": 2017
+  "year": 2017,
+  "continuity": "MCU",
+  "chrono": 35
  },
  {
   "id": 23,
@@ -250,7 +294,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 3,
   "saga": "Infinity Saga",
-  "year": 2018
+  "year": 2018,
+  "continuity": "MCU",
+  "chrono": 36
  },
  {
   "id": 24,
@@ -261,7 +307,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 3,
   "saga": "Infinity Saga",
-  "year": 2018
+  "year": 2018,
+  "continuity": "MCU",
+  "chrono": 38
  },
  {
   "id": 25,
@@ -272,7 +320,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 3,
   "saga": "Infinity Saga",
-  "year": 2019
+  "year": 2019,
+  "continuity": "MCU",
+  "chrono": 41
  },
  {
   "id": 26,
@@ -283,7 +333,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 3,
   "saga": "Infinity Saga",
-  "year": 2019
+  "year": 2019,
+  "continuity": "MCU",
+  "chrono": 48
  },
  {
   "id": 27,
@@ -294,7 +346,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2021
+  "year": 2021,
+  "continuity": "MCU",
+  "chrono": 44
  },
  {
   "id": 28,
@@ -305,7 +359,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2021
+  "year": 2021,
+  "continuity": "MCU",
+  "chrono": 45
  },
  {
   "id": 29,
@@ -316,7 +372,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2021
+  "year": 2021,
+  "continuity": "MCU",
+  "chrono": 42
  },
  {
   "id": 30,
@@ -327,7 +385,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2021
+  "year": 2021,
+  "continuity": "MCU",
+  "chrono": 43
  },
  {
   "id": 31,
@@ -338,7 +398,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2021
+  "year": 2021,
+  "continuity": "MCU",
+  "chrono": 46
  },
  {
   "id": 32,
@@ -349,7 +411,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2021
+  "year": 2021,
+  "continuity": "MCU",
+  "chrono": 50
  },
  {
   "id": 33,
@@ -360,7 +424,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2021
+  "year": 2021,
+  "continuity": "MCU",
+  "chrono": 47
  },
  {
   "id": 34,
@@ -371,7 +437,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2021
+  "year": 2021,
+  "continuity": "MCU",
+  "chrono": 49
  },
  {
   "id": 35,
@@ -382,7 +450,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2022
+  "year": 2022,
+  "continuity": "MCU",
+  "chrono": 53
  },
  {
   "id": 36,
@@ -393,7 +463,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2022
+  "year": 2022,
+  "continuity": "MCU",
+  "chrono": 51
  },
  {
   "id": 37,
@@ -404,7 +476,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2022
+  "year": 2022,
+  "continuity": "MCU",
+  "chrono": 52
  },
  {
   "id": 38,
@@ -415,7 +489,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2022
+  "year": 2022,
+  "continuity": "MCU",
+  "chrono": 54
  },
  {
   "id": 39,
@@ -426,7 +502,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2022
+  "year": 2022,
+  "continuity": "MCU",
+  "chrono": 59
  },
  {
   "id": 40,
@@ -437,7 +515,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2022
+  "year": 2022,
+  "continuity": "MCU",
+  "chrono": 57
  },
  {
   "id": 41,
@@ -448,7 +528,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2024
+  "year": 2024,
+  "continuity": "MCU",
+  "chrono": 65
  },
  {
   "id": 42,
@@ -459,7 +541,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2022
+  "year": 2022,
+  "continuity": "MCU",
+  "chrono": 58
  },
  {
   "id": 43,
@@ -470,7 +554,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2022
+  "year": 2022,
+  "continuity": "MCU",
+  "chrono": 60
  },
  {
   "id": 44,
@@ -481,7 +567,9 @@ const TRACKER_DATA = [
   "priority": "Bonus",
   "phase": 4,
   "saga": "Multiverse Saga",
-  "year": 2022
+  "year": 2022,
+  "continuity": "MCU",
+  "chrono": 55
  },
  {
   "id": 45,
@@ -492,7 +580,9 @@ const TRACKER_DATA = [
   "priority": "Bonus",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2023
+  "year": 2023,
+  "continuity": "MCU",
+  "chrono": 56
  },
  {
   "id": 46,
@@ -503,7 +593,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2023
+  "year": 2023,
+  "continuity": "MCU",
+  "chrono": 61
  },
  {
   "id": 47,
@@ -514,7 +606,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2023
+  "year": 2023,
+  "continuity": "MCU",
+  "chrono": 63
  },
  {
   "id": 48,
@@ -525,7 +619,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2023
+  "year": 2023,
+  "continuity": "MCU",
+  "chrono": 62
  },
  {
   "id": 49,
@@ -536,7 +632,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2023
+  "year": 2023,
+  "continuity": "MCU",
+  "chrono": 67
  },
  {
   "id": 50,
@@ -547,7 +645,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2023
+  "year": 2023,
+  "continuity": "MCU",
+  "chrono": 64
  },
  {
   "id": 51,
@@ -558,7 +658,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2023
+  "year": 2023,
+  "continuity": "MCU",
+  "chrono": 70
  },
  {
   "id": 52,
@@ -569,7 +671,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2024
+  "year": 2024,
+  "continuity": "MCU",
+  "chrono": 71
  },
  {
   "id": 53,
@@ -580,7 +684,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2024
+  "year": 2024,
+  "continuity": "MCU",
+  "chrono": 69
  },
  {
   "id": 54,
@@ -591,7 +697,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2024
+  "year": 2024,
+  "continuity": "MCU",
+  "chrono": 68
  },
  {
   "id": 55,
@@ -602,7 +710,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2025
+  "year": 2025,
+  "continuity": "MCU",
+  "chrono": 66
  },
  {
   "id": 56,
@@ -613,7 +723,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2025
+  "year": 2025,
+  "continuity": "MCU",
+  "chrono": 73
  },
  {
   "id": 57,
@@ -624,7 +736,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2025
+  "year": 2025,
+  "continuity": "MCU",
+  "chrono": 74
  },
  {
   "id": 58,
@@ -635,7 +749,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2025
+  "year": 2025,
+  "continuity": "MCU",
+  "chrono": 75
  },
  {
   "id": 59,
@@ -646,7 +762,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 6,
   "saga": "Multiverse Saga",
-  "year": 2025
+  "year": 2025,
+  "continuity": "MCU",
+  "chrono": 76
  },
  {
   "id": 60,
@@ -657,7 +775,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2025
+  "year": 2025,
+  "continuity": "MCU",
+  "chrono": 1
  },
  {
   "id": 61,
@@ -668,7 +788,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": 5,
   "saga": "Multiverse Saga",
-  "year": 2025
+  "year": 2025,
+  "continuity": "MCU",
+  "chrono": 72
  },
  {
   "id": 62,
@@ -679,7 +801,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": 6,
   "saga": "Multiverse Saga",
-  "year": 2026
+  "year": 2026,
+  "continuity": "MCU",
+  "chrono": 77
  },
  {
   "id": 63,
@@ -690,7 +814,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 6,
   "saga": "Multiverse Saga",
-  "year": 2026
+  "year": 2026,
+  "continuity": "MCU",
+  "chrono": 79
  },
  {
   "id": 64,
@@ -701,7 +827,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": 6,
   "saga": "Multiverse Saga",
-  "year": 2026
+  "year": 2026,
+  "continuity": "MCU",
+  "chrono": 80
  },
  {
   "id": 65,
@@ -712,7 +840,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 6,
   "saga": "Multiverse Saga",
-  "year": 2026
+  "year": 2026,
+  "continuity": "MCU",
+  "chrono": 81
  },
  {
   "id": 66,
@@ -723,7 +853,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": 6,
   "saga": "Multiverse Saga",
-  "year": 2026
+  "year": 2026,
+  "continuity": "MCU",
+  "chrono": 78
  },
  {
   "id": 67,
@@ -734,7 +866,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2013
+  "year": 2013,
+  "continuity": "MCU",
+  "chrono": 17
  },
  {
   "id": 68,
@@ -745,7 +879,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2014
+  "year": 2014,
+  "continuity": "MCU",
+  "chrono": 21
  },
  {
   "id": 69,
@@ -756,7 +892,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2015
+  "year": 2015,
+  "continuity": "MCU",
+  "chrono": 25
  },
  {
   "id": 70,
@@ -767,7 +905,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2016
+  "year": 2016,
+  "continuity": "MCU",
+  "chrono": 32
  },
  {
   "id": 71,
@@ -778,7 +918,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2017
+  "year": 2017,
+  "continuity": "MCU",
+  "chrono": 37
  },
  {
   "id": 72,
@@ -789,7 +931,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2018
+  "year": 2018,
+  "continuity": "MCU",
+  "chrono": 39
  },
  {
   "id": 73,
@@ -800,7 +944,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2020
+  "year": 2020,
+  "continuity": "MCU",
+  "chrono": 40
  },
  {
   "id": 74,
@@ -811,7 +957,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2015
+  "year": 2015,
+  "continuity": "Defenders",
+  "chrono": 1
  },
  {
   "id": 75,
@@ -822,7 +970,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2015
+  "year": 2015,
+  "continuity": "Defenders",
+  "chrono": 2
  },
  {
   "id": 76,
@@ -833,7 +983,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2016
+  "year": 2016,
+  "continuity": "Defenders",
+  "chrono": 3
  },
  {
   "id": 77,
@@ -844,7 +996,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2016
+  "year": 2016,
+  "continuity": "Defenders",
+  "chrono": 4
  },
  {
   "id": 78,
@@ -855,7 +1009,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2017
+  "year": 2017,
+  "continuity": "Defenders",
+  "chrono": 5
  },
  {
   "id": 79,
@@ -866,7 +1022,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2017
+  "year": 2017,
+  "continuity": "Defenders",
+  "chrono": 6
  },
  {
   "id": 80,
@@ -877,7 +1035,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2017
+  "year": 2017,
+  "continuity": "Defenders",
+  "chrono": 7
  },
  {
   "id": 81,
@@ -888,7 +1048,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2018
+  "year": 2018,
+  "continuity": "Defenders",
+  "chrono": 8
  },
  {
   "id": 82,
@@ -899,7 +1061,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2018
+  "year": 2018,
+  "continuity": "Defenders",
+  "chrono": 9
  },
  {
   "id": 83,
@@ -910,7 +1074,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2018
+  "year": 2018,
+  "continuity": "Defenders",
+  "chrono": 10
  },
  {
   "id": 84,
@@ -921,7 +1087,9 @@ const TRACKER_DATA = [
   "priority": "Essential",
   "phase": null,
   "saga": null,
-  "year": 2018
+  "year": 2018,
+  "continuity": "Defenders",
+  "chrono": 11
  },
  {
   "id": 85,
@@ -932,7 +1100,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2019
+  "year": 2019,
+  "continuity": "Defenders",
+  "chrono": 12
  },
  {
   "id": 86,
@@ -943,7 +1113,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2019
+  "year": 2019,
+  "continuity": "Defenders",
+  "chrono": 13
  },
  {
   "id": 87,
@@ -954,7 +1126,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2011
+  "year": 2011,
+  "continuity": "Fox X-Men",
+  "chrono": 1
  },
  {
   "id": 88,
@@ -965,7 +1139,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2009
+  "year": 2009,
+  "continuity": "Fox X-Men",
+  "chrono": 3
  },
  {
   "id": 89,
@@ -976,7 +1152,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2000
+  "year": 2000,
+  "continuity": "Fox X-Men",
+  "chrono": 6
  },
  {
   "id": 90,
@@ -987,7 +1165,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2003
+  "year": 2003,
+  "continuity": "Fox X-Men",
+  "chrono": 7
  },
  {
   "id": 91,
@@ -998,7 +1178,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2006
+  "year": 2006,
+  "continuity": "Fox X-Men",
+  "chrono": 8
  },
  {
   "id": 92,
@@ -1009,7 +1191,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2013
+  "year": 2013,
+  "continuity": "Fox X-Men",
+  "chrono": 9
  },
  {
   "id": 93,
@@ -1020,7 +1204,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2014
+  "year": 2014,
+  "continuity": "Fox X-Men",
+  "chrono": 2
  },
  {
   "id": 94,
@@ -1031,7 +1217,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2016
+  "year": 2016,
+  "continuity": "Fox X-Men",
+  "chrono": 4
  },
  {
   "id": 95,
@@ -1042,7 +1230,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2019
+  "year": 2019,
+  "continuity": "Fox X-Men",
+  "chrono": 5
  },
  {
   "id": 96,
@@ -1053,7 +1243,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2020
+  "year": 2020,
+  "continuity": "Fox X-Men",
+  "chrono": 12
  },
  {
   "id": 97,
@@ -1064,7 +1256,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2017
+  "year": 2017,
+  "continuity": "Fox X-Men",
+  "chrono": 13
  },
  {
   "id": 98,
@@ -1075,7 +1269,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2016
+  "year": 2016,
+  "continuity": "Fox X-Men",
+  "chrono": 10
  },
  {
   "id": 99,
@@ -1086,7 +1282,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2018
+  "year": 2018,
+  "continuity": "Fox X-Men",
+  "chrono": 11
  },
  {
   "id": 100,
@@ -1097,7 +1295,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2002
+  "year": 2002,
+  "continuity": "Raimiverse",
+  "chrono": 1
  },
  {
   "id": 101,
@@ -1108,7 +1308,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2004
+  "year": 2004,
+  "continuity": "Raimiverse",
+  "chrono": 2
  },
  {
   "id": 102,
@@ -1119,7 +1321,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2007
+  "year": 2007,
+  "continuity": "Raimiverse",
+  "chrono": 3
  },
  {
   "id": 103,
@@ -1130,7 +1334,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2012
+  "year": 2012,
+  "continuity": "Webbverse",
+  "chrono": 1
  },
  {
   "id": 104,
@@ -1141,7 +1347,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2014
+  "year": 2014,
+  "continuity": "Webbverse",
+  "chrono": 2
  },
  {
   "id": 105,
@@ -1152,7 +1360,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 1998
+  "year": 1998,
+  "continuity": "Legacy",
+  "chrono": 1
  },
  {
   "id": 106,
@@ -1163,7 +1373,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2002
+  "year": 2002,
+  "continuity": "Legacy",
+  "chrono": 2
  },
  {
   "id": 107,
@@ -1174,7 +1386,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2004
+  "year": 2004,
+  "continuity": "Legacy",
+  "chrono": 5
  },
  {
   "id": 108,
@@ -1185,7 +1399,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2005
+  "year": 2005,
+  "continuity": "Legacy",
+  "chrono": 7
  },
  {
   "id": 109,
@@ -1196,7 +1412,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2007
+  "year": 2007,
+  "continuity": "Legacy",
+  "chrono": 11
  },
  {
   "id": 110,
@@ -1207,7 +1425,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2015
+  "year": 2015,
+  "continuity": "Legacy",
+  "chrono": 15
  },
  {
   "id": 111,
@@ -1218,7 +1438,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2003
+  "year": 2003,
+  "continuity": "Legacy",
+  "chrono": 3
  },
  {
   "id": 112,
@@ -1229,7 +1451,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2003
+  "year": 2003,
+  "continuity": "Legacy",
+  "chrono": 4
  },
  {
   "id": 113,
@@ -1240,7 +1464,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2005
+  "year": 2005,
+  "continuity": "Legacy",
+  "chrono": 8
  },
  {
   "id": 114,
@@ -1251,7 +1477,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2004
+  "year": 2004,
+  "continuity": "Legacy",
+  "chrono": 6
  },
  {
   "id": 115,
@@ -1262,7 +1490,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2008
+  "year": 2008,
+  "continuity": "Legacy",
+  "chrono": 13
  },
  {
   "id": 116,
@@ -1273,7 +1503,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2018
+  "year": 2018,
+  "continuity": "Sony",
+  "chrono": 2
  },
  {
   "id": 117,
@@ -1284,7 +1516,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2021
+  "year": 2021,
+  "continuity": "Sony",
+  "chrono": 3
  },
  {
   "id": 118,
@@ -1295,7 +1529,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2022
+  "year": 2022,
+  "continuity": "Sony",
+  "chrono": 4
  },
  {
   "id": 119,
@@ -1306,7 +1542,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2024
+  "year": 2024,
+  "continuity": "Sony",
+  "chrono": 1
  },
  {
   "id": 120,
@@ -1317,7 +1555,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2024
+  "year": 2024,
+  "continuity": "Sony",
+  "chrono": 6
  },
  {
   "id": 121,
@@ -1328,7 +1568,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2024
+  "year": 2024,
+  "continuity": "Sony",
+  "chrono": 5
  },
  {
   "id": 122,
@@ -1339,7 +1581,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2018
+  "year": 2018,
+  "continuity": "Spider-Verse",
+  "chrono": 1
  },
  {
   "id": 123,
@@ -1350,7 +1594,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2023
+  "year": 2023,
+  "continuity": "Spider-Verse",
+  "chrono": 2
  },
  {
   "id": 124,
@@ -1361,7 +1607,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2024
+  "year": 2024,
+  "continuity": "Animated Multiverse",
+  "chrono": 1
  },
  {
   "id": 125,
@@ -1372,7 +1620,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2026
+  "year": 2026,
+  "continuity": "Animated Multiverse",
+  "chrono": 3
  },
  {
   "id": 126,
@@ -1383,7 +1633,9 @@ const TRACKER_DATA = [
   "priority": "Recommended",
   "phase": null,
   "saga": null,
-  "year": 2025
+  "year": 2025,
+  "continuity": "Animated Multiverse",
+  "chrono": 2
  },
  {
   "id": 127,
@@ -1394,7 +1646,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2011
+  "year": 2011,
+  "continuity": "MCU",
+  "chrono": 11
  },
  {
   "id": 128,
@@ -1405,7 +1659,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2011
+  "year": 2011,
+  "continuity": "MCU",
+  "chrono": 10
  },
  {
   "id": 129,
@@ -1416,7 +1672,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2012
+  "year": 2012,
+  "continuity": "MCU",
+  "chrono": 13
  },
  {
   "id": 130,
@@ -1427,7 +1685,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2014
+  "year": 2014,
+  "continuity": "MCU",
+  "chrono": 15
  },
  {
   "id": 131,
@@ -1438,7 +1698,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2015
+  "year": 2015,
+  "continuity": "MCU",
+  "chrono": 24
  },
  {
   "id": 132,
@@ -1449,7 +1711,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2016
+  "year": 2016,
+  "continuity": "MCU",
+  "chrono": 26
  },
  {
   "id": 133,
@@ -1460,7 +1724,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2016
+  "year": 2016,
+  "continuity": "MCU",
+  "chrono": 33
  },
  {
   "id": 134,
@@ -1471,7 +1737,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2017
+  "year": 2017,
+  "continuity": "MCU",
+  "chrono": 31
  },
  {
   "id": 135,
@@ -1482,7 +1750,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2016
+  "year": 2016,
+  "continuity": "Bonus",
+  "chrono": 1
  },
  {
   "id": 136,
@@ -1493,7 +1763,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2017
+  "year": 2017,
+  "continuity": "Bonus",
+  "chrono": 2
  },
  {
   "id": 137,
@@ -1504,7 +1776,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2017
+  "year": 2017,
+  "continuity": "Bonus",
+  "chrono": 3
  },
  {
   "id": 138,
@@ -1515,7 +1789,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2018
+  "year": 2018,
+  "continuity": "Marvel TV Extended",
+  "chrono": 5
  },
  {
   "id": 139,
@@ -1526,7 +1802,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2019
+  "year": 2019,
+  "continuity": "Marvel TV Extended",
+  "chrono": 9
  },
  {
   "id": 140,
@@ -1537,7 +1815,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2017
+  "year": 2017,
+  "continuity": "Marvel TV Extended",
+  "chrono": 1
  },
  {
   "id": 141,
@@ -1548,7 +1828,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2017
+  "year": 2017,
+  "continuity": "Marvel TV Extended",
+  "chrono": 2
  },
  {
   "id": 142,
@@ -1559,7 +1841,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2018
+  "year": 2018,
+  "continuity": "Marvel TV Extended",
+  "chrono": 6
  },
  {
   "id": 143,
@@ -1570,7 +1854,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2019
+  "year": 2019,
+  "continuity": "Marvel TV Extended",
+  "chrono": 10
  },
  {
   "id": 144,
@@ -1581,7 +1867,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2017
+  "year": 2017,
+  "continuity": "Marvel TV Extended",
+  "chrono": 3
  },
  {
   "id": 145,
@@ -1592,7 +1880,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2018
+  "year": 2018,
+  "continuity": "Marvel TV Extended",
+  "chrono": 7
  },
  {
   "id": 146,
@@ -1603,7 +1893,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2019
+  "year": 2019,
+  "continuity": "Marvel TV Extended",
+  "chrono": 11
  },
  {
   "id": 147,
@@ -1614,7 +1906,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2017
+  "year": 2017,
+  "continuity": "Marvel TV Extended",
+  "chrono": 4
  },
  {
   "id": 148,
@@ -1625,7 +1919,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2018
+  "year": 2018,
+  "continuity": "Marvel TV Extended",
+  "chrono": 8
  },
  {
   "id": 149,
@@ -1636,7 +1932,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2020
+  "year": 2020,
+  "continuity": "Marvel TV Extended",
+  "chrono": 12
  },
  {
   "id": 150,
@@ -1647,7 +1945,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2006
+  "year": 2006,
+  "continuity": "Legacy",
+  "chrono": 10
  },
  {
   "id": 151,
@@ -1658,7 +1958,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2007
+  "year": 2007,
+  "continuity": "Legacy",
+  "chrono": 12
  },
  {
   "id": 152,
@@ -1669,7 +1971,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2011
+  "year": 2011,
+  "continuity": "Legacy",
+  "chrono": 14
  },
  {
   "id": 153,
@@ -1680,7 +1984,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2005
+  "year": 2005,
+  "continuity": "Legacy",
+  "chrono": 9
  },
  {
   "id": 154,
@@ -1691,7 +1997,9 @@ const TRACKER_DATA = [
   "priority": "Optional",
   "phase": null,
   "saga": null,
-  "year": 2026
+  "year": 2026,
+  "continuity": "Spider-Verse",
+  "chrono": 3
  },
  {
   "id": 155,
@@ -1702,7 +2010,9 @@ const TRACKER_DATA = [
   "priority": "Bonus",
   "phase": null,
   "saga": null,
-  "year": 2019
+  "year": 2019,
+  "continuity": "Sony",
+  "chrono": 7
  },
  {
   "id": 156,
@@ -1713,6 +2023,8 @@ const TRACKER_DATA = [
   "priority": "Bonus",
   "phase": null,
   "saga": null,
-  "year": 2021
+  "year": 2021,
+  "continuity": "Sony",
+  "chrono": 8
  }
 ];

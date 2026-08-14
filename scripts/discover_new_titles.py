@@ -192,6 +192,7 @@ def discover_new_seasons(items, metadata, api_key):
                 "phase": CURRENT_PHASE if template.get("phase") else None,
                 "saga": CURRENT_SAGA if template.get("saga") else None,
                 "year": int(air[:4]),
+                "continuity": template.get("continuity") or "MCU",
             })
     return found
 
@@ -240,6 +241,7 @@ def discover_new_titles(items, api_key):
                     "phase": CURRENT_PHASE,
                     "saga": CURRENT_SAGA,
                     "year": int(date[:4]),
+                    "continuity": "MCU",
                 })
     return found
 
@@ -290,16 +292,29 @@ def main():
         sys.exit(1)
 
     next_id = max(i["id"] for i in items) + 1
+    # Un titolo appena uscito va in coda alla cronologia della SUA continuità:
+    # è l'ultimo in ordine di eventi proprio perché è l'ultimo arrivato. Una
+    # nuova stagione di una serie Netflix resta nel blocco Defenders, non
+    # migra nell'MCU.
+    coda = {}
+    for i in items:
+        c = i.get("continuity") or "MCU"
+        coda[c] = max(coda.get(c, 0), i.get("chrono") or 0)
     for addition in additions:
+        cont = addition.get("continuity") or "MCU"
+        coda[cont] = coda.get(cont, 0) + 1
         addition["id"] = next_id
         addition["autoAdded"] = True
+        addition["continuity"] = cont
+        addition["chrono"] = coda[cont]
         next_id += 1
         print(f"  + #{addition['id']} {addition['title']} ({addition['year']}, {addition['format']})")
 
     # L'ordine dei campi segue quello delle voci curate a mano, così il diff
     # del file resta leggibile.
     ordered = [{k: a[k] for k in
-                ("id", "title", "format", "hours", "category", "priority", "phase", "saga", "year", "autoAdded")}
+                ("id", "title", "format", "hours", "category", "priority", "phase", "saga",
+                 "year", "continuity", "chrono", "autoAdded")}
                for a in additions]
 
     if DRY_RUN:

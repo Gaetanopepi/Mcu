@@ -15,7 +15,8 @@ interattivo con progresso persistente nel browser.
 - 🔍 Ricerca, filtri per priorità/formato/stato, toggle "Solo Canone MCU"
 - 🧭 **Filtri per Saga e per Fase MCU** — chip rapide per Saga dell'Infinito / Saga del Multiverso
   e per le sei Fasi, il modo in cui la fan base parla davvero dell'ordine di visione
-- 🗂️ **Sei raggruppamenti** intercambiabili: universo, Fase MCU, Saga, formato, priorità, decennio
+- 🗂️ **Sette raggruppamenti** intercambiabili: continuità (il default), universo, Fase MCU, Saga,
+  formato, priorità, decennio
 - ↕️ **Sette ordinamenti**: cronologico in universo (il default), ordine di uscita crescente e
   decrescente, prima gli essenziali, voto TMDB, durata, alfabetico
 - 📚 **Stagioni raggruppabili in un'unica riga** — le serie con più stagioni si compattano in un
@@ -63,6 +64,36 @@ Il segnaposto è **dichiarato come tale** nell'interfaccia: un banner in cima al
 nella scheda di ogni titolo che ne fa ancora uso, così non viene mai scambiato per materiale
 ufficiale. Man mano che TMDB copre i titoli, i segnaposto spariscono da soli. Le sinossi non sono
 mai scritte da questo progetto: o sono quelle ufficiali TMDB, o si dichiara che mancano.
+
+### La cronologia, e perché non è l'ordine del foglio Excel
+
+Il foglio di partenza elencava i titoli in un ordine approssimativamente cronologico, ma è servito
+solo come base. Ogni titolo ha ora due campi propri: `continuity` (a quale linea temporale
+appartiene) e `chrono` (la posizione dentro quella linea), curati in `assets/data.js` e
+**indipendenti da `id`** — che resta l'identificatore stabile con cui il browser salva il progresso
+e non va mai rinumerato.
+
+L'ordinamento **Cronologico (in universo)** segue la timeline ufficiale Marvel/Disney+ per il
+canone MCU: film, serie e cortometraggi si intercalano davvero, come nella realtà degli eventi.
+*Agent Carter* sta fra *Captain America* e *Captain Marvel*, *Agents of S.H.I.E.L.D.* S1 fra
+*Thor: The Dark World* e *The Winter Soldier*, i Marvel One-Shot nei punti in cui accadono,
+*Eyes of Wakanda* apre tutto perché è ambientato nell'antichità.
+
+**Le continuità non si mescolano.** Gli X-Men Fox, lo Spider-Man di Raimi e l'MCU sono universi
+separati: intercalarli darebbe un ordine privo di significato. In vista cronologica scorre prima
+la timeline MCU completa, poi ciascun altro universo come blocco a sé, ordinato al proprio interno
+— gli X-Men Fox per anno rappresentato, quindi *First Class* (1962) prima di *X-Men* (2000)
+benché sia uscito undici anni dopo.
+
+Per questo il raggruppamento predefinito è **per continuità** e non per universo: le 17 categorie
+sono utili per navigare, ma spezzavano la cronologia in 17 sottoliste, e un ordine cronologico
+applicato dentro secchielli separati non è una timeline.
+
+Due limiti dichiarati: l'incastro **episodio per episodio** non c'è — Marvel pubblica la
+cronologia a livello di titolo, e la ricostruzione per singoli episodi è opera della community,
+non dei produttori. E le collocazioni dei titoli **2025-26** sono la lettura più diffusa, perché
+una timeline ufficiale che li includa non esiste ancora: si correggono cambiando `chrono` nella
+riga corrispondente.
 
 ### Fasi e Saghe
 
