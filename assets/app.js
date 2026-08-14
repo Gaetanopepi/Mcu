@@ -143,6 +143,21 @@
     const d = (decimals === undefined) ? 1 : decimals;
     return n.toLocaleString("it-IT", { minimumFractionDigits: d, maximumFractionDigits: d });
   }
+  /**
+   * Chiave di confronto per la ricerca: minuscole, senza diacritici e senza
+   * la punteggiatura che separa le parole nei titoli Marvel. Serve perché
+   * nessuno digita il trattino: "spiderman" deve trovare "Spider-Man",
+   * "avengers endgame" deve trovare "Avengers: Endgame".
+   */
+  function searchKey(s){
+    return String(s)
+      .normalize("NFD").replace(/\p{Diacritic}/gu, "")
+      .toLowerCase()
+      .replace(/['’\-.:,!?*]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
   }
@@ -375,9 +390,8 @@
     if(filters.status === "watched" && !state.watched[item.id]) return false;
     if(filters.status === "unwatched" && state.watched[item.id]) return false;
     if(filters.search){
-      const q = filters.search.toLowerCase();
-      const hay = (item.title + " " + displayTitle(item)).toLowerCase();
-      if(!hay.includes(q)) return false;
+      const hay = searchKey(item.title + " " + displayTitle(item));
+      if(!hay.includes(searchKey(filters.search))) return false;
     }
     return true;
   }
@@ -1053,9 +1067,15 @@
   }
 
   function wireControls(){
+    // Ogni tasto ricostruiva le 156 righe: si aspetta la fine della digitazione.
+    let searchTimer = null;
     $("#search-input").addEventListener("input", (e)=>{
-      filters.search = e.target.value.trim();
-      render();
+      const value = e.target.value.trim();
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(()=>{
+        filters.search = value;
+        render();
+      }, 200);
     });
 
     $("#sort-select").addEventListener("change", (e)=>{
@@ -1102,6 +1122,7 @@
     $("#btn-collapse-all").addEventListener("click", ()=> setAllCollapsed(true));
 
     $("#btn-clear-filters").addEventListener("click", ()=>{
+      clearTimeout(searchTimer);   // altrimenti una digitazione in volo rientra dopo la pulizia
       filters.search = ""; filters.priorities.clear(); filters.formats.clear();
       filters.status = "all"; filters.mcuOnly = false; filters.sort = "order";
       filters.sagas.clear(); filters.phases.clear();
