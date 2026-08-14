@@ -557,11 +557,15 @@
     row.className = rowClass;
     row.innerHTML = `
       <button class="item-check" aria-label="Segna come visto">${watched ? "✓" : (breakdown.granular && breakdown.watchedCount>0 ? "–" : "")}</button>
-      <div class="item-poster ${hasDetail ? "clickable" : ""}">${poster}</div>
+      ${hasDetail
+        ? `<button type="button" class="item-poster clickable" aria-label="Dettagli su ${escapeHtml(displayTitle(item))}">${poster}</button>`
+        : `<div class="item-poster">${poster}</div>`}
       <div class="item-content">
         <div class="item-title-row">
           <span class="item-order">#${item.id}</span>
-          <span class="item-title ${hasDetail ? "item-title-clickable" : ""}">${escapeHtml(displayTitle(item))}</span>
+          ${hasDetail
+            ? `<button type="button" class="item-title item-title-clickable" aria-label="Dettagli su ${escapeHtml(displayTitle(item))}">${escapeHtml(displayTitle(item))}</button>`
+            : `<span class="item-title">${escapeHtml(displayTitle(item))}</span>`}
           ${ratingBadge}
           ${canExpand ? `<button class="item-expand-btn" aria-expanded="${expanded}">${expanded ? "▴ episodi" : "▾ episodi"}</button>` : ""}
           ${fracBadge}
@@ -856,10 +860,12 @@
     row.className = "item-row series-row" + (allWatched ? " watched" : (watchedCount ? " partial" : ""));
     row.innerHTML = `
       <button class="item-check" aria-label="Segna tutte le stagioni">${allWatched ? "✓" : (watchedCount ? "–" : "")}</button>
-      <div class="item-poster">${renderPosterInner(first)}</div>
+      <button type="button" class="item-poster" aria-expanded="${expanded}"
+              aria-label="Stagioni di ${escapeHtml(titleIt)}">${renderPosterInner(first)}</button>
       <div class="item-content">
         <div class="item-title-row">
-          <span class="item-title item-title-clickable">${escapeHtml(titleIt)}</span>
+          <button type="button" class="item-title item-title-clickable" aria-expanded="${expanded}"
+                  aria-label="Stagioni di ${escapeHtml(titleIt)}">${escapeHtml(titleIt)}</button>
           <span class="badge badge-seasons">${seasons.length} stagioni</span>
           <span class="item-progress-frac">${watchedCount}/${seasons.length} viste</span>
         </div>
