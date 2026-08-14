@@ -124,7 +124,10 @@
   }
 
   function fmtNum(n, decimals){
-    return n.toLocaleString("it-IT", { minimumFractionDigits: decimals||0, maximumFractionDigits: decimals||1 });
+    // `decimals||1` trattava lo zero come "non passato", perché 0 è falsy:
+    // chiedere zero decimali ne otteneva uno.
+    const d = (decimals === undefined) ? 1 : decimals;
+    return n.toLocaleString("it-IT", { minimumFractionDigits: d, maximumFractionDigits: d });
   }
   function escapeHtml(s){
     return String(s).replace(/[&<>"']/g, c=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
