@@ -501,16 +501,52 @@
     }
   }
 
+  /**
+   * Il suggerimento è il primo titolo non visto della lista **così come la
+   * stai guardando**: stesso ordinamento, stessi filtri. Prima seguiva una
+   * regola tutta sua — prima gli essenziali, poi la cronologia — e poteva
+   * proporre un titolo che nella lista sotto non compariva nemmeno, o che
+   * arrivava molto più in basso di quello in cima.
+   */
+  /**
+   * I titoli nell'ordine in cui compaiono davvero a schermo: prima il
+   * raggruppamento, poi l'ordinamento dentro ogni gruppo. Le stesse regole di
+   * renderList — i gruppi previsti nell'ordine dichiarato, gli eventuali altri
+   * in coda.
+   */
+  function itemsInDisplayOrder(){
+    const grouping = currentGrouping();
+    const sorted = sortItems(TRACKER_DATA.filter(matchesFilters));
+    const rank = new Map(grouping.order().map((k, i) => [k, i]));
+    let coda = rank.size;
+    sorted.forEach(i => {
+      const k = grouping.keyOf(i);
+      if(!rank.has(k)) rank.set(k, coda++);
+    });
+    // Array.sort è stabile: l'ordinamento dentro il gruppo resta quello di sortItems
+    return sorted.slice().sort((a, b) => rank.get(grouping.keyOf(a)) - rank.get(grouping.keyOf(b)));
+  }
+
   function computeNextUpCandidate(){
-    const priorityRank = { Essential:0, Recommended:1, Optional:2, Bonus:3 };
-    const candidates = TRACKER_DATA
-      .filter(i => !state.watched[i.id])
-      .sort((a,b)=>{
-        const pr = priorityRank[a.priority]-priorityRank[b.priority];
-        if(pr !== 0) return pr;
-        return chronoCompare(a, b);
-      });
-    return candidates[0] || null;
+    return itemsInDisplayOrder().find(i => !state.watched[i.id]) || null;
+  }
+
+  /** Il criterio con cui è stato scelto, detto in chiaro sopra al titolo. */
+  const NEXT_UP_LABEL = {
+    "order":        "Prossimo in ordine cronologico",
+    "release-asc":  "Prossimo per ordine di uscita",
+    "release-desc": "Il più recente fra quelli da vedere",
+    "priority":     "Prossimo fra gli essenziali",
+    "rating":       "Il più votato fra quelli da vedere",
+    "hours-asc":    "Il più breve fra quelli da vedere",
+    "alpha":        "Prossimo in ordine alfabetico",
+  };
+
+  /** Filtri veri e propri: ordinamento e raggruppamento non restringono nulla. */
+  function hasActiveFilters(){
+    return !!filters.search || filters.mcuOnly || filters.status !== "all"
+        || filters.priorities.size || filters.formats.size
+        || filters.sagas.size || filters.phases.size;
   }
 
   function renderHero(next){
@@ -542,6 +578,10 @@
       bg.style.backgroundImage = `url("${fallbackArt}")`;
     }
     bg.classList.add("loaded");
+
+    const criterio = NEXT_UP_LABEL[filters.sort] || "Prossimo consigliato";
+    $("#hero-eyebrow").textContent = criterio +
+      (hasActiveFilters() ? " · fra i risultati filtrati" : "");
 
     $("#hero-title").textContent = displayTitle(next);
     const dateLabel = (r && r.ok) ? (r.releaseDate || r.firstAirDate) : null;
@@ -1303,6 +1343,10 @@
 
   function render(){
     renderList();
+    // Il suggerimento dipende da ordinamento e filtri: cambiarli deve
+    // cambiarlo, altrimenti resterebbe fermo su un titolo che non è più
+    // il primo di quello che si sta guardando.
+    renderHero(computeNextUpCandidate());
   }
 
   // ---------------- data source info (static, no user action needed) ----------------

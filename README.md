@@ -40,7 +40,9 @@ interattivo con progresso persistente nel browser.
 - 📺 **Tracciamento per episodio** per tutte le serie — sinossi, immagine e durata reale di ogni
   episodio, con stato "parzialmente vista" e ricalcolo automatico delle ore totali sui runtime
   effettivi invece delle stime del foglio originale
-- 🎬 **Hero "Prossimo consigliato"** con il backdrop del titolo suggerito, in stile streaming service
+- 🎬 **Hero del prossimo titolo** — è sempre il primo non visto della lista *così come la stai
+  guardando*: cambia ordinamento o filtro e il suggerimento cambia di conseguenza, dichiarando in
+  cima con quale criterio è stato scelto
 - ⭐ **Rating TMDB** e scheda dettaglio per ogni titolo (locandina, sinossi completa, voto)
 - 📺 **"Dove guardarlo"** — disponibilità streaming (Disney+, Netflix, ecc.) per regione IT
 - 🔔 Notifiche in-app e modali di conferma al posto degli `alert()`/`confirm()` nativi del browser
