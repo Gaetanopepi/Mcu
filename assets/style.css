@@ -111,6 +111,11 @@ a:hover{ color: #fff; }
 .btn-ghost{ background: var(--bg-panel-2); }
 .btn-danger{ background: var(--marvel-red-dim); color:#fff; }
 .btn-toggle{ background: var(--gold); color:#1a1200; }
+/* Gli interruttori veri (quelli con data-active) da spenti restano neutri come
+   le chip: l'oro qui sopra vale per i pulsanti d'azione — "Segna come visto",
+   "Torna alla realtà" — non per uno stato. Acceso = rosso, come .chip.active. */
+.btn-toggle[data-active="false"]{ background: var(--bg-panel-2); color: var(--ink); }
+.btn-toggle[data-active="false"]:hover{ border-color: var(--ink-faint); }
 .btn-toggle[data-active="true"]{ background: var(--marvel-red); color:#fff; }
 
 /* ---------- panels ---------- */
