@@ -1,6 +1,6 @@
 /* Minimal offline cache for the app shell. Never touches TMDB or image
    requests — those stay live so data can't go stale silently. */
-const CACHE_NAME = "mcu-tracker-v7";
+const CACHE_NAME = "mcu-tracker-v8";
 const APP_SHELL = [
   "./",
   "./index.html",
