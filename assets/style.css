@@ -741,3 +741,15 @@ button.item-title{
    il clic col mouse non lascia contorni. L'outline di default non viene
    rimosso da nessuna parte. */
 :focus-visible{ outline: 3px solid var(--gold); outline-offset: 2px; }
+
+/* ---------- movimento ridotto ---------- */
+/* Il foglio usa scroll-behavior:smooth, tre @keyframes e trasformazioni sui
+   pulsanti: chi ha chiesto meno movimento al sistema operativo va ascoltato. */
+@media (prefers-reduced-motion: reduce){
+  html{ scroll-behavior: auto; }
+  *, *::before, *::after{
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}
