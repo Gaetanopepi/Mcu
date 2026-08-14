@@ -21,7 +21,9 @@ interattivo con progresso persistente nel browser.
   durata (lunghi/corti), priorità, voto TMDB
 - 📚 **Stagioni raggruppabili in un'unica riga** — le serie con più stagioni si compattano in un
   solo collegamento espandibile, con conteggio stagioni, viste e ore totali
-- 💾 Progresso salvato in `localStorage`, con esportazione/importazione JSON per backup o cambio dispositivo
+- 💾 Progresso salvato in `localStorage` con **la data di ogni spunta** (`{ at: "<ISO>" }`), base per
+  diario, storico e statistiche temporali; esportazione/importazione JSON versionata (`version: 2`),
+  con migrazione automatica dei backup nel formato precedente
 - 🎉 Overlay speciale "Snap" al completamento del 100%
 - 🇮🇹 **Tutto in italiano** — interfaccia, e dal database anche titoli, sinossi e locandine
   italiane (TMDB `language=it-IT`, locandine con `include_image_language=it,null,en`)

@@ -50,6 +50,53 @@
   // ---------------- persisted state ----------------
   let state = loadState();
 
+  // Formato dello stato in corso: ogni spunta è { at: "<ISO>" } invece di
+  // `true`, così esiste la data in cui una cosa è stata vista. `at` può essere
+  // null: significa "visto, data ignota" — è quello che diventa una spunta
+  // salvata prima che il formato esistesse.
+  const STATE_VERSION = 2;
+
+  function nowISO(){ return new Date().toISOString(); }
+
+  /**
+   * Segna una voce come vista senza toccare una data già registrata.
+   * Serve alle operazioni in blocco ("segna tutti visti", una serie intera):
+   * non devono riscrivere il giorno in cui hai visto gli episodi che avevi
+   * già spuntato. Togliendo la spunta la voce viene cancellata, quindi
+   * rimetterla scrive naturalmente una data nuova.
+   */
+  function markSeen(map, key){
+    if(!map[key]) map[key] = { at: nowISO() };
+    return map[key];
+  }
+
+  /** true (formato 1) -> { at: null }. Assente o false resta assente. */
+  function migrateSeenMap(map){
+    const out = {};
+    Object.keys(map || {}).forEach(k=>{
+      const v = map[k];
+      if(v === true){ out[k] = { at: null }; return; }
+      if(v && typeof v === "object"){
+        out[k] = { at: typeof v.at === "string" ? v.at : null };
+      }
+      // false, null, 0, "" : non visto, non si porta dietro niente
+    });
+    return out;
+  }
+
+  /**
+   * Porta al formato corrente uno stato di qualsiasi versione. Gira sia sul
+   * localStorage all'avvio sia su un file importato, perché i backup che gli
+   * utenti hanno già sul disco sono nel formato vecchio.
+   */
+  function migrateState(s){
+    s.watched = migrateSeenMap(s.watched);
+    const eps = {};
+    Object.keys(s.episodes || {}).forEach(id=>{ eps[id] = migrateSeenMap(s.episodes[id]); });
+    s.episodes = eps;
+    return s;
+  }
+
   function loadState(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -57,7 +104,15 @@
       const parsed = JSON.parse(raw);
       const merged = Object.assign({ watched:{}, episodes:{}, collapsed:{}, hoursPerDay:2 }, parsed);
       pruneLegacyCollapsed(merged);
-      return merged;
+      const prima = JSON.stringify(merged);
+      const migrato = migrateState(merged);
+      // La conversione si scrive subito: altrimenti resterebbe solo in memoria
+      // fino alla prima spunta, e chi apre il sito senza toccare niente si
+      // porterebbe dietro il formato vecchio all'infinito.
+      if(JSON.stringify(migrato) !== prima){
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(migrato));
+      }
+      return migrato;
     }catch(e){
       return { watched:{}, episodes:{}, collapsed:{}, hoursPerDay:2 };
     }
@@ -222,16 +277,16 @@
     if(!count) return;
     const epsState = state.episodes[item.id] || {};
     const watched = episodeNumbers(item).filter(n => epsState[n]).length;
-    if(watched === count) state.watched[item.id] = true; else delete state.watched[item.id];
+    if(watched === count) markSeen(state.watched, item.id); else delete state.watched[item.id];
   }
 
   function toggleWatched(item){
     const willWatch = !state.watched[item.id];
-    if(willWatch) state.watched[item.id] = true; else delete state.watched[item.id];
+    if(willWatch) markSeen(state.watched, item.id); else delete state.watched[item.id];
     if(episodeCountOf(item)){
       if(!state.episodes[item.id]) state.episodes[item.id] = {};
       episodeNumbers(item).forEach(n=>{
-        if(willWatch) state.episodes[item.id][n] = true;
+        if(willWatch) markSeen(state.episodes[item.id], n);
         else delete state.episodes[item.id][n];
       });
     }
@@ -242,11 +297,11 @@
 
   /** Come toggleWatched ma senza salvare/ridisegnare: per operazioni in blocco. */
   function toggleWatchedSilently(item, watch){
-    if(watch) state.watched[item.id] = true; else delete state.watched[item.id];
+    if(watch) markSeen(state.watched, item.id); else delete state.watched[item.id];
     if(episodeCountOf(item)){
       if(!state.episodes[item.id]) state.episodes[item.id] = {};
       episodeNumbers(item).forEach(n=>{
-        if(watch) state.episodes[item.id][n] = true;
+        if(watch) markSeen(state.episodes[item.id], n);
         else delete state.episodes[item.id][n];
       });
     }
@@ -255,7 +310,7 @@
   function toggleEpisodeWatched(item, epNumber){
     if(!state.episodes[item.id]) state.episodes[item.id] = {};
     if(state.episodes[item.id][epNumber]) delete state.episodes[item.id][epNumber];
-    else state.episodes[item.id][epNumber] = true;
+    else markSeen(state.episodes[item.id], epNumber);
     syncSeasonWatchedFlag(item);
     saveState();
     renderDashboard();
@@ -266,7 +321,7 @@
     if(!episodeCountOf(item)) return;
     if(!state.episodes[item.id]) state.episodes[item.id] = {};
     episodeNumbers(item).forEach(n=>{
-      if(watch) state.episodes[item.id][n] = true;
+      if(watch) markSeen(state.episodes[item.id], n);
       else delete state.episodes[item.id][n];
     });
     syncSeasonWatchedFlag(item);
@@ -1288,7 +1343,13 @@
     });
 
     $("#btn-export").addEventListener("click", ()=>{
-      const blob = new Blob([JSON.stringify(state, null, 1)], { type:"application/json" });
+      // version dice a chi rilegge il file come sono fatte le spunte; senza,
+      // un backup di oggi sarebbe indistinguibile da uno del formato vecchio.
+      const payload = Object.assign({}, state, {
+        version: STATE_VERSION,
+        exportedAt: nowISO(),
+      });
+      const blob = new Blob([JSON.stringify(payload, null, 1)], { type:"application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -1310,7 +1371,26 @@
           if(!imported || typeof imported !== "object" || !imported.watched){
             throw new Error("Formato non valido");
           }
-          state = Object.assign({ watched:{}, episodes:{}, collapsed:{}, hoursPerDay:2 }, imported);
+
+          // Un file scritto da una versione futura può contenere campi che
+          // qui verrebbero buttati via senza accorgersene: meglio rifiutare
+          // che importare a metà e far credere che sia andato tutto bene.
+          const version = imported.version;
+          if(typeof version === "number" && version > STATE_VERSION){
+            UI.toast(`Questo backup è in formato ${version}, più recente di quello che questa ` +
+                     `versione del sito sa leggere (${STATE_VERSION}). Aggiorna la pagina e riprova.`, "error");
+            e.target.value = "";
+            return;
+          }
+
+          const adopted = Object.assign({ watched:{}, episodes:{}, collapsed:{}, hoursPerDay:2 }, imported);
+          delete adopted.version;      // metadati del file, non stato dell'utente
+          delete adopted.exportedAt;
+          pruneLegacyCollapsed(adopted);
+          // Senza version, o con version 1, le spunte sono booleane: vanno
+          // convertite prima di adottare lo stato. migrateState è idempotente,
+          // quindi passarci anche un file già in formato 2 non fa danni.
+          state = migrateState(adopted);
           saveState();
           renderDashboard();
           renderList();
