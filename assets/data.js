@@ -2026,5 +2026,19 @@ const TRACKER_DATA = [
   "year": 2021,
   "continuity": "Sony",
   "chrono": 8
+ },
+ {
+  "id": 157,
+  "title": "Spidey and the Avengers: Halloween Team-Up!",
+  "format": "Movie",
+  "hours": 2.0,
+  "category": "MCU",
+  "priority": "Essential",
+  "phase": 6,
+  "saga": "Multiverse Saga",
+  "year": 2026,
+  "continuity": "MCU",
+  "chrono": 82,
+  "autoAdded": true
  }
 ];
