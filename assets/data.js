@@ -2054,5 +2054,19 @@ const TRACKER_DATA = [
   "continuity": "MCU",
   "chrono": 83,
   "autoAdded": true
+ },
+ {
+  "id": 159,
+  "title": "Avengers End Game: Encore",
+  "format": "Movie",
+  "hours": 2.0,
+  "category": "MCU",
+  "priority": "Essential",
+  "phase": 6,
+  "saga": "Multiverse Saga",
+  "year": 2026,
+  "continuity": "MCU",
+  "chrono": 84,
+  "autoAdded": true
  }
 ];
