@@ -2068,5 +2068,19 @@ const TRACKER_DATA = [
   "continuity": "MCU",
   "chrono": 84,
   "autoAdded": true
+ },
+ {
+  "id": 160,
+  "title": "VisionQuest S1",
+  "format": "TV",
+  "hours": 4.5,
+  "category": "MCU Disney+",
+  "priority": "Essential",
+  "phase": 6,
+  "saga": "Multiverse Saga",
+  "year": 2026,
+  "continuity": "MCU",
+  "chrono": 85,
+  "autoAdded": true
  }
 ];
