@@ -5,7 +5,7 @@
   "overview": "",
   "stillPath": "/aHn8A6SBCBZdhNcrPqNMhQQpFxj.jpg",
   "airDate": "2015-07-02",
-  "runtime": 3
+  "runtime": 1
  },
  {
   "number": 2,
@@ -13,7 +13,7 @@
   "overview": "",
   "stillPath": "/jzOSpoi5xeKETZH3SJecG74wn1v.jpg",
   "airDate": "2015-07-07",
-  "runtime": 3
+  "runtime": 2
  },
  {
   "number": 3,
@@ -21,7 +21,7 @@
   "overview": "",
   "stillPath": "/h9J0Wj8xcRrk84dUV2oWEJNox8F.jpg",
   "airDate": "2015-07-11",
-  "runtime": 3
+  "runtime": 2
  },
  {
   "number": 4,
@@ -37,6 +37,6 @@
   "overview": "",
   "stillPath": "/kEspbfEl6Y9dyk8DzKfgwd2Gr73.jpg",
   "airDate": "2015-07-16",
-  "runtime": 3
+  "runtime": 4
  }
 ]
