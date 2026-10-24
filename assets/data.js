@@ -2082,5 +2082,19 @@ const TRACKER_DATA = [
   "continuity": "MCU",
   "chrono": 85,
   "autoAdded": true
+ },
+ {
+  "id": 161,
+  "title": "Hot Wheels Let's Race: Attack of the T-Rex",
+  "format": "Movie",
+  "hours": 2.0,
+  "category": "MCU",
+  "priority": "Essential",
+  "phase": 6,
+  "saga": "Multiverse Saga",
+  "year": 2026,
+  "continuity": "MCU",
+  "chrono": 86,
+  "autoAdded": true
  }
 ];
