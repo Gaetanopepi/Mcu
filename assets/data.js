@@ -2096,5 +2096,19 @@ const TRACKER_DATA = [
   "continuity": "MCU",
   "chrono": 86,
   "autoAdded": true
+ },
+ {
+  "id": 162,
+  "title": "VisionQuest Official Podcast",
+  "format": "Movie",
+  "hours": 2.0,
+  "category": "MCU",
+  "priority": "Essential",
+  "phase": 6,
+  "saga": "Multiverse Saga",
+  "year": 2026,
+  "continuity": "MCU",
+  "chrono": 87,
+  "autoAdded": true
  }
 ];
